@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
-
+from namedivider import __version__
 
 setup(
     name='namedivider-python',
-    version='0.0.1',
+    version=__version__,
     url='https://github.com/rskmoi/namedivider-python',
     author="rskmoi",
     author_email='rei.sakamoto.92@gmail.com',

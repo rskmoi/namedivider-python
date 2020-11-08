@@ -37,7 +37,6 @@ def file(undivided_name_text, separator, encoding):
     菅義偉
     阿部晋三
     中曽根康弘
-    ...
     ```
     :param undivided_name_text: File path of text file
     :param separator: Separator between family name and given name
@@ -76,7 +75,6 @@ def accuracy(divided_name_text, separator, encoder):
     阿部 晋三
     中曽根 康弘
     滝 登喜男
-    ...
     ```
     :param divided_name_text: File path of text file
     :param separator: Separator between family name and given name
