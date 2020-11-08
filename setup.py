@@ -10,9 +10,10 @@ setup(
     description='Tool for dividing Japanese name which is connected family name and given name.',
     license="MIT",
     packages=find_packages(),
-    install_requires=['numpy', 'pandas', 'tqdm', 'click'],
+    install_requires=['numpy', 'pandas', 'tqdm', 'click', 'regex'],
     tests_require=["pytest"],
     entry_points={
-        'console_scripts': ['nmdiv = namedivider.cli:main']
-    }
+        'console_scripts': ['nmdiv = namedivider.cli:cmd']
+    },
+    package_data={'': ['namedivider/assets/*.csv']}
 )
