@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 import regex
-from divided_name import DividedName
-from kanji import KanjiStatistics
+from namedivider.divided_name import DividedName
+from namedivider.kanji_statistics import KanjiStatistics
 from pathlib import Path
 from typing import Optional
 CURRENT_DIR = Path(__file__).resolve().parent
@@ -133,16 +133,16 @@ class NameDivider:
 
         example:
         -----------------------------------------------------
-        >>> name_divider = NameDivider()
+        >>> namedivider = NameDivider()
         >>> # Full name: 新海誠
-        >>> name_divider._calc_order_score(piece_of_divided_name='新海', full_name_length=3, start_index=0)
+        >>> namedivider._calc_order_score(piece_of_divided_name='新海', full_name_length=3, start_index=0)
         0.8305084745762712
-        >>> name_divider._calc_order_score(piece_of_divided_name='誠', full_name_length=3, start_index=2)
+        >>> namedivider._calc_order_score(piece_of_divided_name='誠', full_name_length=3, start_index=2)
         0
         >>> # Full name: 清武弘嗣
-        >>> name_divider._calc_order_score(piece_of_divided_name='清武', full_name_length=4, start_index=0)
+        >>> namedivider._calc_order_score(piece_of_divided_name='清武', full_name_length=4, start_index=0)
         0.2222222222222222
-        >>> name_divider._calc_order_score(piece_of_divided_name='弘嗣', full_name_length=4, start_index=2)
+        >>> namedivider._calc_order_score(piece_of_divided_name='弘嗣', full_name_length=4, start_index=2)
         0.9919571045576407
         -----------------------------------------------------
         """
@@ -178,16 +178,16 @@ class NameDivider:
 
         example:
         -----------------------------------------------------
-        >>> name_divider = NameDivider()
+        >>> namedivider = NameDivider()
         >>> # Full name: 新海誠
-        >>> name_divider._calc_length_score(piece_of_divided_name='新海', full_name_length=3, start_index=0)
+        >>> namedivider._calc_length_score(piece_of_divided_name='新海', full_name_length=3, start_index=0)
         1.6721919841662545
-        >>> name_divider._calc_length_score(piece_of_divided_name='誠', full_name_length=3, start_index=2)
+        >>> namedivider._calc_length_score(piece_of_divided_name='誠', full_name_length=3, start_index=2)
         0.5414201183431953
         >>> # Full name: 清武弘嗣
-        >>> name_divider._calc_length_score(piece_of_divided_name='清武', full_name_length=4, start_index=0)
+        >>> namedivider._calc_length_score(piece_of_divided_name='清武', full_name_length=4, start_index=0)
         1.9431977559607292
-        >>> name_divider._calc_length_score(piece_of_divided_name='弘嗣', full_name_length=4, start_index=2)
+        >>> namedivider._calc_length_score(piece_of_divided_name='弘嗣', full_name_length=4, start_index=2)
         1.982873228774868
         -----------------------------------------------------
         """
@@ -224,7 +224,7 @@ class NameDivider:
         length_score_given = self._calc_length_score(given, len(name), len(family))
         length_score = (length_score_family + length_score_given) / len(name)
 
-        return (order_score + length_score) / 2.
+        return (order_score + length_score) / 2
 
     @staticmethod
     def _validate(undivided_name: str):
@@ -310,12 +310,12 @@ class NameDivider:
 
         example:
         -----------------------------------------------------
-        >>> name_divider = NameDivider()
-        >>> divided_name = name_divider.divide_name("菅義偉")
+        >>> namedivider = NameDivider()
+        >>> divided_name = namedivider.divide_name("菅義偉")
         >>> print(divided_name)
         "菅 義偉"
         >>> print(divided_name.to_dict())
-        {'family': '菅', 'given': '義偉', 'separator': ' ', 'score': 0.7482349894384595, 'algorithm': 'kanji_feature'}
+        {'family': '菅', 'given': '義偉', 'separator': ' ', 'score': 0.6328842762252201, 'algorithm': 'kanji_feature'}
         -----------------------------------------------------
         """
         self._validate(undivided_name)

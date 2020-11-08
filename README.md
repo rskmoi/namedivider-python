@@ -1,6 +1,6 @@
 # NameDivider-Python
 ## About
-NameDivider is a tool for dividing Japanese name, which is connected family name and given name.
+NameDivider is a tool for dividing Japanese name which is connected family name and given name.
 ```
 input: 菅義偉 -> output: 菅 義偉
 ```
@@ -15,7 +15,7 @@ divided_name = name_divider.divide_name("菅義偉")
 print(divided_name)
 # 菅 義偉
 print(divided_name.to_dict())
-# {'family': '菅', 'given': '義偉', 'separator': ' ', 'score': 0.7482349894384595, 'algorithm': 'kanji_feature'}
+# {'family': '菅', 'given': '義偉', 'separator': ' ', 'score': 0.6328842762252201, 'algorithm': 'kanji_feature'}
 ```
 
 ## TODO
@@ -24,7 +24,7 @@ print(divided_name.to_dict())
 
 - [x] Implementation
 - [x] Add comments
-- [ ] Add tests
+- [x] Add tests
 - [ ] Write readme.md and other document.
 - [ ] Preparing for distribution as a Python library
 
