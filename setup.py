@@ -15,5 +15,6 @@ setup(
     entry_points={
         'console_scripts': ['nmdiv = namedivider.cli:cmd']
     },
-    package_data={'': ['namedivider/assets/*.csv']}
+    package_data={'': ['namedivider/assets/*.csv']},
+    include_package_data=True
 )
