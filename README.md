@@ -1,5 +1,5 @@
-# NameDivider-Python
-NameDivider is a tool for dividing the Japanese full name into a family name and a given name.
+# namedivider-python
+**NameDivider** is a tool for dividing the Japanese full name into a family name and a given name.
 ```
 input: 菅義偉 -> output: 菅 義偉
 ```
@@ -18,7 +18,7 @@ pip install git+https://github.com/rskmoi/namedivider-python
 ## USAGE
 It's simple to use.
 
-```
+```python
 from name_divider import NameDivider
 
 name_divider = NameDivider()
