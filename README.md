@@ -24,7 +24,7 @@ pip install namedivider-python
 It's simple to use.
 
 ```python
-from name_divider import NameDivider
+from namedivider import NameDivider
 from pprint import pprint
 
 name_divider = NameDivider()
