@@ -1,4 +1,9 @@
 # namedivider-python
+
+![](https://badge.fury.io/py/namedivider-python.svg)
+![](https://img.shields.io/pypi/pyversions/namedivider-python.svg)
+![](https://github.com/rskmoi/namedivider-python/workflows/Python%20package/badge.svg)
+
 **NameDivider** is a tool for dividing the Japanese full name into a family name and a given name.
 ```
 input: 菅義偉 -> output: 菅 義偉
@@ -12,7 +17,7 @@ In rare names, the accuracy of division is about 92%.
 
 ## Installation
 ```
-pip install git+https://github.com/rskmoi/namedivider-python
+pip install namedivider-python
 ```
 
 ## USAGE
@@ -20,11 +25,18 @@ It's simple to use.
 
 ```python
 from name_divider import NameDivider
+from pprint import pprint
 
 name_divider = NameDivider()
 divided_name = name_divider.divide_name("菅義偉")
 print(divided_name)
 # 菅 義偉
+pprint(divided_name.to_dict())
+# {'algorithm': 'kanji_feature',
+# 'family': '菅',
+# 'given': '義偉',
+# 'score': 0.6328842762252201,
+# 'separator': ' '}
 ```
 
 ## CLI
@@ -43,17 +55,3 @@ $ nmdiv accuracy divided_names.txt
 0.8
 True: 滝 登喜男, Pred: 滝登 喜男
 ```
-
-## TODO
-
-### MUST
-
-- [x] Implementation
-- [x] Add comments
-- [x] Add tests
-- [X] Write readme.md and other document.
-- [ ] Preparing for distribution as a Python library
-
-### BETTER
-
-- [ ] Add examples
