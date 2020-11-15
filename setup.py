@@ -7,7 +7,7 @@ setup(
     url='https://github.com/rskmoi/namedivider-python',
     author="rskmoi",
     author_email='rei.sakamoto.92@gmail.com',
-    description='Tool for dividing Japanese name which is connected family name and given name.',
+    description='A tool for dividing the Japanese full name into a family name and a given name.',
     license="MIT",
     packages=find_packages(),
     install_requires=['numpy', 'pandas', 'tqdm', 'click', 'regex'],

@@ -270,7 +270,7 @@ class NameDivider:
                                                      algorithm="rule")
 
     @staticmethod
-    def _softmax(x) -> np.ndarray :
+    def _softmax(x) -> np.ndarray:
         """
         Calculates softmax score
         :param x: array_like
