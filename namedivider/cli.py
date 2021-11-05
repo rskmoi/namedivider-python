@@ -1,19 +1,16 @@
-import click
+import typer
 from tqdm import tqdm
 from pathlib import Path
 from namedivider.name_divider import NameDivider
 CURRENT_DIR = Path(__file__).resolve().parent
 
 
-@click.group()
-def cmd():
-    pass
+app = typer.Typer()
 
 
-@cmd.command()
-@click.argument("undivided_name")
-@click.option("--separator", "-s", default=" ")
-def name(undivided_name: str, separator: str):
+@app.command()
+def name(undivided_name: str = typer.Argument(..., help="Undivided name"),
+         separator: str = typer.Option(" ", "--separator", "-s", help="Separator between family name and given name")):
     """
     Divides an undivided name.
     :param undivided_name: Undivided name
@@ -23,11 +20,14 @@ def name(undivided_name: str, separator: str):
     print(name_divider.divide_name(undivided_name))
 
 
-@cmd.command()
-@click.argument("undivided_name_text")
-@click.option("--separator", "-s", default=" ")
-@click.option("--encoding", "-e", default="utf-8")
-def file(undivided_name_text, separator, encoding):
+@app.command()
+def file(undivided_name_text: Path = typer.Argument(...,
+                                                    help="File path of text file",
+                                                    exists=True,
+                                                    dir_okay=False,
+                                                    readable=True),
+         separator: str = typer.Option(" ", "--separator", "-s", help="Separator between family name and given name"),
+         encoding: str = typer.Option("utf-8", "--encoding", "-e", help="Encoding of text file")):
     """
     Divides names in text file.
     The text file must have one name per line.
@@ -40,7 +40,7 @@ def file(undivided_name_text, separator, encoding):
     ```
     :param undivided_name_text: File path of text file
     :param separator: Separator between family name and given name
-    :param encoder: Encoding of text file
+    :param encoding: Encoding of text file
     :return:
     Prints divided result.
     ```
@@ -60,11 +60,14 @@ def file(undivided_name_text, separator, encoding):
     print("\n".join(divided_names))
 
 
-@cmd.command()
-@click.argument("divided_name_text")
-@click.option("--separator", "-s", default=" ")
-@click.option("--encoder", "-e", default="utf-8")
-def accuracy(divided_name_text, separator, encoder):
+@app.command()
+def accuracy(divided_name_text: Path = typer.Argument(...,
+                                                      help="File path of text file",
+                                                      exists=True,
+                                                      dir_okay=False,
+                                                      readable=True),
+             separator: str = typer.Option(" ", "--separator", "-s", help="Separator between family name and given name"),
+             encoding: str = typer.Option("utf-8", "--encoding", "-e", help="Encoding of text file")):
     """
     Check the accuracy of this tool.
     The text file must have one name per line, and name must be divided py separator.
@@ -78,7 +81,7 @@ def accuracy(divided_name_text, separator, encoder):
     ```
     :param divided_name_text: File path of text file
     :param separator: Separator between family name and given name
-    :param encoder: Encoding of text file
+    :param encoding: Encoding of text file
     :return:
     Prints accuracy and missed name.
     ```
@@ -89,7 +92,7 @@ def accuracy(divided_name_text, separator, encoder):
     """
     name_divider = NameDivider(path_csv=Path(CURRENT_DIR) / "assets/kanji.csv", separator=separator)
     with open(divided_name_text, "rb") as f:
-        divided_name_text = f.read().decode(encoder).strip().split("\n")
+        divided_name_text = f.read().decode(encoding).strip().split("\n")
     is_correct_list = []
     wrong_list = []
     for _divided_name in tqdm(divided_name_text):
@@ -105,4 +108,4 @@ def accuracy(divided_name_text, separator, encoder):
 
 
 if __name__ == '__main__':
-    cmd()
+    app()

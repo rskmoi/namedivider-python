@@ -1,8 +1,9 @@
 import numpy as np
-from typing import NamedTuple
+from dataclasses import dataclass, asdict
 
 
-class KanjiStatistics(NamedTuple):
+@dataclass(frozen=True)
+class KanjiStatistics:
     """
     Statistics for a single kanji.
     :param kanji: A kanji.
