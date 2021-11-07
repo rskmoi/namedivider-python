@@ -27,8 +27,8 @@ It's simple to use.
 from namedivider import NameDivider
 from pprint import pprint
 
-name_divider = NameDivider()
-divided_name = name_divider.divide_name("菅義偉")
+divider = NameDivider()
+divided_name = divider.divide_name("菅義偉")
 print(divided_name)
 # 菅 義偉
 pprint(divided_name.to_dict())
@@ -38,6 +38,48 @@ pprint(divided_name.to_dict())
 # 'score': 0.6328842762252201,
 # 'separator': ' '}
 ```
+
+## NameDivider API
+
+NameDivider API is a Docker container that provides an API for dividing the Japanese full name into a family name and a given name.
+
+It is being developed to provide NameDivider functions to those using languages other than Python.
+
+### Installation
+
+```
+docker pull rskmoi/namedivider-api
+```
+
+### Usage
+
+- Run Docker Image
+
+```
+docker run -d --rm -p 8000:8000 rskmoi/namedivider-python
+```
+
+- Send HTTP request
+
+```
+curl -X POST -H "Content-Type: application/json" -d '{"names":["竈門炭治郎", "竈門禰豆子"]}' localhost:8000/divide
+```
+
+- Response
+
+```
+{
+    "divided_names":
+        [
+            {"family":"竈門","given":"炭治郎","separator":" ","score":0.3004587452426102,"algorithm":"kanji_feature"},
+            {"family":"竈門","given":"禰豆子","separator":" ","score":0.30480429696983175,"algorithm":"kanji_feature"}
+        ]
+}
+```
+
+### NOTICE
+
+- `names` is a list of undivided name. The maximum length of the list is 1000.
 
 ## CLI
 Read namedivider/cli.py for more information.
