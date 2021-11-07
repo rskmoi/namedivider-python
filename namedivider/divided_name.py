@@ -1,7 +1,9 @@
-from typing import NamedTuple, Dict
+from typing import Dict
+from dataclasses import dataclass, asdict
 
 
-class DividedName(NamedTuple):
+@dataclass(frozen=True)
+class DividedName:
     """
     Divided name.
     :param family: Family name
@@ -28,8 +30,4 @@ class DividedName(NamedTuple):
         :return: Dictionary of divided name
         :rtype: Dict
         """
-        return {"family": self.family,
-                "given": self.given,
-                "separator": self.separator,
-                "score": self.score,
-                "algorithm": self.algorithm}
+        return asdict(self)
