@@ -56,7 +56,7 @@ docker pull rskmoi/namedivider-api
 - Run Docker Image
 
 ```
-docker run -d --rm -p 8000:8000 rskmoi/namedivider-python
+docker run -d --rm -p 8000:8000 rskmoi/namedivider-api
 ```
 
 - Send HTTP request
