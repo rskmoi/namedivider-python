@@ -4,3 +4,4 @@ tqdm
 click
 regex
 typer>=0.3.2
+dataclasses
