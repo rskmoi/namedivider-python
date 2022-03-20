@@ -97,3 +97,17 @@ $ nmdiv accuracy divided_names.txt
 0.8
 True: 滝 登喜男, Pred: 滝登 喜男
 ```
+
+## DEMO
+
+`examples/example_streamlit.py` is an example of NameDivider with web UI.
+
+The following command will launch the streamlit demo application locally.
+
+```
+pip install -y streamlit namedivider-python
+streamlit run examples/example_streamlit.py
+```
+
+
+![example_streamlit](https://user-images.githubusercontent.com/26462938/159131355-3555a3aa-0b38-4a8a-9cd5-dad590746a6b.png)
