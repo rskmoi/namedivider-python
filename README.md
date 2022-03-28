@@ -15,12 +15,16 @@ In general names, the accuracy of division is about 99%.
 
 In rare names, the accuracy of division is about 92%.
 
+## Documents
+
+[NameDivider(日本語)](https://dune-fifth-da7.notion.site/NameDivider-9118f1a74ca545629dbbfa606a39ba0a "NameDivider")
+
 ## Installation
 ```
 pip install namedivider-python
 ```
 
-## USAGE
+## Usage
 It's simple to use.
 
 ```python
@@ -77,7 +81,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"names":["竈門炭治郎"
 }
 ```
 
-### NOTICE
+### Notice
 
 - `names` is a list of undivided name. The maximum length of the list is 1000.
 
@@ -98,7 +102,7 @@ $ nmdiv accuracy divided_names.txt
 True: 滝 登喜男, Pred: 滝登 喜男
 ```
 
-## DEMO
+## Demo
 
 `examples/example_streamlit.py` is an example of NameDivider with web UI.
 
