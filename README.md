@@ -11,9 +11,9 @@ input: 菅義偉 -> output: 菅 義偉
 
 NameDivider divides the name using statistical information of the kanji used in the names.
 
-In general names, the accuracy of division is about 99%. 
+Measuring the accuracy using a privately held data set, the accuracy is 99.21%.
 
-In rare names, the accuracy of division is about 92%.
+In the next release, scheduled for May 2022, this will be around 99.85 ± 0.010%.
 
 ## Documents
 
@@ -45,9 +45,9 @@ pprint(divided_name.to_dict())
 
 ## NameDivider API
 
-NameDivider API is a Docker container that provides an API for dividing the Japanese full name into a family name and a given name.
+NameDivider API is a Docker container that provides a RESTful API for dividing the Japanese full name into a family name and a given name.
 
-It is being developed to provide NameDivider functions to those using languages other than Python.
+I am developing NameDivider API to provide NameDivider functionality to non-Python language users.
 
 ### Installation
 
