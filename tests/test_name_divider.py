@@ -1,6 +1,6 @@
 from typing import Dict
 import pytest
-from namedivider import NameDivider
+from namedivider.name_divider import NameDivider
 
 
 name_test_data = \
