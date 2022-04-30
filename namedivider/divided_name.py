@@ -1,5 +1,10 @@
+import warnings
 from typing import Dict
 from dataclasses import dataclass, asdict
+
+
+warnings.warn("namedivider.kanji_statistics is deprecated in 0.2 and will be removed in 0.4. "
+              "Use divider.divided_name if you want to use DividedName class.", category=FutureWarning)
 
 
 @dataclass(frozen=True)
