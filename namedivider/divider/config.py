@@ -2,10 +2,13 @@ from typing import Union
 from enum import Enum, auto
 from pathlib import Path
 from dataclasses import dataclass
-from namedivider.util import get_kanji_csv_default_path, get_family_name_txt_default_path
+from namedivider.util import \
+    get_kanji_csv_default_path, \
+    get_family_name_txt_default_path, \
+    get_gbdt_model_v1_default_path
 KANJI_CSV_DEFAULT_PATH = get_kanji_csv_default_path()
 FAMILY_NAME_TXT_DEFAULT_PATH = get_family_name_txt_default_path()
-DEFAULT_CACHE_DIR = "~/.cache/namedivider-python"
+GBDT_MODEL_V1_DEFAULT_PATH = get_gbdt_model_v1_default_path()
 
 
 class NameDividerVersions(Enum):
@@ -32,7 +35,7 @@ class BasicNameDividerConfig(NameDividerConfigBase):
 class GBDTNameDividerConfig(NameDividerConfigBase):
     path_csv: Union[str, Path] = KANJI_CSV_DEFAULT_PATH
     path_family_names: Union[str, Path] = FAMILY_NAME_TXT_DEFAULT_PATH
-    path_model: Union[str, Path] = Path(f"{DEFAULT_CACHE_DIR}/gbdt_model_v1.txt").expanduser()
+    path_model: Union[str, Path] = GBDT_MODEL_V1_DEFAULT_PATH
 
 
 def get_config_from_version(version: NameDividerVersions) -> NameDividerConfigBase:
@@ -58,7 +61,7 @@ def get_config_from_version(version: NameDividerVersions) -> NameDividerConfigBa
             normalize_name=True,
             path_csv=KANJI_CSV_DEFAULT_PATH,
             path_family_names=FAMILY_NAME_TXT_DEFAULT_PATH,
-            path_model=f"{DEFAULT_CACHE_DIR}/gbdt_model_v1.txt"
+            path_model=GBDT_MODEL_V1_DEFAULT_PATH
         )
     elif version == NameDividerVersions.GBDT_NAME_DIVIDER_LATEST:
         return GBDTNameDividerConfig()

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import regex
+import warnings
 from namedivider.divided_name import DividedName
 from namedivider.kanji_statistics import KanjiStatistics
 from pathlib import Path
@@ -16,6 +17,9 @@ class NameDivider:
         :param path_csv: Path of the file containing the kanji information
         :param separator: Characters to separate first and last names
         """
+        warnings.warn("Class NameDivider is deprecated in 0.2 and will be removed in 0.4. "
+                      "Use BasicNameDivider.from_version(NameDividerVersions.BASIC_NAME_DIVIDER_V1) "
+                      "if you want to use a class with same behavior.", category=FutureWarning)
         kanji_records = pd.read_csv(path_csv).to_numpy()
         kanjis = kanji_records[:, 0]
         orders = kanji_records[:, 1:7]

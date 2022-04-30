@@ -18,7 +18,7 @@ class SimpleFeatures:
 
 
 @dataclass(frozen=True)
-class FamilyRankingFeature:
+class FamilyRankingFeatures:
     rank: float
     fullname_length: int
     family_length: int
@@ -67,13 +67,13 @@ class FamilyRankingFeatureExtractor:
         self.kanji_statistics_repository = kanji_statistics_repository
         self.family_name_repository = family_name_repository
 
-    def get_features(self, family: str, given: str) -> FamilyRankingFeature:
+    def get_features(self, family: str, given: str) -> FamilyRankingFeatures:
         """
         Calculates features.
         :param family: family name.
         :param given: given name.
         :return: Features calculated by input name.
-        :rtype: FamilyRankingFeature
+        :rtype: FamilyRankingFeatures
         """
         rank = self.family_name_repository.get_rank(family)
         fullname_length = len(family + given)
@@ -84,12 +84,12 @@ class FamilyRankingFeatureExtractor:
         given_order_score = F.calc_order_score(self.kanji_statistics_repository, given, fullname_length, len(family))
         given_length_score = F.calc_length_score(self.kanji_statistics_repository, given, fullname_length, len(family))
         given_startswith_specific_kanji = given.startswith(("田", "谷", "川", "島", "原", "村", "塚", "森", "井", "子"))
-        return FamilyRankingFeature(rank=rank,
-                                    fullname_length=fullname_length,
-                                    family_length=family_length,
-                                    given_length=given_length,
-                                    family_order_score=family_order_score,
-                                    given_order_score=given_order_score,
-                                    family_length_score=family_length_score,
-                                    given_length_score=given_length_score,
-                                    given_startswith_specific_kanji=given_startswith_specific_kanji)
+        return FamilyRankingFeatures(rank=rank,
+                                     fullname_length=fullname_length,
+                                     family_length=family_length,
+                                     given_length=given_length,
+                                     family_order_score=family_order_score,
+                                     given_order_score=given_order_score,
+                                     family_length_score=family_length_score,
+                                     given_length_score=given_length_score,
+                                     given_startswith_specific_kanji=given_startswith_specific_kanji)

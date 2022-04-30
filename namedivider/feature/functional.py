@@ -11,9 +11,7 @@ def _create_order_mask(full_name_length: int, char_idx: int) -> np.ndarray:
     :return: Order mask
     :rtype: np.ndarray
     """
-    # return np.array([1, 1, 1, 1, 1, 1])
     if char_idx == 0 or char_idx == full_name_length - 1:
-        # return np.array([1, 1, 1, 1, 1, 1])
         raise ValueError("First character and last character must not be created order mask.")
 
     if full_name_length == 3:
