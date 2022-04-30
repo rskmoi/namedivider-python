@@ -2,7 +2,9 @@ from typing import Union
 from enum import Enum, auto
 from pathlib import Path
 from dataclasses import dataclass
-CURRENT_DIR = Path(__file__).resolve().parent
+from namedivider.util import get_kanji_csv_default_path, get_family_name_txt_default_path
+KANJI_CSV_DEFAULT_PATH = get_kanji_csv_default_path()
+FAMILY_NAME_TXT_DEFAULT_PATH = get_family_name_txt_default_path()
 DEFAULT_CACHE_DIR = "~/.cache/namedivider-python"
 
 
@@ -22,14 +24,14 @@ class NameDividerConfigBase:
 
 @dataclass(frozen=True)
 class BasicNameDividerConfig(NameDividerConfigBase):
-    path_csv: Union[str, Path] = Path(f"{CURRENT_DIR}/../assets/kanji.csv")
+    path_csv: Union[str, Path] = KANJI_CSV_DEFAULT_PATH
     only_order_score_when_4: bool = False
 
 
 @dataclass(frozen=True)
 class GBDTNameDividerConfig(NameDividerConfigBase):
-    path_csv: Union[str, Path] = Path(f"{CURRENT_DIR}/../assets/kanji.csv")
-    path_family_names: Union[str, Path] = Path(f"{DEFAULT_CACHE_DIR}/family_names.txt").expanduser()
+    path_csv: Union[str, Path] = KANJI_CSV_DEFAULT_PATH
+    path_family_names: Union[str, Path] = FAMILY_NAME_TXT_DEFAULT_PATH
     path_model: Union[str, Path] = Path(f"{DEFAULT_CACHE_DIR}/gbdt_model_v1.txt").expanduser()
 
 
@@ -38,14 +40,14 @@ def get_config_from_version(version: NameDividerVersions) -> NameDividerConfigBa
         return BasicNameDividerConfig(
             separator=" ",
             normalize_name=False,
-            path_csv=f"{CURRENT_DIR}/../assets/kanji.csv",
+            path_csv=KANJI_CSV_DEFAULT_PATH,
             only_order_score_when_4=True
         )
     elif version == NameDividerVersions.BASIC_NAME_DIVIDER_V2:
         return BasicNameDividerConfig(
             separator=" ",
             normalize_name=True,
-            path_csv=f"{CURRENT_DIR}/../assets/kanji.csv",
+            path_csv=KANJI_CSV_DEFAULT_PATH,
             only_order_score_when_4=False
         )
     elif version == NameDividerVersions.BASIC_NAME_DIVIDER_LATEST:
@@ -54,8 +56,8 @@ def get_config_from_version(version: NameDividerVersions) -> NameDividerConfigBa
         return GBDTNameDividerConfig(
             separator=" ",
             normalize_name=True,
-            path_csv=f"{CURRENT_DIR}/../assets/kanji.csv",
-            path_family_names=f"{DEFAULT_CACHE_DIR}/family_names.txt",
+            path_csv=KANJI_CSV_DEFAULT_PATH,
+            path_family_names=FAMILY_NAME_TXT_DEFAULT_PATH,
             path_model=f"{DEFAULT_CACHE_DIR}/gbdt_model_v1.txt"
         )
     elif version == NameDividerVersions.GBDT_NAME_DIVIDER_LATEST:
