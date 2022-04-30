@@ -1,4 +1,4 @@
-from namedivider.divider.config import BasicNameDividerConfig, get_config_from_version, NameDividerVersions
+from namedivider.divider.config import BasicNameDividerConfig
 from namedivider.divider.name_divider_base import _NameDivider
 from namedivider.feature.kanji import KanjiStatisticsRepository
 from namedivider.feature.extractor import SimpleFeatureExtractor
@@ -32,25 +32,3 @@ class BasicNameDivider(_NameDivider):
         length_score = (features.family_length_score + features.given_length_score) / len(name)
 
         return (order_score + length_score) / 2.
-
-
-if __name__ == '__main__':
-    divider = BasicNameDivider()
-    print(divider.divide_name("林修").to_dict())
-    print(divider.divide_name("高本怜").to_dict())
-    print(divider.divide_name("髙本怜").to_dict())
-    print(divider.divide_name("長谷川高").to_dict())
-    divider = BasicNameDivider.from_version(version=NameDividerVersions.BASIC_NAME_DIVIDER_V1)
-    print(divider.divide_name("林修").to_dict())
-    print(divider.divide_name("高本怜").to_dict())
-    print(divider.divide_name("髙本怜").to_dict())
-    print(divider.divide_name("長谷川高").to_dict())
-    divider = BasicNameDivider.from_version(version=NameDividerVersions.BASIC_NAME_DIVIDER_V2)
-    print(divider.divide_name("林修").to_dict())
-    print(divider.divide_name("高本怜").to_dict())
-    print(divider.divide_name("髙本怜").to_dict())
-    print(divider.divide_name("長谷川高").to_dict())
-    divider = BasicNameDivider.from_version(version=NameDividerVersions.BASIC_NAME_DIVIDER_LATEST)
-    print(divider.divide_name("林修").to_dict())
-    print(divider.divide_name("坂本怜").to_dict())
-    print(divider.divide_name("長谷川高").to_dict())
