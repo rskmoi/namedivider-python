@@ -3,4 +3,5 @@ pandas
 tqdm
 click
 regex
+lightgbm>=3.3
 typer>=0.3.2
