@@ -60,7 +60,7 @@ name_test_data = \
         }),
         ("菅義偉", {
             "family": "菅義", "given": "偉", "separator": "_",
-            "score": 0.7310585786300049, "algorithm": "kanji_feature"
+            "score": 0.7310585786300049, "algorithm": "unknown_algorithm"
         })
      ]
 

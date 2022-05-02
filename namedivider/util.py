@@ -1,6 +1,9 @@
 from pathlib import Path
+
 CURRENT_DIR = Path(__file__).resolve().parent
 DEFAULT_CACHE_DIR = Path("~/.cache/namedivider-python")
+
+
 # TODO: Add docs, add auto download func
 
 

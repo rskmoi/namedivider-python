@@ -35,6 +35,7 @@ class SimpleFeatureExtractor:
     Feature extractor.Calculate the order score and the length score for each of family and given name.
     These four features are the foundation of NameDivider.
     """
+
     def __init__(self, kanji_statistics_repository: KanjiStatisticsRepository):
         self.kanji_statistics_repository = kanji_statistics_repository
 
@@ -61,6 +62,7 @@ class FamilyRankingFeatureExtractor:
     """
     Feature extractor.Calculate the order score and the length score for each of family and given name.
     """
+
     def __init__(self,
                  kanji_statistics_repository: KanjiStatisticsRepository,
                  family_name_repository: FamilyNameRepository):
