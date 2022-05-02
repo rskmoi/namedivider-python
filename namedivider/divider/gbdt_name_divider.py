@@ -12,6 +12,7 @@ class GBDTNameDivider(_NameDivider):
     """
     NameDivider with gradient boosting decision tree.
     """
+
     def __init__(self, config: GBDTNameDividerConfig = None):
         if config is None:
             config = GBDTNameDividerConfig()

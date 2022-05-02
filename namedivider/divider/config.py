@@ -6,6 +6,7 @@ from namedivider.util import \
     get_kanji_csv_default_path, \
     get_family_name_txt_default_path, \
     get_gbdt_model_v1_default_path
+
 KANJI_CSV_DEFAULT_PATH = get_kanji_csv_default_path()
 FAMILY_NAME_TXT_DEFAULT_PATH = get_family_name_txt_default_path()
 GBDT_MODEL_V1_DEFAULT_PATH = get_gbdt_model_v1_default_path()
@@ -23,12 +24,14 @@ class NameDividerVersions(Enum):
 class NameDividerConfigBase:
     separator: str = " "
     normalize_name: bool = True
+    algorithm_name: str = "unknown_algorithm"
 
 
 @dataclass(frozen=True)
 class BasicNameDividerConfig(NameDividerConfigBase):
     path_csv: Union[str, Path] = KANJI_CSV_DEFAULT_PATH
     only_order_score_when_4: bool = False
+    algorithm_name: str = "kanji_feature"
 
 
 @dataclass(frozen=True)
@@ -36,6 +39,7 @@ class GBDTNameDividerConfig(NameDividerConfigBase):
     path_csv: Union[str, Path] = KANJI_CSV_DEFAULT_PATH
     path_family_names: Union[str, Path] = FAMILY_NAME_TXT_DEFAULT_PATH
     path_model: Union[str, Path] = GBDT_MODEL_V1_DEFAULT_PATH
+    algorithm_name: str = "gbdt"
 
 
 def get_config_from_version(version: NameDividerVersions) -> NameDividerConfigBase:

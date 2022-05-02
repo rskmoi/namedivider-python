@@ -2,10 +2,11 @@ import numpy as np
 import pandas as pd
 import regex
 import warnings
-from namedivider.divided_name import DividedName
-from namedivider.kanji_statistics import KanjiStatistics
+from namedivider.divider.divided_name import DividedName
+from namedivider.feature.kanji import KanjiStatistics
 from pathlib import Path
 from typing import Optional
+
 CURRENT_DIR = Path(__file__).resolve().parent
 
 

@@ -4,8 +4,8 @@ from pathlib import Path
 from namedivider.divider.name_divider_base import _NameDivider
 from namedivider.divider.basic_name_divider import BasicNameDivider, BasicNameDividerConfig
 from namedivider.divider.gbdt_name_divider import GBDTNameDivider, GBDTNameDividerConfig
-CURRENT_DIR = Path(__file__).resolve().parent
 
+CURRENT_DIR = Path(__file__).resolve().parent
 
 app = typer.Typer()
 
@@ -81,7 +81,8 @@ def accuracy(divided_name_text: Path = typer.Argument(...,
                                                       exists=True,
                                                       dir_okay=False,
                                                       readable=True),
-             separator: str = typer.Option(" ", "--separator", "-s", help="Separator between family name and given name"),
+             separator: str = typer.Option(" ", "--separator", "-s",
+                                           help="Separator between family name and given name"),
              mode: str = typer.Option("basic", "--mode", "-m", help="Divider Mode. You can choice basic or gbdt."),
              encoding: str = typer.Option("utf-8", "--encoding", "-e", help="Encoding of text file")):
     """

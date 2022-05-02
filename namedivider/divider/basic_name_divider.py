@@ -9,6 +9,7 @@ class BasicNameDivider(_NameDivider):
     NameDivider with basic algorithm.
     Prior to v0.1.0, this was provided as a 'NameDivider' class.
     """
+
     def __init__(self, config: BasicNameDividerConfig = None):
         if config is None:
             config = BasicNameDividerConfig()

@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 class FamilyNameRepository:
-    def __init__(self, path_txt:  Union[str, Path]):
+    def __init__(self, path_txt: Union[str, Path]):
         with open(path_txt, "rb") as f:
             family_text = f.read().decode()
         self.family_names = family_text.split("\n")

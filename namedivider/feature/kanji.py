@@ -98,6 +98,7 @@ class KanjiStatisticsRepository:
     """
     Repository class for managing KanjiStatistics.
     """
+
     def __init__(self, path_csv: Union[str, Path]):
         kanji_records = pd.read_csv(path_csv).to_numpy()
         kanjis = kanji_records[:, 0]

@@ -1,7 +1,7 @@
 import abc
 import regex
 import numpy as np
-from namedivider.divided_name import DividedName
+from namedivider.divider.divided_name import DividedName
 from namedivider.divider.config import NameDividerVersions, get_config_from_version, NameDividerConfigBase
 from typing import Optional
 
@@ -57,6 +57,7 @@ class _NameDivider(metaclass=abc.ABCMeta):
             config = NameDividerConfigBase()
         self.separator = config.separator
         self.normalize_name = config.normalize_name
+        self.algorithm_name = config.algorithm_name
         self.compiled_regex_kanji = regex.compile(r'\p{Script=Han}+')
 
     @abc.abstractmethod
@@ -165,7 +166,7 @@ class _NameDivider(metaclass=abc.ABCMeta):
         return self._create_divided_name(family=undivided_name[:max_idx],
                                          given=undivided_name[max_idx:],
                                          score=total_scores[max_idx - 1],
-                                         algorithm="kanji_feature")
+                                         algorithm=self.algorithm_name)
 
     def _divide_name(self, undivided_name: str) -> DividedName:
         """
@@ -193,4 +194,3 @@ class _NameDivider(metaclass=abc.ABCMeta):
             return holder.get_divided_original_name(divided_name)
         else:
             return self._divide_name(undivided_name)
-

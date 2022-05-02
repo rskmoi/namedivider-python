@@ -17,6 +17,7 @@ class KanjiStatisticsTaker:
     """
     Create assets/kanji.csv from names.
     """
+
     def __init__(self, mode: KanjiStatisticsMode = KanjiStatisticsMode.ONLY_FREQUENT_KANJI):
         self.statistics: Dict[str: KanjiStatistics] = {}
         self.mode = mode

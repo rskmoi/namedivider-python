@@ -3,10 +3,6 @@ import numpy as np
 from dataclasses import dataclass
 
 
-warnings.warn("namedivider.kanji_statistics is deprecated in 0.2 and will be removed in 0.4. "
-              "Use feature.kanji if you want to use KanjiStatistics class.", category=FutureWarning)
-
-
 @dataclass(frozen=True)
 class KanjiStatistics:
     """
@@ -80,6 +76,9 @@ class KanjiStatistics:
             "田": [0, 1, 0, 0, 0, 0, 0, 0]
             "錬": [0, 0, 0, 0, 0, 0, 1, 0]
     """
+    warnings.warn("namedivider.kanji_statistics.KanjiStatistics is deprecated in 0.2 and will be removed in 0.4. "
+                  "Use namedivider.feature.kanji.KanjiStatistics if you want to use KanjiStatistics class.",
+                  category=FutureWarning)
     kanji: str
     order_counts: np.ndarray
     length_counts: np.ndarray
