@@ -100,6 +100,10 @@ class KanjiStatisticsRepository:
     """
 
     def __init__(self, path_csv: Union[str, Path]):
+        """
+
+        :param path_csv:
+        """
         kanji_records = pd.read_csv(path_csv).to_numpy()
         kanjis = kanji_records[:, 0]
         orders = kanji_records[:, 1:7]

@@ -1,6 +1,9 @@
 import pandas as pd
 import lightgbm as lgb
+import _pickle as pickle
 from dataclasses import asdict
+from pathlib import Path
+from namedivider.util import download_family_name_pickle_if_needed, download_gbdt_model_v1_if_needed
 from namedivider.divider.config import GBDTNameDividerConfig
 from namedivider.divider.name_divider_base import _NameDivider
 from namedivider.feature.kanji import KanjiStatisticsRepository
@@ -17,8 +20,14 @@ class GBDTNameDivider(_NameDivider):
         if config is None:
             config = GBDTNameDividerConfig()
         super().__init__(config=config)
+        download_family_name_pickle_if_needed(config.path_family_names)
+        download_gbdt_model_v1_if_needed(config.path_model)
         kanji_statistics_repository = KanjiStatisticsRepository(path_csv=config.path_csv)
-        family_name_repository = FamilyNameRepository(path_txt=config.path_family_names)
+        if Path(config.path_family_names).suffix == ".pickle":
+            with open(config.path_family_names, "rb") as f:
+                family_name_repository: FamilyNameRepository = pickle.load(f)
+        else:
+            family_name_repository = FamilyNameRepository(path_txt=config.path_family_names)
         self.feature_extractor = FamilyRankingFeatureExtractor(kanji_statistics_repository=kanji_statistics_repository,
                                                                family_name_repository=family_name_repository)
         self.model = lgb.Booster(model_file=config.path_model)

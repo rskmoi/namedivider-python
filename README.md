@@ -115,3 +115,34 @@ streamlit run examples/example_streamlit.py
 
 
 ![example_streamlit](https://user-images.githubusercontent.com/26462938/159131355-3555a3aa-0b38-4a8a-9cd5-dad590746a6b.png)
+
+## License
+
+### Source code and gbdt_model_v1.txt
+MIT License
+
+### family_name_repository.pickle
+
+- English
+
+(1) Purpose of use
+
+family_name_repository.pickle is available for commercial/non-commercial use if you use this software to divide name, and to develop algorithms for dividing name.
+
+Any other use of family_name_repository.pickle is prohibited.
+
+(2) Liability
+
+The author or copyright holder assumes no responsibility for the software.
+
+- Japanese
+
+(1) 利用目的
+
+このソフトウェアを用いて姓名分割、および姓名分割アルゴリズムの開発をする場合、family_name_repository.pickleは商用/非商用問わず利用可能です。
+
+それ以外の目的でのfamily_name_repository.pickleの利用を禁じます。
+
+(2) 責任
+
+作者または著作権者は、family_name_repository.pickleに関して一切の責任を負いません。
