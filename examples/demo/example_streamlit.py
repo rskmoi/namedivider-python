@@ -1,5 +1,7 @@
 import streamlit as st
 from namedivider import BasicNameDivider, GBDTNameDivider
+from pathlib import Path
+Path("~/.cache").expanduser().mkdir(exist_ok=True)
 
 
 @st.experimental_singleton
