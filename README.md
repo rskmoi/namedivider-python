@@ -1,8 +1,14 @@
 # namedivider-python
+<div align="center">
+    <img src="https://user-images.githubusercontent.com/26462938/170855238-8f287165-f47a-4e9b-9297-ec10e238ef31.png" alt="logo" width="500"/>
+</div>
+<div align="center">
+    <img src="https://badge.fury.io/py/namedivider-python.svg" alt=""/>
+    <img src="https://img.shields.io/pypi/pyversions/namedivider-python.svg" alt=""/>
+    <img src="https://github.com/rskmoi/namedivider-python/workflows/Python%20package/badge.svg" alt=""/>
+</div>
 
-![](https://badge.fury.io/py/namedivider-python.svg)
-![](https://img.shields.io/pypi/pyversions/namedivider-python.svg)
-![](https://github.com/rskmoi/namedivider-python/workflows/Python%20package/badge.svg)
+---
 
 **NameDivider** is a tool for dividing the Japanese full name into a family name and a given name.
 ```
@@ -11,9 +17,9 @@ input: 菅義偉 -> output: 菅 義偉
 
 NameDivider divides the name using statistical information of the kanji used in the names.
 
-Measuring the accuracy using a privately held data set, the accuracy is 99.21%.
+Measuring the accuracy using a privately held data set, the accuracy is 99.91%.
 
-In the next release, scheduled for May 2022, this will be around 99.85 ± 0.010%.
+You can see how it works with [this demo](https://share.streamlit.io/rskmoi/namedivider-python/feature/add_demo/examples/demo/example_streamlit.py "Demo").
 
 ## Documents
 
@@ -28,18 +34,23 @@ pip install namedivider-python
 It's simple to use.
 
 ```python
-from namedivider import NameDivider
+from namedivider import BasicNameDivider, GBDTNameDivider
 from pprint import pprint
 
-divider = NameDivider()
-divided_name = divider.divide_name("菅義偉")
+basic_divider = BasicNameDivider() # BasicNameDivider is fast but accuracy is 99.2%
+divided_name = basic_divider.divide_name("菅義偉")
+
+gbdt_divider = GBDTNameDivider() # GBDTNameDivider is slow but accuracy is 99.9%
+divided_name = gbdt_divider.divide_name("菅義偉")
+
 print(divided_name)
 # 菅 義偉
+
 pprint(divided_name.to_dict())
 # {'algorithm': 'kanji_feature',
 # 'family': '菅',
 # 'given': '義偉',
-# 'score': 0.6328842762252201,
+# 'score': 0.7300634880343344,
 # 'separator': ' '}
 ```
 
@@ -102,20 +113,6 @@ $ nmdiv accuracy divided_names.txt
 True: 滝 登喜男, Pred: 滝登 喜男
 ```
 
-## Demo
-
-`examples/example_streamlit.py` is an example of NameDivider with web UI.
-
-The following command will launch the streamlit demo application locally.
-
-```
-pip install -y streamlit namedivider-python
-streamlit run examples/example_streamlit.py
-```
-
-
-![example_streamlit](https://user-images.githubusercontent.com/26462938/159131355-3555a3aa-0b38-4a8a-9cd5-dad590746a6b.png)
-
 ## License
 
 ### Source code and gbdt_model_v1.txt
@@ -146,3 +143,7 @@ The author or copyright holder assumes no responsibility for the software.
 (2) 責任
 
 作者または著作権者は、family_name_repository.pickleに関して一切の責任を負いません。
+
+The family name data used in family_name_repository.pickle is provided by Myoji-Yurai.net(名字由来net).
+
+![](https://user-images.githubusercontent.com/26462938/170855242-84ec7418-b288-4b64-bbc2-4927776493bf.png)
