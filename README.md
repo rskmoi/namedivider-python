@@ -19,7 +19,7 @@ NameDivider divides the name using statistical information of the kanji used in 
 
 Measuring the accuracy using a privately held data set, the accuracy is 99.91%.
 
-You can see how it works with [this demo](https://share.streamlit.io/rskmoi/namedivider-python/feature/add_demo/examples/demo/example_streamlit.py "Demo").
+You can see how it works with [this demo](https://share.streamlit.io/rskmoi/namedivider-python/examples/demo/example_streamlit.py "Demo").
 
 ## Documents
 
