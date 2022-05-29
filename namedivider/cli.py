@@ -113,7 +113,6 @@ def accuracy(divided_name_text: Path = typer.Argument(...,
     is_correct_list = []
     wrong_list = []
     for _divided_name in tqdm(divided_name_text):
-        _divided_name = _divided_name.replace("　", " ")
         _undivided_name = _divided_name.replace(separator, "")
         _divided_name_pred = str(divider.divide_name(_undivided_name))
         is_correct = (_divided_name == _divided_name_pred)
