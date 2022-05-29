@@ -1,4 +1,4 @@
-from namedivider.divided_name import DividedName
+from namedivider.divider.divided_name import DividedName
 
 
 def test_divided_name_str():

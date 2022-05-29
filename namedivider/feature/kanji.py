@@ -1,4 +1,6 @@
-import warnings
+from typing import Union
+from pathlib import Path
+import pandas as pd
 import numpy as np
 from dataclasses import dataclass
 
@@ -76,9 +78,6 @@ class KanjiStatistics:
             "田": [0, 1, 0, 0, 0, 0, 0, 0]
             "錬": [0, 0, 0, 0, 0, 0, 1, 0]
     """
-    warnings.warn("namedivider.kanji_statistics.KanjiStatistics is deprecated in 0.2 and will be removed in 0.4. "
-                  "Use namedivider.feature.kanji.KanjiStatistics if you want to use KanjiStatistics class.",
-                  category=FutureWarning)
     kanji: str
     order_counts: np.ndarray
     length_counts: np.ndarray
@@ -93,3 +92,33 @@ class KanjiStatistics:
         return cls(kanji="default",
                    order_counts=np.array([0, 0, 0, 0, 0, 0]),
                    length_counts=np.array([0, 0, 0, 0, 0, 0, 0, 0]))
+
+
+class KanjiStatisticsRepository:
+    """
+    Repository class for managing KanjiStatistics.
+    """
+
+    def __init__(self, path_csv: Union[str, Path]):
+        """
+
+        :param path_csv:
+        """
+        kanji_records = pd.read_csv(path_csv).to_numpy()
+        kanjis = kanji_records[:, 0]
+        orders = kanji_records[:, 1:7]
+        lengths = kanji_records[:, 7:]
+
+        self._kanji_dict = {}
+        for _kanji, _order, _length in zip(kanjis, orders, lengths):
+            self._kanji_dict[_kanji] = KanjiStatistics(kanji=_kanji, order_counts=_order, length_counts=_length)
+        self._default_kanji = KanjiStatistics.default()
+
+    def get(self, kanji: str) -> KanjiStatistics:
+        """
+        Returns the KanjiStatistics of the input kanji, or the default value if it does not exist in the repository.
+        :param kanji: A kanji.
+        :return: KanjiStatistics of input kanji.
+        :rtype: KanjiStatistics
+        """
+        return self._kanji_dict.get(kanji, self._default_kanji)

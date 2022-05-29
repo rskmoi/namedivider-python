@@ -1,4 +1,3 @@
-import warnings
 from typing import Dict
 from dataclasses import dataclass, asdict
 
@@ -13,9 +12,6 @@ class DividedName:
     :param score: Confidence level, from 0 to 1
     :param algorithm: The name of dividing algorithm
     """
-    warnings.warn("namedivider.divided_name.DividedName is deprecated in 0.2 and will be removed in 0.4. "
-                  "Use namedivider.divider.divided_name.DividedName if you want to use DividedName class.",
-                  category=FutureWarning)
     family: str
     given: str
     separator: str = " "

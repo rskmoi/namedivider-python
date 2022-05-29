@@ -1,5 +1,5 @@
 import numpy as np
-from namedivider import KanjiStatistics
+from namedivider.kanji_statistics import KanjiStatistics
 
 
 def test_kanji_statistics_default():
