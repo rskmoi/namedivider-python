@@ -85,6 +85,7 @@ class FamilyRankingFeatureExtractor:
         family_length_score = F.calc_length_score(self.kanji_statistics_repository, family, fullname_length, 0)
         given_order_score = F.calc_order_score(self.kanji_statistics_repository, given, fullname_length, len(family))
         given_length_score = F.calc_length_score(self.kanji_statistics_repository, given, fullname_length, len(family))
+        # Selected 10 Kanji chars, especially those that rarely come at the beginning of a given name.
         given_startswith_specific_kanji = given.startswith(("田", "谷", "川", "島", "原", "村", "塚", "森", "井", "子"))
         return FamilyRankingFeatures(rank=rank,
                                      fullname_length=fullname_length,

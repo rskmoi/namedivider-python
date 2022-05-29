@@ -19,6 +19,8 @@ class _UndividedNameHolder:
     def _normalize(original_name: str) -> str:
         """
         Normalize name.
+        'Normalize' here means to convert old character form(旧字体) or variant character form(異字体)
+        into orthographic character form(正字体).
         :param original_name: Original name
         :return: str: Normalized name.
         """
