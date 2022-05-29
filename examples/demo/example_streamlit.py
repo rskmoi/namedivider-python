@@ -1,11 +1,17 @@
 import streamlit as st
-from namedivider import NameDivider
+from namedivider import BasicNameDivider, GBDTNameDivider
 
 
 @st.experimental_singleton
-def get_divider():
-    divider = NameDivider()
-    return divider
+def get_basic_name_divider():
+    basic_divider = BasicNameDivider()
+    return basic_divider
+
+
+@st.experimental_singleton
+def get_gbdt_name_divider():
+    gbdt_divider = GBDTNameDivider()
+    return gbdt_divider
 
 
 def main():
@@ -15,13 +21,17 @@ def main():
             'Language',
             ("Japanese", 'English'))
 
-    divider = get_divider()
+    basic_divider = get_basic_name_divider()
+    gbdt_divider = get_gbdt_name_divider()
 
     if option == "Japanese":
         st.title("NameDivider Demo")
         st.write("NameDividerは、姓名が連結している日本語の名前を姓と名に分割するツールです。")
         st.write("https://github.com/rskmoi/namedivider-python")
         st.write("左側のテキストエリアに名前を入力すると、右側に分割された名前が出力されます。")
+        mode_select = "分割手法を選択してください"
+        mode_basic = "BasicNameDivider(速いけれど、精度が99.2%)"
+        mode_gbdt = "GBDTNameDivider(遅いけれど、精度が99.9%)"
         input_label = "入力"
         output_label = "結果"
         too_many_error = "一度に分割できる名前の数は500人までです"
@@ -34,6 +44,9 @@ def main():
         st.write("NameDivider is a tool for dividing the Japanese full name into a family name and a given name.")
         st.write("https://github.com/rskmoi/namedivider-python")
         st.write("Entering names in the text area on the left side will output the divided names on the right side.")
+        mode_select = "Please select a division method."
+        mode_basic = "BasicNameDivider(Fast, but accuracy is 99.2%)"
+        mode_gbdt = "GBDTNameDivider(Slow, but accuracy is 99.9%)"
         input_label = "Input undivided names."
         output_label = "Divided names are shown here."
         too_many_error = "The number of names that can be divided at one time is limited to 500"
@@ -44,6 +57,10 @@ def main():
 
     else:
         raise ValueError
+
+    mode = st.radio(
+        mode_select,
+        (mode_basic, mode_gbdt))
 
     input_area, output_area = st.columns(2)
     undivided_names = input_area.text_area(input_label,
@@ -56,7 +73,13 @@ def main():
     for _name in undivided_names_list:
         if len(_name) < 2:
             continue
-        divided_names.append(str(divider.divide_name(_name)))
+        if mode == mode_basic:
+            _divided_name = str(basic_divider.divide_name(_name))
+        elif mode == mode_gbdt:
+            _divided_name = str(gbdt_divider.divide_name(_name))
+        else:
+            raise ValueError
+        divided_names.append(_divided_name)
     output_area.text_area(label=output_label,
                           value="\n".join(divided_names),
                           height=500,
