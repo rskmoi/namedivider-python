@@ -12,7 +12,7 @@ app = typer.Typer()
 
 def get_divider(mode: str, separator: str) -> _NameDivider:
     if mode == "basic":
-        config = BasicNameDividerConfig(separator=separator, only_order_score_when_4=True)
+        config = BasicNameDividerConfig(separator=separator)
         return BasicNameDivider(config=config)
     elif mode == "gbdt":
         config = GBDTNameDividerConfig(separator=separator)
