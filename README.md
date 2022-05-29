@@ -1,6 +1,6 @@
 # namedivider-python
 <div align="center">
-    <img src="https://user-images.githubusercontent.com/26462938/170855238-8f287165-f47a-4e9b-9297-ec10e238ef31.png" alt="logo" width="500"/>
+    <img src="https://user-images.githubusercontent.com/26462938/170857814-75d609ad-6c4a-48ed-98a6-318943521a2f.png" alt="logo"/>
 </div>
 <div align="center">
     <img src="https://badge.fury.io/py/namedivider-python.svg" alt=""/>
