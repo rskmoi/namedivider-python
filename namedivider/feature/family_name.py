@@ -30,7 +30,7 @@ class FamilyNameRepository:
         """
         return family in self.__family_names
 
-    def get_rank(self, family: str) -> Union[int, np.nan]:
+    def get_rank(self, family: str) -> Union[int, float]:
         """
         Returns the rank of the family name entered.
         :param family: Family name.
