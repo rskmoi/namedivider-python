@@ -1,7 +1,18 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from typing import Any
+from typing import cast
+
+# After 3.7 reached EOL: from typing import TypedDict
+from typing_extensions import TypedDict
+
+
+class DividedNameDict(TypedDict):
+    family: str
+    given: str
+    separator: str
+    score: float
+    algorithm: str
 
 
 @dataclass(frozen=True)
@@ -28,9 +39,9 @@ class DividedName:
         """
         return f"{self.family}{self.separator}{self.given}"
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> DividedNameDict:
         """
         :return: Dictionary of divided name
         :rtype: Dict
         """
-        return asdict(self)
+        return cast(DividedNameDict, asdict(self))
