@@ -47,10 +47,13 @@ repos:
           - typer
           - types-regex
           - types-requests
-        files: ^namedivider/
+          - fastapi
+          - types-ujson
+          - python-dotenv
+        files: ^(namedivider/|namedivider-api/src/)
         args: [--strict]
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.31.1
     hooks:
       - id: markdownlint
-        args: [--disable=MD013]
+        args: [--disable=MD013, --disable=MD024, --disable=MD033]

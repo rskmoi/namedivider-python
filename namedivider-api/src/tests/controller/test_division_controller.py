@@ -1,9 +1,10 @@
-from namedivider import NameDivider
-from controller.model import DivisionRequest
 from controller import division_controller
+from controller.model import DivisionRequest
+
+from namedivider import NameDivider
 
 
-def test_division_controller():
+def test_division_controller() -> None:
     divider = NameDivider()
     undivided_names = ["菅義偉"]
     division_request = DivisionRequest(names=undivided_names)
@@ -15,5 +16,5 @@ def test_division_controller():
     assert res.divided_names[0].algorithm == "kanji_feature"
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_division_controller()

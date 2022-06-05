@@ -1,8 +1,9 @@
-from namedivider import NameDivider
 from service import division_service
 
+from namedivider import NameDivider
 
-def test_division_servise():
+
+def test_division_servise() -> None:
     divider = NameDivider()
     divided_names = division_service.divide(divider=divider, undivided_names=["菅義偉"])
     assert divided_names[0].family == "菅"

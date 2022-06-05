@@ -1,24 +1,34 @@
 from fastapi.testclient import TestClient
 from main import app
-import pytest
-
 
 client = TestClient(app)
 
 
-def test_health():
+def test_health() -> None:
     res = client.get("/health")
     assert res.status_code == 200
 
 
-def test_valid_names():
+def test_valid_names() -> None:
     _json = {"names": ["菅義偉", "安倍晋三"]}
     res = client.post("/divide", json=_json)
     divided_names = res.json()["divided_names"]
 
     answers = [
-        {'family': '菅', 'given': '義偉', 'separator': ' ', 'score': 0.6328842762252201, 'algorithm': 'kanji_feature'},
-        {'family': '安倍', 'given': '晋三', 'separator': ' ', 'score': 0.45186276187760605, 'algorithm': 'kanji_feature'}
+        {
+            "family": "菅",
+            "given": "義偉",
+            "separator": " ",
+            "score": 0.6328842762252201,
+            "algorithm": "kanji_feature",
+        },
+        {
+            "family": "安倍",
+            "given": "晋三",
+            "separator": " ",
+            "score": 0.45186276187760605,
+            "algorithm": "kanji_feature",
+        },
     ]
 
     for _name, _answer in zip(divided_names, answers):
@@ -29,7 +39,7 @@ def test_valid_names():
         assert _name["algorithm"] == _answer["algorithm"]
 
 
-def test_over_1000():
+def test_over_1000() -> None:
     names = []
     for i in range(1001):
         names.append("菅義偉")
@@ -39,7 +49,7 @@ def test_over_1000():
     assert res.status_code == 422
 
 
-def test_invalid_names():
+def test_invalid_names() -> None:
     _json = {"names": ["菅義偉", "安"]}
     res = client.post("/divide", json=_json)
     assert res.status_code == 422

@@ -1,5 +1,6 @@
-from namedivider import NameDivider, DividedName
 from typing import List
+
+from namedivider import DividedName, NameDivider
 
 
 def divide(divider: NameDivider, undivided_names: List[str]) -> List[DividedName]:

@@ -8,7 +8,7 @@ It is being developed to provide NameDivider functions to those using languages 
 
 ## Installation
 
-```
+```bash
 docker pull rskmoi/namedivider-api
 ```
 
@@ -16,19 +16,19 @@ docker pull rskmoi/namedivider-api
 
 - Run Docker Image
 
-```
+```bash
 docker run -d --rm -p 8000:8000 rskmoi/namedivider-python
 ```
 
 - Send HTTP request
 
-```
+```bash
 curl -X POST -H "Content-Type: application/json" -d '{"names":["竈門炭治郎", "竈門禰豆子"]}' localhost:8000/divide
 ```
 
 - Response
 
-```
+```json
 {
     "divided_names":
         [
@@ -41,4 +41,3 @@ curl -X POST -H "Content-Type: application/json" -d '{"names":["竈門炭治郎"
 ## NOTICE
 
 - `names` is a list of undivided name. The maximum length of the list is 1000.
-
