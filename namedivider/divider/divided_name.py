@@ -1,5 +1,7 @@
-from typing import Dict
-from dataclasses import dataclass, asdict
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -12,10 +14,11 @@ class DividedName:
     :param score: Confidence level, from 0 to 1
     :param algorithm: The name of dividing algorithm
     """
+
     family: str
     given: str
     separator: str = " "
-    score: float = 1.
+    score: float = 1.0
     algorithm: str = ""
 
     def __str__(self) -> str:
@@ -25,7 +28,7 @@ class DividedName:
         """
         return f"{self.family}{self.separator}{self.given}"
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict[str, Any]:
         """
         :return: Dictionary of divided name
         :rtype: Dict

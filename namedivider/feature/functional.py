@@ -1,8 +1,13 @@
+from typing import Any
+
 import numpy as np
+
 from namedivider.feature.kanji import KanjiStatisticsRepository
 
 
-def _create_order_mask(full_name_length: int, char_idx: int) -> np.ndarray:
+def _create_order_mask(
+    full_name_length: int, char_idx: int
+) -> np.ndarray[Any, np.dtype[np.int64]]:
     """
     Create order mask.
     Order mask is one-hot mask for calculate order score.
@@ -12,7 +17,9 @@ def _create_order_mask(full_name_length: int, char_idx: int) -> np.ndarray:
     :rtype: np.ndarray
     """
     if char_idx == 0 or char_idx == full_name_length - 1:
-        raise ValueError("First character and last character must not be created order mask.")
+        raise ValueError(
+            "First character and last character must not be created order mask."
+        )
 
     if full_name_length == 3:
         return np.array([0, 0, 1, 1, 0, 0])
@@ -26,7 +33,9 @@ def _create_order_mask(full_name_length: int, char_idx: int) -> np.ndarray:
     return np.array([0, 1, 1, 1, 1, 0])
 
 
-def _create_length_mask(full_name_length: int, char_idx: int) -> np.ndarray:
+def _create_length_mask(
+    full_name_length: int, char_idx: int
+) -> np.ndarray[Any, np.dtype[np.int64]]:
     """
     Create length mask.
     Length mask is one-hot mask for calculate length score.
@@ -43,16 +52,16 @@ def _create_length_mask(full_name_length: int, char_idx: int) -> np.ndarray:
     max_given = 4 if max_given > 4 else max_given
     lc_family = np.array([0, 0, 0, 0])
     if min_family <= max_family:
-        lc_family[min_family - 1: max_family] = 1
+        lc_family[min_family - 1 : max_family] = 1
     lc_given = np.array([0, 0, 0, 0])
     if min_given <= max_given:
-        lc_given[min_given - 1: max_given] = 1
+        lc_given[min_given - 1 : max_given] = 1
     return np.concatenate([lc_family, lc_given])
 
 
-def _calc_current_order_status(piece_of_divided_name: str,
-                               idx_in_piece_of_divided_name: int,
-                               is_family: bool) -> int:
+def _calc_current_order_status(
+    piece_of_divided_name: str, idx_in_piece_of_divided_name: int, is_family: bool
+) -> int:
     """
     Determine which index of order_counts the kanji corresponds to.
     :param piece_of_divided_name: Family name or given name
@@ -77,14 +86,22 @@ def _calc_current_length_status(piece_of_divided_name: str, is_family: bool) -> 
     :return: The index of length_counts
     :rtype: int
     """
-    piece_of_divided_name_length = len(piece_of_divided_name) if len(piece_of_divided_name) <= 4 else 4
-    return piece_of_divided_name_length - 1 if is_family else piece_of_divided_name_length - 1 + 4
+    piece_of_divided_name_length = (
+        len(piece_of_divided_name) if len(piece_of_divided_name) <= 4 else 4
+    )
+    return (
+        piece_of_divided_name_length - 1
+        if is_family
+        else piece_of_divided_name_length - 1 + 4
+    )
 
 
-def calc_order_score(kanji_statistics_repository: KanjiStatisticsRepository,
-                     piece_of_divided_name: str,
-                     full_name_length: int,
-                     start_index: int = 0) -> float:
+def calc_order_score(
+    kanji_statistics_repository: KanjiStatisticsRepository,
+    piece_of_divided_name: str,
+    full_name_length: int,
+    start_index: int = 0,
+) -> float:
     """
     Calculates order score.
     Order score is a feature, which is a kind of frequency, calculated from where each kanji in full name is used.
@@ -120,9 +137,9 @@ def calc_order_score(kanji_statistics_repository: KanjiStatisticsRepository,
         if current_idx == full_name_length - 1:
             continue
         mask = _create_order_mask(full_name_length, current_idx)
-        current_order_status_idx = _calc_current_order_status(piece_of_divided_name,
-                                                              idx_in_piece_of_divided_name,
-                                                              is_family)
+        current_order_status_idx = _calc_current_order_status(
+            piece_of_divided_name, idx_in_piece_of_divided_name, is_family
+        )
         masked_order = kanji_statistics_repository.get(_kanji).order_counts * mask
         if np.sum(masked_order) == 0:
             continue
@@ -131,10 +148,12 @@ def calc_order_score(kanji_statistics_repository: KanjiStatisticsRepository,
     return scores
 
 
-def calc_length_score(kanji_statistics_repository: KanjiStatisticsRepository,
-                      piece_of_divided_name: str,
-                      full_name_length: int,
-                      start_index: int = 0) -> float:
+def calc_length_score(
+    kanji_statistics_repository: KanjiStatisticsRepository,
+    piece_of_divided_name: str,
+    full_name_length: int,
+    start_index: int = 0,
+) -> float:
     """
     Calculates length score.
     Length score is a feature, which is a kind of frequency,
@@ -167,10 +186,16 @@ def calc_length_score(kanji_statistics_repository: KanjiStatisticsRepository,
     for i, _kanji in enumerate(piece_of_divided_name):
         current_idx = start_index + i
         mask = _create_length_mask(full_name_length, current_idx)
-        current_length_status_idx = _calc_current_length_status(piece_of_divided_name, is_family)
-        masked_length_scores = kanji_statistics_repository.get(_kanji).length_counts * mask
+        current_length_status_idx = _calc_current_length_status(
+            piece_of_divided_name, is_family
+        )
+        masked_length_scores = (
+            kanji_statistics_repository.get(_kanji).length_counts * mask
+        )
         if np.sum(masked_length_scores) == 0:
             continue
-        cur_score = masked_length_scores[current_length_status_idx] / np.sum(masked_length_scores)
+        cur_score = masked_length_scores[current_length_status_idx] / np.sum(
+            masked_length_scores
+        )
         scores += cur_score
     return scores

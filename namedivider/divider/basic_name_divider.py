@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from namedivider.divider.config import BasicNameDividerConfig
 from namedivider.divider.name_divider_base import _NameDivider
-from namedivider.feature.kanji import KanjiStatisticsRepository
 from namedivider.feature.extractor import SimpleFeatureExtractor
+from namedivider.feature.kanji import KanjiStatisticsRepository
 
 
 class BasicNameDivider(_NameDivider):
@@ -10,13 +12,15 @@ class BasicNameDivider(_NameDivider):
     Prior to v0.1.0, this was provided as a 'NameDivider' class.
     """
 
-    def __init__(self, config: BasicNameDividerConfig = None):
+    def __init__(self, config: BasicNameDividerConfig | None = None) -> None:
         if config is None:
             config = BasicNameDividerConfig()
         super().__init__(config=config)
         repository = KanjiStatisticsRepository(path_csv=config.path_csv)
         self.only_order_score_when_4 = config.only_order_score_when_4
-        self.feature_extractor = SimpleFeatureExtractor(kanji_statistics_repository=repository)
+        self.feature_extractor = SimpleFeatureExtractor(
+            kanji_statistics_repository=repository
+        )
 
     def calc_score(self, family: str, given: str) -> float:
         """
@@ -27,9 +31,13 @@ class BasicNameDivider(_NameDivider):
         """
         name = family + given
         features = self.feature_extractor.get_features(family=family, given=given)
-        order_score = (features.family_order_score + features.given_order_score) / (len(name) - 2)
+        order_score = (features.family_order_score + features.given_order_score) / (
+            len(name) - 2
+        )
         if self.only_order_score_when_4 and len(family + given) == 4:
             return order_score
-        length_score = (features.family_length_score + features.given_length_score) / len(name)
+        length_score = (
+            features.family_length_score + features.given_length_score
+        ) / len(name)
 
-        return (order_score + length_score) / 2.
+        return (order_score + length_score) / 2.0

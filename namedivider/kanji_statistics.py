@@ -1,6 +1,8 @@
 import warnings
-import numpy as np
 from dataclasses import dataclass
+from typing import Any
+
+import numpy as np
 
 
 @dataclass(frozen=True)
@@ -76,12 +78,15 @@ class KanjiStatistics:
             "田": [0, 1, 0, 0, 0, 0, 0, 0]
             "錬": [0, 0, 0, 0, 0, 0, 1, 0]
     """
-    warnings.warn("namedivider.kanji_statistics.KanjiStatistics is deprecated in 0.2 and will be removed in 0.4. "
-                  "Use namedivider.feature.kanji.KanjiStatistics if you want to use KanjiStatistics class.",
-                  category=FutureWarning)
+
+    warnings.warn(
+        "namedivider.kanji_statistics.KanjiStatistics is deprecated in 0.2 and will be removed in 0.4. "
+        "Use namedivider.feature.kanji.KanjiStatistics if you want to use KanjiStatistics class.",
+        category=FutureWarning,
+    )
     kanji: str
-    order_counts: np.ndarray
-    length_counts: np.ndarray
+    order_counts: np.ndarray[Any, np.dtype[np.int64]]
+    length_counts: np.ndarray[Any, np.dtype[np.int64]]
 
     @classmethod
     def default(cls) -> "KanjiStatistics":
@@ -90,6 +95,8 @@ class KanjiStatistics:
         :return: Default kanji
         :rtype: KanjiStatistics
         """
-        return cls(kanji="default",
-                   order_counts=np.array([0, 0, 0, 0, 0, 0]),
-                   length_counts=np.array([0, 0, 0, 0, 0, 0, 0, 0]))
+        return cls(
+            kanji="default",
+            order_counts=np.array([0, 0, 0, 0, 0, 0]),
+            length_counts=np.array([0, 0, 0, 0, 0, 0, 0, 0]),
+        )

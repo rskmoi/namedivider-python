@@ -1,9 +1,16 @@
+from pathlib import Path
+from typing import cast
+
 import typer
 from tqdm import tqdm
-from pathlib import Path
-from namedivider.divider.name_divider_base import _NameDivider
-from namedivider.divider.basic_name_divider import BasicNameDivider, BasicNameDividerConfig
-from namedivider.divider.gbdt_name_divider import GBDTNameDivider, GBDTNameDividerConfig
+
+from namedivider.divider import (
+    BasicNameDivider,
+    BasicNameDividerConfig,
+    GBDTNameDivider,
+    GBDTNameDividerConfig,
+    _NameDivider,
+)
 
 CURRENT_DIR = Path(__file__).resolve().parent
 
@@ -12,19 +19,25 @@ app = typer.Typer()
 
 def get_divider(mode: str, separator: str) -> _NameDivider:
     if mode == "basic":
-        config = BasicNameDividerConfig(separator=separator)
-        return BasicNameDivider(config=config)
+        config_b = BasicNameDividerConfig(separator=separator)
+        return BasicNameDivider(config=config_b)
     elif mode == "gbdt":
-        config = GBDTNameDividerConfig(separator=separator)
-        return GBDTNameDivider(config=config)
+        config_g = GBDTNameDividerConfig(separator=separator)
+        return GBDTNameDivider(config=config_g)
     else:
         raise ValueError(f"Mode must be in [basic, gbdt], but got {mode}")
 
 
 @app.command()
-def name(undivided_name: str = typer.Argument(..., help="Undivided name"),
-         separator: str = typer.Option(" ", "--separator", "-s", help="Separator between family name and given name"),
-         mode: str = typer.Option("basic", "--mode", "-m", help="Divider Mode. You can choice basic or gbdt.")):
+def name(
+    undivided_name: str = typer.Argument(..., help="Undivided name"),
+    separator: str = typer.Option(
+        " ", "--separator", "-s", help="Separator between family name and given name"
+    ),
+    mode: str = typer.Option(
+        "basic", "--mode", "-m", help="Divider Mode. You can choice basic or gbdt."
+    ),
+) -> None:
     """
     Divides an undivided name.
     :param undivided_name: Undivided name
@@ -35,14 +48,20 @@ def name(undivided_name: str = typer.Argument(..., help="Undivided name"),
 
 
 @app.command()
-def file(undivided_name_text: Path = typer.Argument(...,
-                                                    help="File path of text file",
-                                                    exists=True,
-                                                    dir_okay=False,
-                                                    readable=True),
-         separator: str = typer.Option(" ", "--separator", "-s", help="Separator between family name and given name"),
-         mode: str = typer.Option("basic", "--mode", "-m", help="Divider Mode. You can choice basic or gbdt."),
-         encoding: str = typer.Option("utf-8", "--encoding", "-e", help="Encoding of text file")):
+def file(
+    undivided_name_text: Path = typer.Argument(
+        ..., help="File path of text file", exists=True, dir_okay=False, readable=True
+    ),
+    separator: str = typer.Option(
+        " ", "--separator", "-s", help="Separator between family name and given name"
+    ),
+    mode: str = typer.Option(
+        "basic", "--mode", "-m", help="Divider Mode. You can choice basic or gbdt."
+    ),
+    encoding: str = typer.Option(
+        "utf-8", "--encoding", "-e", help="Encoding of text file"
+    ),
+) -> None:
     """
     Divides names in text file.
     The text file must have one name per line.
@@ -70,21 +89,27 @@ def file(undivided_name_text: Path = typer.Argument(...,
     with open(undivided_name_text, "rb") as f:
         undivided_names = f.read().decode(encoding).strip().split("\n")
     divided_names = []
-    for _undivided_name in tqdm(undivided_names):
+    _undivided_names = cast(list[str], tqdm(undivided_names))  # type: ignore[abstract]
+    for _undivided_name in _undivided_names:
         divided_names.append(str(divider.divide_name(_undivided_name)))
     print("\n".join(divided_names))
 
 
 @app.command()
-def accuracy(divided_name_text: Path = typer.Argument(...,
-                                                      help="File path of text file",
-                                                      exists=True,
-                                                      dir_okay=False,
-                                                      readable=True),
-             separator: str = typer.Option(" ", "--separator", "-s",
-                                           help="Separator between family name and given name"),
-             mode: str = typer.Option("basic", "--mode", "-m", help="Divider Mode. You can choice basic or gbdt."),
-             encoding: str = typer.Option("utf-8", "--encoding", "-e", help="Encoding of text file")):
+def accuracy(
+    divided_name_text: Path = typer.Argument(
+        ..., help="File path of text file", exists=True, dir_okay=False, readable=True
+    ),
+    separator: str = typer.Option(
+        " ", "--separator", "-s", help="Separator between family name and given name"
+    ),
+    mode: str = typer.Option(
+        "basic", "--mode", "-m", help="Divider Mode. You can choice basic or gbdt."
+    ),
+    encoding: str = typer.Option(
+        "utf-8", "--encoding", "-e", help="Encoding of text file"
+    ),
+) -> None:
     """
     Check the accuracy of this tool.
     The text file must have one name per line, and name must be divided py separator.
@@ -109,13 +134,14 @@ def accuracy(divided_name_text: Path = typer.Argument(...,
     """
     divider = get_divider(mode=mode, separator=separator)
     with open(divided_name_text, "rb") as f:
-        divided_name_text = f.read().decode(encoding).strip().split("\n")
+        divided_name_text_content = f.read().decode(encoding).strip().split("\n")
     is_correct_list = []
     wrong_list = []
-    for _divided_name in tqdm(divided_name_text):
+    _divided_names = cast(list[str], tqdm(divided_name_text_content))  # type: ignore[abstract]
+    for _divided_name in _divided_names:
         _undivided_name = _divided_name.replace(separator, "")
         _divided_name_pred = str(divider.divide_name(_undivided_name))
-        is_correct = (_divided_name == _divided_name_pred)
+        is_correct = _divided_name == _divided_name_pred
         is_correct_list.append(is_correct)
         if not is_correct:
             wrong_list.append(f"True: {_divided_name}, Pred: {_divided_name_pred}")
@@ -124,5 +150,5 @@ def accuracy(divided_name_text: Path = typer.Argument(...,
         print("\n".join(wrong_list))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app()

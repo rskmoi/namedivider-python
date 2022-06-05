@@ -1,11 +1,13 @@
-from typing import Union
+from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
-from dataclasses import dataclass
-from namedivider.util import \
-    get_kanji_csv_default_path, \
-    get_family_name_pkl_default_path, \
-    get_gbdt_model_v1_default_path
+from typing import Union
+
+from namedivider.util import (
+    get_family_name_pkl_default_path,
+    get_gbdt_model_v1_default_path,
+    get_kanji_csv_default_path,
+)
 
 KANJI_CSV_DEFAULT_PATH = get_kanji_csv_default_path()
 FAMILY_NAME_PKL_DEFAULT_PATH = get_family_name_pkl_default_path()
@@ -29,6 +31,7 @@ class NameDividerConfigBase:
     into orthographic character form(正字体) before processing them.
     algorithm_name: Name of algorithm.
     """
+
     separator: str = " "
     normalize_name: bool = True
     algorithm_name: str = "unknown_algorithm"
@@ -40,6 +43,7 @@ class BasicNameDividerConfig(NameDividerConfigBase):
     path_csv: Path of the file containing the kanji information.
     only_order_score_when_4: If True, only order score is used for 4-character names. Not recommended to be True.
     """
+
     path_csv: Union[str, Path] = KANJI_CSV_DEFAULT_PATH
     only_order_score_when_4: bool = False
     algorithm_name: str = "kanji_feature"
@@ -56,6 +60,7 @@ class GBDTNameDividerConfig(NameDividerConfigBase):
     Path of a file with multiple family names enumerated.
     path_model: Path of a GBDT model.
     """
+
     path_csv: Union[str, Path] = KANJI_CSV_DEFAULT_PATH
     path_family_names: Union[str, Path] = FAMILY_NAME_PKL_DEFAULT_PATH
     path_model: Union[str, Path] = GBDT_MODEL_V1_DEFAULT_PATH
@@ -68,14 +73,14 @@ def get_config_from_version(version: NameDividerVersions) -> NameDividerConfigBa
             separator=" ",
             normalize_name=False,
             path_csv=KANJI_CSV_DEFAULT_PATH,
-            only_order_score_when_4=True
+            only_order_score_when_4=True,
         )
     elif version == NameDividerVersions.BASIC_NAME_DIVIDER_V2:
         return BasicNameDividerConfig(
             separator=" ",
             normalize_name=True,
             path_csv=KANJI_CSV_DEFAULT_PATH,
-            only_order_score_when_4=False
+            only_order_score_when_4=False,
         )
     elif version == NameDividerVersions.BASIC_NAME_DIVIDER_LATEST:
         return BasicNameDividerConfig()
@@ -85,7 +90,7 @@ def get_config_from_version(version: NameDividerVersions) -> NameDividerConfigBa
             normalize_name=True,
             path_csv=KANJI_CSV_DEFAULT_PATH,
             path_family_names=FAMILY_NAME_PKL_DEFAULT_PATH,
-            path_model=GBDT_MODEL_V1_DEFAULT_PATH
+            path_model=GBDT_MODEL_V1_DEFAULT_PATH,
         )
     elif version == NameDividerVersions.GBDT_NAME_DIVIDER_LATEST:
         return GBDTNameDividerConfig()

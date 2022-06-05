@@ -1,9 +1,17 @@
+from __future__ import annotations
+
 import abc
-import regex
+from typing import Any, cast
+
 import numpy as np
+import regex
+
+from namedivider.divider.config import (
+    NameDividerConfigBase,
+    NameDividerVersions,
+    get_config_from_version,
+)
 from namedivider.divider.divided_name import DividedName
-from namedivider.divider.config import NameDividerVersions, get_config_from_version, NameDividerConfigBase
-from typing import Optional
 
 
 class _UndividedNameHolder:
@@ -30,7 +38,9 @@ class _UndividedNameHolder:
             name = name.replace(_old, _new)
         return name
 
-    def get_divided_original_name(self, divided_normalized_name: DividedName) -> DividedName:
+    def get_divided_original_name(
+        self, divided_normalized_name: DividedName
+    ) -> DividedName:
         """
         Get divided original name using divided normalize name.
         :param divided_normalized_name: Divided name by normalized name.
@@ -39,16 +49,18 @@ class _UndividedNameHolder:
         _family_length = len(divided_normalized_name.family)
         _family = self.original_name[:_family_length]
         _given = self.original_name[_family_length:]
-        return DividedName(_family,
-                           _given,
-                           separator=divided_normalized_name.separator,
-                           score=divided_normalized_name.score,
-                           algorithm=divided_normalized_name.algorithm)
+        return DividedName(
+            _family,
+            _given,
+            separator=divided_normalized_name.separator,
+            score=divided_normalized_name.score,
+            algorithm=divided_normalized_name.algorithm,
+        )
 
 
 class _NameDivider(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def __init__(self, config: NameDividerConfigBase = None):
+    def __init__(self, config: NameDividerConfigBase | None = None) -> None:
         """
         Base Class for dividing an undivided name.
         ("undivided name" means names with no space between the family name and given name.)
@@ -60,7 +72,7 @@ class _NameDivider(metaclass=abc.ABCMeta):
         self.separator = config.separator
         self.normalize_name = config.normalize_name
         self.algorithm_name = config.algorithm_name
-        self.compiled_regex_kanji = regex.compile(r'\p{Script=Han}+')
+        self.compiled_regex_kanji = regex.compile(r"\p{Script=Han}+")
 
     @abc.abstractmethod
     def calc_score(self, family: str, given: str) -> float:
@@ -73,7 +85,7 @@ class _NameDivider(metaclass=abc.ABCMeta):
         pass
 
     @classmethod
-    def from_version(cls, version: NameDividerVersions) -> "_NameDivider":
+    def from_version(cls, version: NameDividerVersions) -> _NameDivider:
         """
         Create instance by model version.
         :param version: Version of divider.
@@ -83,7 +95,9 @@ class _NameDivider(metaclass=abc.ABCMeta):
         config = get_config_from_version(version)
         return cls(config=config)
 
-    def _create_divided_name(self, family: str, given: str, score: float = 1., algorithm: str = "") -> DividedName:
+    def _create_divided_name(
+        self, family: str, given: str, score: float = 1.0, algorithm: str = ""
+    ) -> DividedName:
         """
         Generates DividedName.
         :param family: Family name
@@ -93,10 +107,12 @@ class _NameDivider(metaclass=abc.ABCMeta):
         :return: Divided name
         :rtype: DividedName
         """
-        return DividedName(family, given, separator=self.separator, score=score, algorithm=algorithm)
+        return DividedName(
+            family, given, separator=self.separator, score=score, algorithm=algorithm
+        )
 
     @staticmethod
-    def _validate(undivided_name: str):
+    def _validate(undivided_name: str) -> None:
         """
         Determines if it is an assumed input.
         :param undivided_name: Names with no space between the first and last name
@@ -105,17 +121,17 @@ class _NameDivider(metaclass=abc.ABCMeta):
             raise ValueError("Name length needs at least 2 chars")
 
     @staticmethod
-    def _softmax(x) -> np.ndarray:
+    def _softmax(x: list[float]) -> np.ndarray[Any, np.dtype[np.float64]]:
         """
         Calculates softmax score
         :param x: array_like
         :return: Softmax scores
         :rtype: np.ndarray
         """
-        u = np.sum(np.exp(x))
+        u = cast(np.float64, np.sum(np.exp(x)))
         return np.exp(x) / u
 
-    def _divide_by_rule_base(self, undivided_name: str) -> Optional[DividedName]:
+    def _divide_by_rule_base(self, undivided_name: str) -> DividedName | None:
         """
         Divides undivided name without using kanji statistics.
         :param undivided_name: Names with no space between the family name and given name
@@ -129,9 +145,9 @@ class _NameDivider(metaclass=abc.ABCMeta):
         # If the undivided name consists of 2 characters,
         # the first characters is family name, and the last characters is given name.
         if len(undivided_name) == 2:
-            return self._create_divided_name(family=undivided_name[0],
-                                             given=undivided_name[-1],
-                                             algorithm="rule")
+            return self._create_divided_name(
+                family=undivided_name[0], given=undivided_name[-1], algorithm="rule"
+            )
 
         # If the undivided name consists of kanji and other types of characters (hiragana, katakana, etc...),
         # the undivided name will be divided where the kanji and other character types are switched.
@@ -145,9 +161,12 @@ class _NameDivider(metaclass=abc.ABCMeta):
             is_kanji_list.append(is_kanji)
             if i >= 2:
                 if is_kanji_list[0] != is_kanji and is_kanji_list[-2] == is_kanji:
-                    return self._create_divided_name(family=undivided_name[:i - 1],
-                                                     given=undivided_name[i - 1:],
-                                                     algorithm="rule")
+                    return self._create_divided_name(
+                        family=undivided_name[: i - 1],
+                        given=undivided_name[i - 1 :],
+                        algorithm="rule",
+                    )
+        return None
 
     def _divide_by_algorithm(self, undivided_name: str) -> DividedName:
         """
@@ -163,12 +182,14 @@ class _NameDivider(metaclass=abc.ABCMeta):
             score = self.calc_score(family, given)
             total_scores.append(score)
 
-        total_scores = self._softmax(total_scores)
-        max_idx = np.argmax(np.array(total_scores)) + 1
-        return self._create_divided_name(family=undivided_name[:max_idx],
-                                         given=undivided_name[max_idx:],
-                                         score=total_scores[max_idx - 1],
-                                         algorithm=self.algorithm_name)
+        total_scores_sm = self._softmax(total_scores)
+        max_idx = int(np.argmax(np.array(total_scores_sm)) + 1)
+        return self._create_divided_name(
+            family=undivided_name[:max_idx],
+            given=undivided_name[max_idx:],
+            score=total_scores_sm[max_idx - 1],
+            algorithm=self.algorithm_name,
+        )
 
     def _divide_name(self, undivided_name: str) -> DividedName:
         """

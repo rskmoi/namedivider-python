@@ -1,8 +1,11 @@
-from typing import Union
-from pathlib import Path
-import pandas as pd
-import numpy as np
+from __future__ import annotations
+
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+import pandas as pd
 
 
 @dataclass(frozen=True)
@@ -78,20 +81,23 @@ class KanjiStatistics:
             "田": [0, 1, 0, 0, 0, 0, 0, 0]
             "錬": [0, 0, 0, 0, 0, 0, 1, 0]
     """
+
     kanji: str
-    order_counts: np.ndarray
-    length_counts: np.ndarray
+    order_counts: np.ndarray[Any, np.dtype[np.int64]]
+    length_counts: np.ndarray[Any, np.dtype[np.int64]]
 
     @classmethod
-    def default(cls) -> "KanjiStatistics":
+    def default(cls) -> KanjiStatistics:
         """
         Returns default kanji.
         :return: Default kanji
         :rtype: KanjiStatistics
         """
-        return cls(kanji="default",
-                   order_counts=np.array([0, 0, 0, 0, 0, 0]),
-                   length_counts=np.array([0, 0, 0, 0, 0, 0, 0, 0]))
+        return cls(
+            kanji="default",
+            order_counts=np.array([0, 0, 0, 0, 0, 0]),
+            length_counts=np.array([0, 0, 0, 0, 0, 0, 0, 0]),
+        )
 
 
 class KanjiStatisticsRepository:
@@ -99,7 +105,7 @@ class KanjiStatisticsRepository:
     Repository class for managing KanjiStatistics.
     """
 
-    def __init__(self, path_csv: Union[str, Path]):
+    def __init__(self, path_csv: str | Path):
         """
 
         :param path_csv:
@@ -111,7 +117,9 @@ class KanjiStatisticsRepository:
 
         self._kanji_dict = {}
         for _kanji, _order, _length in zip(kanjis, orders, lengths):
-            self._kanji_dict[_kanji] = KanjiStatistics(kanji=_kanji, order_counts=_order, length_counts=_length)
+            self._kanji_dict[_kanji] = KanjiStatistics(
+                kanji=_kanji, order_counts=_order, length_counts=_length
+            )
         self._default_kanji = KanjiStatistics.default()
 
     def get(self, kanji: str) -> KanjiStatistics:

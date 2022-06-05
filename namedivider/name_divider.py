@@ -1,26 +1,35 @@
+from __future__ import annotations
+
+import warnings
+from pathlib import Path
+from typing import Any
+
 import numpy as np
 import pandas as pd
 import regex
-import warnings
+
 from namedivider.divider.divided_name import DividedName
 from namedivider.feature.kanji import KanjiStatistics
-from pathlib import Path
-from typing import Optional
 
 CURRENT_DIR = Path(__file__).resolve().parent
 
 
 class NameDivider:
-    def __init__(self, path_csv: str = f"{CURRENT_DIR}/assets/kanji.csv", separator: str = " "):
+    def __init__(
+        self, path_csv: str = f"{CURRENT_DIR}/assets/kanji.csv", separator: str = " "
+    ):
         """
         Class for dividing an undivided name
         ("undivided name" means names with no space between the family name and given name.)
         :param path_csv: Path of the file containing the kanji information
         :param separator: Characters to separate first and last names
         """
-        warnings.warn("Class NameDivider is deprecated in 0.2 and will be removed in 0.4. "
-                      "Use BasicNameDivider.from_version(NameDividerVersions.BASIC_NAME_DIVIDER_V1) "
-                      "if you want to use a class with same behavior.", category=FutureWarning)
+        warnings.warn(
+            "Class NameDivider is deprecated in 0.2 and will be removed in 0.4. "
+            "Use BasicNameDivider.from_version(NameDividerVersions.BASIC_NAME_DIVIDER_V1) "
+            "if you want to use a class with same behavior.",
+            category=FutureWarning,
+        )
         kanji_records = pd.read_csv(path_csv).to_numpy()
         kanjis = kanji_records[:, 0]
         orders = kanji_records[:, 1:7]
@@ -28,13 +37,17 @@ class NameDivider:
 
         self.kanji_dict = {}
         for _kanji, _order, _length in zip(kanjis, orders, lengths):
-            self.kanji_dict[_kanji] = KanjiStatistics(kanji=_kanji, order_counts=_order, length_counts=_length)
+            self.kanji_dict[_kanji] = KanjiStatistics(
+                kanji=_kanji, order_counts=_order, length_counts=_length
+            )
 
         self.default_kanji = KanjiStatistics.default()
         self.separator = separator
-        self.compiled_regex_kanji = regex.compile(r'\p{Script=Han}+')
+        self.compiled_regex_kanji = regex.compile(r"\p{Script=Han}+")
 
-    def _create_divided_name(self, family: str, given: str, score: float = 1., algorithm: str = "") -> DividedName:
+    def _create_divided_name(
+        self, family: str, given: str, score: float = 1.0, algorithm: str = ""
+    ) -> DividedName:
         """
         Generates DividedName.
         :param family: Family name
@@ -44,10 +57,14 @@ class NameDivider:
         :return: Divided name
         :rtype: DividedName
         """
-        return DividedName(family, given, separator=self.separator, score=score, algorithm=algorithm)
+        return DividedName(
+            family, given, separator=self.separator, score=score, algorithm=algorithm
+        )
 
     @staticmethod
-    def _create_order_mask(full_name_length: int, char_idx: int) -> np.ndarray:
+    def _create_order_mask(
+        full_name_length: int, char_idx: int
+    ) -> np.ndarray[Any, np.dtype[np.int64]]:
         """
         Create order mask.
         Order mask is one-hot mask for calculate order score.
@@ -57,7 +74,9 @@ class NameDivider:
         :rtype: np.ndarray
         """
         if char_idx == 0 or char_idx == full_name_length - 1:
-            raise ValueError("First character and last character must not be created order mask.")
+            raise ValueError(
+                "First character and last character must not be created order mask."
+            )
 
         if full_name_length == 3:
             return np.array([0, 0, 1, 1, 0, 0])
@@ -71,7 +90,9 @@ class NameDivider:
         return np.array([0, 1, 1, 1, 1, 0])
 
     @staticmethod
-    def _create_length_mask(full_name_length, char_idx) -> np.ndarray:
+    def _create_length_mask(
+        full_name_length: int, char_idx: int
+    ) -> np.ndarray[Any, np.dtype[np.int64]]:
         """
         Create length mask.
         Length mask is one-hot mask for calculate length score.
@@ -88,16 +109,16 @@ class NameDivider:
         max_given = 4 if max_given > 4 else max_given
         lc_family = np.array([0, 0, 0, 0])
         if min_family <= max_family:
-            lc_family[min_family - 1: max_family] = 1
+            lc_family[min_family - 1 : max_family] = 1
         lc_given = np.array([0, 0, 0, 0])
         if min_given <= max_given:
-            lc_given[min_given - 1: max_given] = 1
+            lc_given[min_given - 1 : max_given] = 1
         return np.concatenate([lc_family, lc_given])
 
     @staticmethod
-    def _calc_current_order_status(piece_of_divided_name: str,
-                                   idx_in_piece_of_divided_name: int,
-                                   is_family: bool) -> int:
+    def _calc_current_order_status(
+        piece_of_divided_name: str, idx_in_piece_of_divided_name: int, is_family: bool
+    ) -> int:
         """
         Determine which index of order_counts the kanji corresponds to.
         :param piece_of_divided_name: Family name or given name
@@ -122,10 +143,18 @@ class NameDivider:
         :return: The index of length_counts
         :rtype: int
         """
-        piece_of_divided_name_length = len(piece_of_divided_name) if len(piece_of_divided_name) <= 4 else 4
-        return piece_of_divided_name_length - 1 if is_family else piece_of_divided_name_length - 1 + 4
+        piece_of_divided_name_length = (
+            len(piece_of_divided_name) if len(piece_of_divided_name) <= 4 else 4
+        )
+        return (
+            piece_of_divided_name_length - 1
+            if is_family
+            else piece_of_divided_name_length - 1 + 4
+        )
 
-    def _calc_order_score(self, piece_of_divided_name: str, full_name_length: int, start_index: int = 0) -> float:
+    def _calc_order_score(
+        self, piece_of_divided_name: str, full_name_length: int, start_index: int = 0
+    ) -> float:
         """
         Calculates order score.
         Order score is a feature, which is a kind of frequency, calculated from where each kanji in full name is used.
@@ -160,16 +189,20 @@ class NameDivider:
             if current_idx == full_name_length - 1:
                 continue
             mask = self._create_order_mask(full_name_length, current_idx)
-            current_order_status_idx = self._calc_current_order_status(piece_of_divided_name,
-                                                                       idx_in_piece_of_divided_name,
-                                                                       is_family)
-            masked_order = self.kanji_dict.get(_kanji, self.default_kanji).order_counts * mask
+            current_order_status_idx = self._calc_current_order_status(
+                piece_of_divided_name, idx_in_piece_of_divided_name, is_family
+            )
+            masked_order = (
+                self.kanji_dict.get(_kanji, self.default_kanji).order_counts * mask
+            )
             if np.sum(masked_order) == 0:
                 continue
             scores += masked_order[current_order_status_idx] / np.sum(masked_order)
         return scores
 
-    def _calc_length_score(self, piece_of_divided_name, full_name_length, start_index=0) -> float:
+    def _calc_length_score(
+        self, piece_of_divided_name: str, full_name_length: int, start_index: int = 0
+    ) -> float:
         """
         Calculates length score.
         Length score is a feature, which is a kind of frequency,
@@ -201,11 +234,17 @@ class NameDivider:
         for i, _kanji in enumerate(piece_of_divided_name):
             current_idx = start_index + i
             mask = self._create_length_mask(full_name_length, current_idx)
-            current_length_status_idx = self._calc_current_length_status(piece_of_divided_name, is_family)
-            masked_length_scores = self.kanji_dict.get(_kanji, self.default_kanji).length_counts * mask
+            current_length_status_idx = self._calc_current_length_status(
+                piece_of_divided_name, is_family
+            )
+            masked_length_scores = (
+                self.kanji_dict.get(_kanji, self.default_kanji).length_counts * mask
+            )
             if np.sum(masked_length_scores) == 0:
                 continue
-            scores += masked_length_scores[current_length_status_idx] / np.sum(masked_length_scores)
+            scores += masked_length_scores[current_length_status_idx] / np.sum(
+                masked_length_scores
+            )
         return scores
 
     def calc_score(self, family: str, given: str) -> float:
@@ -232,7 +271,7 @@ class NameDivider:
         return (order_score + length_score) / 2
 
     @staticmethod
-    def _validate(undivided_name: str):
+    def _validate(undivided_name: str) -> None:
         """
         Determines if it is an assumed input.
         :param undivided_name: Names with no space between the first and last name
@@ -240,7 +279,7 @@ class NameDivider:
         if len(undivided_name) < 2:
             raise ValueError("Name length needs at least 2 chars")
 
-    def _divide_by_rule_base(self, undivided_name: str) -> Optional[DividedName]:
+    def _divide_by_rule_base(self, undivided_name: str) -> DividedName | None:
         """
         Divides undivided name without using kanji statistics.
         :param undivided_name: Names with no space between the family name and given name
@@ -254,9 +293,9 @@ class NameDivider:
         # If the undivided name consists of 2 characters,
         # the first characters is family name, and the last characters is given name.
         if len(undivided_name) == 2:
-            return self._create_divided_name(family=undivided_name[0],
-                                             given=undivided_name[-1],
-                                             algorithm="rule")
+            return self._create_divided_name(
+                family=undivided_name[0], given=undivided_name[-1], algorithm="rule"
+            )
 
         # If the undivided name consists of kanji and other types of characters (hiragana, katakana, etc...),
         # the undivided name will be divided where the kanji and other character types are switched.
@@ -270,19 +309,22 @@ class NameDivider:
             is_kanji_list.append(is_kanji)
             if i >= 2:
                 if is_kanji_list[0] != is_kanji and is_kanji_list[-2] == is_kanji:
-                    return self._create_divided_name(family=undivided_name[:i - 1],
-                                                     given=undivided_name[i - 1:],
-                                                     algorithm="rule")
+                    return self._create_divided_name(
+                        family=undivided_name[: i - 1],
+                        given=undivided_name[i - 1 :],
+                        algorithm="rule",
+                    )
+        return None
 
     @staticmethod
-    def _softmax(x) -> np.ndarray:
+    def _softmax(x: list[float]) -> np.ndarray[Any, np.dtype[np.float64]]:
         """
         Calculates softmax score
         :param x: array_like
         :return: Softmax scores
         :rtype: np.ndarray
         """
-        u = np.sum(np.exp(x))
+        u = float(np.sum(np.exp(x)))
         return np.exp(x) / u
 
     def _divide_by_statistics(self, undivided_name: str) -> DividedName:
@@ -299,12 +341,14 @@ class NameDivider:
             score = self.calc_score(family, given)
             total_scores.append(score)
 
-        total_scores = self._softmax(total_scores)
-        max_idx = np.argmax(np.array(total_scores)) + 1
-        return self._create_divided_name(family=undivided_name[:max_idx],
-                                         given=undivided_name[max_idx:],
-                                         score=total_scores[max_idx - 1],
-                                         algorithm="kanji_feature")
+        total_scores_sm = self._softmax(total_scores)
+        max_idx = int(np.argmax(np.array(total_scores_sm)) + 1)
+        return self._create_divided_name(
+            family=undivided_name[:max_idx],
+            given=undivided_name[max_idx:],
+            score=total_scores_sm[max_idx - 1],
+            algorithm="kanji_feature",
+        )
 
     def divide_name(self, undivided_name: str) -> DividedName:
         """
