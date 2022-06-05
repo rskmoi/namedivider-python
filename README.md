@@ -1,4 +1,5 @@
 # namedivider-python
+
 <div align="center">
     <img src="https://user-images.githubusercontent.com/26462938/170857814-75d609ad-6c4a-48ed-98a6-318943521a2f.png" alt="logo"/>
 </div>
@@ -11,7 +12,8 @@
 ---
 
 **NameDivider** is a tool for dividing the Japanese full name into a family name and a given name.
-```
+
+```text
 input: 菅義偉 -> output: 菅 義偉
 ```
 
@@ -26,11 +28,13 @@ You can see how it works with [this demo](https://share.streamlit.io/rskmoi/name
 [NameDivider(日本語)](https://dune-fifth-da7.notion.site/NameDivider-9118f1a74ca545629dbbfa606a39ba0a "NameDivider")
 
 ## Installation
-```
+
+```bash
 pip install namedivider-python
 ```
 
 ## Usage
+
 It's simple to use.
 
 ```python
@@ -62,7 +66,7 @@ I am developing NameDivider API to provide NameDivider functionality to non-Pyth
 
 ### Installation
 
-```
+```bash
 docker pull rskmoi/namedivider-api
 ```
 
@@ -70,19 +74,19 @@ docker pull rskmoi/namedivider-api
 
 - Run Docker Image
 
-```
+```bash
 docker run -d --rm -p 8000:8000 rskmoi/namedivider-api
 ```
 
 - Send HTTP request
 
-```
+```bash
 curl -X POST -H "Content-Type: application/json" -d '{"names":["竈門炭治郎", "竈門禰豆子"]}' localhost:8000/divide
 ```
 
 - Response
 
-```
+```json
 {
     "divided_names":
         [
@@ -97,8 +101,10 @@ curl -X POST -H "Content-Type: application/json" -d '{"names":["竈門炭治郎"
 - `names` is a list of undivided name. The maximum length of the list is 1000.
 
 ## CLI
+
 Read namedivider/cli.py for more information.
-```
+
+```shellsession
 $ nmdiv name 菅義偉
 菅 義偉
 $ nmdiv file undivided_names.txt
@@ -116,6 +122,7 @@ True: 滝 登喜男, Pred: 滝登 喜男
 ## License
 
 ### Source code and gbdt_model_v1.txt
+
 MIT License
 
 ### family_name_repository.pickle
@@ -146,4 +153,4 @@ The author or copyright holder assumes no responsibility for the software.
 
 The family name data used in family_name_repository.pickle is provided by Myoji-Yurai.net(名字由来net).
 
-![](https://user-images.githubusercontent.com/26462938/170855242-84ec7418-b288-4b64-bbc2-4927776493bf.png)
+![名字由来net logo](https://user-images.githubusercontent.com/26462938/170855242-84ec7418-b288-4b64-bbc2-4927776493bf.png)
