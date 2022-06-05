@@ -1,11 +1,15 @@
-import regex
-from tqdm import tqdm
+from __future__ import annotations
+
 import random
+from typing import cast
+
+import regex
 import typer
+from tqdm import tqdm
 
 
-def augment(src: str, dst: str, factor: int = 7):
-    compiled_regex_kanji = regex.compile(r'\p{Script=Han}+')
+def augment(src: str, dst: str, factor: int = 7) -> None:
+    compiled_regex_kanji = regex.compile(r"\p{Script=Han}+")
     with open(src, "rb") as f:
         text = f.read().decode()
     names = text.split("\n")
@@ -13,7 +17,8 @@ def augment(src: str, dst: str, factor: int = 7):
     names_for_training = []
     family_names = []
     given_names = []
-    for _name in tqdm(names):
+    _names = cast(list[str], tqdm(names))  # type: ignore[abstract]
+    for _name in _names:
         if not compiled_regex_kanji.fullmatch(_name.replace(" ", "")):
             continue
         if " " not in _name:
@@ -33,5 +38,5 @@ def augment(src: str, dst: str, factor: int = 7):
         f.write("\n".join(names_for_training).encode())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     typer.run(augment)

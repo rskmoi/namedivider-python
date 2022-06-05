@@ -43,6 +43,7 @@ repos:
         additional_dependencies:
           - numpy
           - pandas-stubs
+          - streamlit
           - tqdm-stubs
           - typer
           - types-regex
@@ -52,7 +53,7 @@ repos:
           - types-ujson
           - python-dotenv
           - pytest
-        files: ^(namedivider/|namedivider-api/src/|^tests/)
+        files: ^(namedivider/|namedivider-api/src/|tests/|examples/)
         args: [--strict]
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.31.1
