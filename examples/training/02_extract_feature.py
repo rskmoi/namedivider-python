@@ -4,12 +4,13 @@ from typing import cast
 import pandas as pd
 import regex
 import typer
+import _pickle as pickle
 from tqdm import tqdm
 
 from namedivider.feature.extractor import FamilyRankingFeatureExtractor
 from namedivider.feature.family_name import FamilyNameRepository
 from namedivider.feature.kanji import KanjiStatisticsRepository
-from namedivider.util import get_gbdt_model_v1_default_path, get_kanji_csv_default_path
+from namedivider.util import get_family_name_pkl_default_path, get_kanji_csv_default_path
 
 
 def extract_feature(src: str, dst: str) -> None:
@@ -17,9 +18,9 @@ def extract_feature(src: str, dst: str) -> None:
     kanji_statistics_repository = KanjiStatisticsRepository(
         path_csv=get_kanji_csv_default_path()
     )
-    family_name_repository = FamilyNameRepository(
-        path_txt=get_gbdt_model_v1_default_path()
-    )
+    path_pickle = get_family_name_pkl_default_path()
+    with open(path_pickle, "rb") as f:
+        family_name_repository: FamilyNameRepository = pickle.load(f)
     extractor = FamilyRankingFeatureExtractor(
         kanji_statistics_repository=kanji_statistics_repository,
         family_name_repository=family_name_repository,
