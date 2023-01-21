@@ -147,3 +147,9 @@ The author or copyright holder assumes no responsibility for the software.
 The family name data used in family_name_repository.pickle is provided by Myoji-Yurai.net(名字由来net).
 
 ![](https://user-images.githubusercontent.com/26462938/170855242-84ec7418-b288-4b64-bbc2-4927776493bf.png)
+
+## Ongoing Projects
+
+- Porting Python to Rust
+
+https://github.com/rskmoi/namedivider-rs
