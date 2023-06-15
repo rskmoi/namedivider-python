@@ -36,3 +36,4 @@ jobs:
           pytest tests
         env:
           PYTHONPATH: .
+          PYTHONUTF8: 1
