@@ -1,7 +1,6 @@
 numpy
 pandas
 tqdm
-click
 regex
 requests
 lightgbm>=3.3
