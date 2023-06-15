@@ -1,4 +1,5 @@
 import numpy as np
+import os
 from typing import Union
 from pathlib import Path
 
@@ -19,7 +20,7 @@ class FamilyNameRepository:
         with open(path_txt, "rb") as f:
             family_text = f.read().decode()
         self.__family_names = {}
-        for rank, _family in enumerate(family_text.split("\n")):
+        for rank, _family in enumerate(family_text.split(os.linesep)):
             self.__family_names[_family] = rank
 
     def exists(self, family: str) -> bool:

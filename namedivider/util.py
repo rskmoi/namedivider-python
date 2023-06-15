@@ -38,7 +38,7 @@ def download_family_name_pickle_if_needed(path: Union[str, Path]):
         return None
     if path.exists():
         return None
-    DEFAULT_CACHE_DIR.mkdir(exist_ok=True)
+    DEFAULT_CACHE_DIR.mkdir(exist_ok=True, parents=True)
     print("Download FamilyNameRepository from GitHub...")
     content = requests.get(FAMILY_NAME_REPOSITORY_URL).content
     with open(path, "wb") as f:
@@ -53,7 +53,7 @@ def download_gbdt_model_v1_if_needed(path: Union[str, Path]):
         return None
     if path.exists():
         return None
-    DEFAULT_CACHE_DIR.mkdir(exist_ok=True)
+    DEFAULT_CACHE_DIR.mkdir(exist_ok=True, parents=True)
     print("Download GBDT Model from GitHub...")
     content = requests.get(GBDT_MODEL_V1_URL).content
     with open(path, "wb") as f:
