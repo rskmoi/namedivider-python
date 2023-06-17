@@ -95,6 +95,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"names":["竈門炭治郎"
 ### Notice
 
 - `names` is a list of undivided name. The maximum length of the list is 1000.
+- If you require speed or want to use GBDTNameDivider, please try [v0.2.0-beta](https://github.com/rskmoi/namedivider-rs/tree/main/api).
 
 ## CLI
 Read namedivider/cli.py for more information.
