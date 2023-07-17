@@ -38,17 +38,19 @@ def _create_length_mask(full_name_length: int, char_idx: int) -> npt.NDArray[np.
     :rtype: np.ndarray
     """
     min_family = char_idx + 1
+    min_family_idx = 4 if min_family > 4 else min_family
     max_family = full_name_length - 1
-    max_family = 4 if max_family > 4 else max_family
+    max_family_idx = 4 if max_family > 4 else max_family
     min_given = full_name_length - char_idx
+    min_given_idx = 4 if min_given > 4 else min_given
     max_given = full_name_length - 1
-    max_given = 4 if max_given > 4 else max_given
+    max_given_idx = 4 if max_given > 4 else max_given
     lc_family = np.array([0, 0, 0, 0])
     if min_family <= max_family:
-        lc_family[min_family - 1 : max_family] = 1
+        lc_family[min_family_idx - 1 : max_family_idx] = 1
     lc_given = np.array([0, 0, 0, 0])
     if min_given <= max_given:
-        lc_given[min_given - 1 : max_given] = 1
+        lc_given[min_given_idx - 1 : max_given_idx] = 1
     return np.concatenate([lc_family, lc_given])
 
 
