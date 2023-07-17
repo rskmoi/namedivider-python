@@ -41,3 +41,29 @@ path = "namedivider/version.py"
 include = [
     "/namedivider",
 ]
+
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = "namedivider"
+ignore_missing_imports = true
+
+[tool.ruff]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+    "B905"   # for compatibility with python 3.8 / 3.9
+]
+
+[tool.black]
+line-length = 120

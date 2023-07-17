@@ -1,6 +1,9 @@
-import numpy as np
-from namedivider.feature.family_name import FamilyNameRepository
 from pathlib import Path
+
+import numpy as np
+
+from namedivider.feature.family_name import FamilyNameRepository
+
 CURRENT_DIR = Path(__file__).resolve().parent
 
 
