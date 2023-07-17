@@ -1,7 +1,2 @@
-numpy
-pandas
-tqdm
-regex
-requests
-lightgbm>=3.3
-typer>=0.3.2
+-e .[all]
+-r requirements-test.txt

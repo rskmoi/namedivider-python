@@ -1,7 +1,9 @@
+from typing import Optional
+
 from namedivider.divider.config import BasicNameDividerConfig
 from namedivider.divider.name_divider_base import _NameDivider
-from namedivider.feature.kanji import KanjiStatisticsRepository
 from namedivider.feature.extractor import SimpleFeatureExtractor
+from namedivider.feature.kanji import KanjiStatisticsRepository
 
 
 class BasicNameDivider(_NameDivider):
@@ -10,7 +12,7 @@ class BasicNameDivider(_NameDivider):
     Prior to v0.1.0, this was provided as a 'NameDivider' class.
     """
 
-    def __init__(self, config: BasicNameDividerConfig = None):
+    def __init__(self, config: Optional[BasicNameDividerConfig] = None):
         if config is None:
             config = BasicNameDividerConfig()
         super().__init__(config=config)
@@ -32,4 +34,4 @@ class BasicNameDivider(_NameDivider):
             return order_score
         length_score = (features.family_length_score + features.given_length_score) / len(name)
 
-        return (order_score + length_score) / 2.
+        return (order_score + length_score) / 2.0

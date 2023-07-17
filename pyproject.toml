@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "namedivider-python"
+dynamic = ["version"]
+description = "A tool for dividing the Japanese full name into a family name and a given name."
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "rskmoi", email = "rei.sakamoto.92@gmail.com" },
+]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "lightgbm>=3.3",
+    "numpy",
+    "pandas",
+    "regex",
+    "requests",
+    "tqdm",
+    "typer>=0.3.2",
+]
+
+[project.scripts]
+nmdiv = "namedivider.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/rskmoi/namedivider-python"
+
+[tool.hatch.version]
+path = "namedivider/version.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/namedivider",
+]
+
+[tool.hatch.build.targets.wheel.force-include]
+"namedivider/assets/kanji.csv" = "namedivider/assets/kanji.csv"
+
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = "namedivider"
+ignore_missing_imports = true
+
+[tool.ruff]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+    "B905"   # for compatibility with python 3.8 / 3.9
+]
+
+[tool.black]
+line-length = 120
