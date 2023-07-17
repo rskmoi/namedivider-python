@@ -1,9 +1,9 @@
 from dataclasses import asdict
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional, cast
 
 import _pickle as pickle  # type: ignore
-import lightgbm as lgb  # type: ignore
+import lightgbm as lgb
 import pandas as pd
 
 from namedivider.divider.config import GBDTNameDividerConfig
@@ -48,5 +48,6 @@ class GBDTNameDivider(_NameDivider):
         """
         feature = self.feature_extractor.get_features(family=family, given=given)
         df = pd.DataFrame([asdict(feature)])
-        score: List[float] = self.model.predict(df)
-        return score[0]
+        score_list = self.model.predict(df)
+        score = cast(float, score_list[0])
+        return score
