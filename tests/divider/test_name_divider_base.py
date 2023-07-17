@@ -1,5 +1,7 @@
-import pytest
 from typing import Dict
+
+import pytest
+
 from namedivider.divider.config import NameDividerConfigBase
 from namedivider.divider.name_divider_base import _NameDivider
 
@@ -11,9 +13,9 @@ class NameDividerForTest(_NameDivider):
         super().__init__(config=config)
 
     def calc_score(self, family: str, given: str) -> float:
-        plus_score = 0.
+        plus_score = 0.0
         if "𠮷" in family + given:
-            plus_score = 10. * len(family)
+            plus_score = 10.0 * len(family)
         score = len(family) + plus_score
         return score
 
@@ -48,21 +50,14 @@ def test_is_original_when_normalize_mode():
     assert divided_name.family + divided_name.given == undivided_name
 
 
-name_test_data = \
-    [
-        ("原敬", {
-            "family": "原", "given": "敬", "separator": "_",
-            "score": 1.0, "algorithm": "rule"
-        }),
-        ("中山マサ", {
-            "family": "中山", "given": "マサ", "separator": "_",
-            "score": 1.0, "algorithm": "rule"
-        }),
-        ("菅義偉", {
-            "family": "菅義", "given": "偉", "separator": "_",
-            "score": 0.7310585786300049, "algorithm": "unknown_algorithm"
-        })
-     ]
+name_test_data = [
+    ("原敬", {"family": "原", "given": "敬", "separator": "_", "score": 1.0, "algorithm": "rule"}),
+    ("中山マサ", {"family": "中山", "given": "マサ", "separator": "_", "score": 1.0, "algorithm": "rule"}),
+    (
+        "菅義偉",
+        {"family": "菅義", "given": "偉", "separator": "_", "score": 0.7310585786300049, "algorithm": "unknown_algorithm"},
+    ),
+]
 
 
 @pytest.mark.parametrize("undivided_name, expect", name_test_data)

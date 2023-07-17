@@ -1,6 +1,9 @@
-import numpy as np
-from namedivider.feature.kanji import KanjiStatistics, KanjiStatisticsRepository
 from pathlib import Path
+
+import numpy as np
+
+from namedivider.feature.kanji import KanjiStatistics, KanjiStatisticsRepository
+
 CURRENT_DIR = Path(__file__).resolve().parent
 
 

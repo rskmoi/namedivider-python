@@ -1,17 +1,21 @@
-import numpy as np
-from namedivider.feature.kanji import KanjiStatisticsRepository
-from namedivider.feature.family_name import FamilyNameRepository
-from namedivider.feature.extractor import \
-    SimpleFeatureExtractor, \
-    FamilyRankingFeatureExtractor, \
-    SimpleFeatures, \
-    FamilyRankingFeatures
 from pathlib import Path
+
+from namedivider.feature.extractor import (
+    FamilyRankingFeatureExtractor,
+    FamilyRankingFeatures,
+    SimpleFeatureExtractor,
+    SimpleFeatures,
+)
+from namedivider.feature.family_name import FamilyNameRepository
+from namedivider.feature.kanji import KanjiStatisticsRepository
+
 CURRENT_DIR = Path(__file__).resolve().parent
 
 
 def test_simple_feature_extractor():
-    kanji_statistics_repository = KanjiStatisticsRepository(path_csv=CURRENT_DIR / ".." / "assets" / "kanji_for_test.csv")
+    kanji_statistics_repository = KanjiStatisticsRepository(
+        path_csv=CURRENT_DIR / ".." / "assets" / "kanji_for_test.csv"
+    )
     extractor = SimpleFeatureExtractor(kanji_statistics_repository=kanji_statistics_repository)
     features = extractor.get_features(family="中曽根", given="康弘")
     assert isinstance(features, SimpleFeatures)
@@ -22,10 +26,13 @@ def test_simple_feature_extractor():
 
 
 def test_family_name_repository_get_rank_exists():
-    kanji_statistics_repository = KanjiStatisticsRepository(path_csv=CURRENT_DIR / ".." / "assets" / "kanji_for_test.csv")
+    kanji_statistics_repository = KanjiStatisticsRepository(
+        path_csv=CURRENT_DIR / ".." / "assets" / "kanji_for_test.csv"
+    )
     family_name_repository = FamilyNameRepository(path_txt=CURRENT_DIR / ".." / "assets" / "family_name_for_test.txt")
-    extractor = FamilyRankingFeatureExtractor(kanji_statistics_repository=kanji_statistics_repository,
-                                              family_name_repository=family_name_repository)
+    extractor = FamilyRankingFeatureExtractor(
+        kanji_statistics_repository=kanji_statistics_repository, family_name_repository=family_name_repository
+    )
     features = extractor.get_features(family="中曽根", given="康弘")
     assert isinstance(features, FamilyRankingFeatures)
     assert features.rank == 3

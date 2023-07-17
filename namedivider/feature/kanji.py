@@ -1,8 +1,10 @@
-from typing import Union
-from pathlib import Path
-import pandas as pd
-import numpy as np
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Union
+
+import numpy as np
+import numpy.typing as npt
+import pandas as pd
 
 
 @dataclass(frozen=True)
@@ -78,9 +80,10 @@ class KanjiStatistics:
             "田": [0, 1, 0, 0, 0, 0, 0, 0]
             "錬": [0, 0, 0, 0, 0, 0, 1, 0]
     """
+
     kanji: str
-    order_counts: np.ndarray
-    length_counts: np.ndarray
+    order_counts: npt.NDArray[np.int32]
+    length_counts: npt.NDArray[np.int32]
 
     @classmethod
     def default(cls) -> "KanjiStatistics":
@@ -89,9 +92,9 @@ class KanjiStatistics:
         :return: Default kanji
         :rtype: KanjiStatistics
         """
-        return cls(kanji="default",
-                   order_counts=np.array([0, 0, 0, 0, 0, 0]),
-                   length_counts=np.array([0, 0, 0, 0, 0, 0, 0, 0]))
+        return cls(
+            kanji="default", order_counts=np.array([0, 0, 0, 0, 0, 0]), length_counts=np.array([0, 0, 0, 0, 0, 0, 0, 0])
+        )
 
 
 class KanjiStatisticsRepository:
