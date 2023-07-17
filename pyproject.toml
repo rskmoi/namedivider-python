@@ -41,3 +41,6 @@ path = "namedivider/version.py"
 include = [
     "/namedivider",
 ]
+
+[tool.hatch.build.targets.wheel.force-include]
+"namedivider/assets/kanji.csv" = "namedivider/assets/kanji.csv"
