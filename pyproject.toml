@@ -42,6 +42,9 @@ include = [
     "/namedivider",
 ]
 
+[tool.hatch.build.targets.wheel.force-include]
+"namedivider/assets/kanji.csv" = "namedivider/assets/kanji.csv"
+
 [tool.mypy]
 strict = true
 
