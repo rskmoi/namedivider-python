@@ -18,6 +18,10 @@ name_test_data = [
         "中曽根康弘",
         {"family": "中曽根", "given": "康弘", "separator": "_", "score": 0.3705325993396728, "algorithm": "kanji_feature"},
     ),
+    (
+        "蝶院羊",
+        {"family": "蝶", "given": "院羊", "separator": "_", "score": 0.5, "algorithm": "kanji_feature"},
+    ),
     ("中山マサ", {"family": "中山", "given": "マサ", "separator": "_", "score": 1.0, "algorithm": "rule"}),
 ]
 
