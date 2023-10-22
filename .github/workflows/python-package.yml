@@ -40,7 +40,12 @@ jobs:
           pip install -r requirements.txt
       - name: Test with pytest
         run: |
-          pytest tests
+          coverage run -m pytest tests
         env:
           PYTHONPATH: .
           PYTHONUTF8: 1
+      - name: Show coverage
+        run: |
+          coverage report
+        env:
+          PYTHONPATH: .
