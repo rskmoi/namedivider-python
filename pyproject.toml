@@ -17,6 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
     "lightgbm>=3.3",
@@ -33,6 +34,12 @@ nmdiv = "namedivider.cli:app"
 
 [project.urls]
 Homepage = "https://github.com/rskmoi/namedivider-python"
+
+[tool.coverage.run]
+omit = [
+    "*/dist-packages/*",
+    "*/site-packages/*",
+]
 
 [tool.hatch.version]
 path = "namedivider/version.py"

@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: [ '3.8', '3.9', '3.10', '3.11']
+        python-version: [ '3.8', '3.9', '3.10', '3.11', '3.12']
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -40,7 +40,12 @@ jobs:
           pip install -r requirements.txt
       - name: Test with pytest
         run: |
-          pytest tests
+          coverage run -m pytest tests
         env:
           PYTHONPATH: .
           PYTHONUTF8: 1
+      - name: Show coverage
+        run: |
+          coverage report
+        env:
+          PYTHONPATH: .
