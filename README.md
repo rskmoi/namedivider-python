@@ -119,6 +119,9 @@ True: 滝 登喜男, Pred: 滝登 喜男
 ### Source code and gbdt_model_v1.txt
 MIT License
 
+### bert_katakana_v0_3_0.pt
+cc-by-sa-4.0
+
 ### family_name_repository.pickle
 
 - English
