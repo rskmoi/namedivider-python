@@ -49,4 +49,15 @@ class KanjiKanaRule(Rule):
                         algorithm="rule",
                     )
 
+        # If there is only one kanji within the name, and the last character of the name is a kanji,
+        # then that last character is considered the given name. (ex: ながつま昭)
+        if sum(is_kanji_list) == 1 and is_kanji_list[-1] is True:
+            return DividedName(
+                family=undivided_name[:-1],
+                given=undivided_name[-1:],
+                separator=separator,
+                score=1.0,
+                algorithm="rule",
+            )
+
         return None

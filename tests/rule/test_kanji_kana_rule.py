@@ -7,6 +7,7 @@ from namedivider.rule.kanji_kana_rule import KanjiKanaRule
 name_test_data = [
     ("中山マサ", {"family": "中山", "given": "マサ", "separator": "/", "score": 1.0, "algorithm": "rule"}),
     ("つるの剛士", {"family": "つるの", "given": "剛士", "separator": "/", "score": 1.0, "algorithm": "rule"}),
+    ("ながつま昭", {"family": "ながつま", "given": "昭", "separator": "/", "score": 1.0, "algorithm": "rule"}),
 ]
 
 
