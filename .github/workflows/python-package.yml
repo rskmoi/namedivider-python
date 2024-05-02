@@ -35,7 +35,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install libomp if the operating system is macOS.
-        if: ${{ matrix.os }} == macos-latest
+        if: matrix.os == 'macos-latest'
         run: brew install libomp
       - name: Install dependencies
         run: |
