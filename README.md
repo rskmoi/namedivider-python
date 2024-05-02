@@ -54,6 +54,8 @@ pprint(divided_name.to_dict())
 # 'separator': ' '}
 ```
 
+For more advanced features, see [here](docs/advanced_features.md).
+
 ## NameDivider API
 
 NameDivider API is a Docker container that provides a RESTful API for dividing the Japanese full name into a family name and a given name.
