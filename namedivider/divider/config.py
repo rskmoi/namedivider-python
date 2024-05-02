@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
-from typing import Union
+from typing import List, Optional, Union
 
+from namedivider.rule.rule import Rule
 from namedivider.util import (
     get_family_name_pkl_default_path,
     get_gbdt_model_v1_default_path,
@@ -35,6 +36,7 @@ class NameDividerConfigBase:
     separator: str = " "
     normalize_name: bool = True
     algorithm_name: str = "unknown_algorithm"
+    custom_rules: Optional[List[Rule]] = None
 
 
 @dataclass(frozen=True)
