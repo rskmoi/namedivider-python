@@ -1,4 +1,5 @@
 import abc
+import warnings
 from typing import List, Optional
 
 import numpy as np
@@ -10,6 +11,7 @@ from namedivider.divider.config import (
     get_config_from_version,
 )
 from namedivider.divider.divided_name import DividedName
+from namedivider.rule.pipeline import Pipeline
 
 
 class _UndividedNameHolder:
@@ -68,7 +70,8 @@ class _NameDivider(metaclass=abc.ABCMeta):
         self.separator = config.separator
         self.normalize_name = config.normalize_name
         self.algorithm_name = config.algorithm_name
-        self.compiled_regex_kanji = regex.compile(r"\p{Script=Han}+")
+        self._rule_pipeline = Pipeline(separator=self.separator, custom_rules=config.custom_rules)
+        self._compiled_regex_kanji = regex.compile(r"\p{Script=Han}+")
 
     @abc.abstractmethod
     def calc_score(self, family: str, given: str) -> float:
@@ -124,6 +127,19 @@ class _NameDivider(metaclass=abc.ABCMeta):
         softmax_val: List[float] = np.exp(x) / u
         return softmax_val
 
+    @property
+    def compiled_regex_kanji(self):  # type: ignore
+        """
+        This property was added for only backward compatibility.
+        """
+        warnings.warn(
+            "_NameDivider.compiled_regex_kanji is deprecated in 0.3 and will be removed in 0.4. "
+            "Use regex.compile if you want to use compiled_regex_kanji.",
+            category=FutureWarning,
+            stacklevel=1,
+        )
+        return self._compiled_regex_kanji
+
     def _divide_by_rule_base(self, undivided_name: str) -> Optional[DividedName]:
         """
         Divides undivided name without using kanji statistics.
@@ -135,28 +151,9 @@ class _NameDivider(metaclass=abc.ABCMeta):
             if fits the rules: DividedName
             else: None
         """
-        # If the undivided name consists of 2 characters,
-        # the first characters is family name, and the last characters is given name.
-        if len(undivided_name) == 2:
-            return self._create_divided_name(family=undivided_name[0], given=undivided_name[-1], algorithm="rule")
+        divided_name_or_none = self._rule_pipeline.apply(undivided_name)
 
-        # If the undivided name consists of kanji and other types of characters (hiragana, katakana, etc...),
-        # the undivided name will be divided where the kanji and other character types are switched.
-        # The criterion for determining switched is whether "two" consecutive characters are having
-        # different type of characters from first character type.
-        # The reason of "two" is some family names consist of some kanji and one katakana.
-        # (ex: "井ノ原", "三ツ又",　"関ヶ原" contains "ノ", "ツ", "ヶ". They are all katakana.)
-        is_kanji_list = []
-        for i, _char in enumerate(undivided_name):
-            is_kanji = True if self.compiled_regex_kanji.fullmatch(_char) else False
-            is_kanji_list.append(is_kanji)
-            if i >= 2:
-                if is_kanji_list[0] != is_kanji and is_kanji_list[-2] == is_kanji:
-                    return self._create_divided_name(
-                        family=undivided_name[: i - 1], given=undivided_name[i - 1 :], algorithm="rule"
-                    )
-
-        return None
+        return divided_name_or_none
 
     def _divide_by_algorithm(self, undivided_name: str) -> DividedName:
         """
