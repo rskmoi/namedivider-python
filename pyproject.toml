@@ -51,6 +51,8 @@ include = [
 
 [tool.hatch.build.targets.wheel.force-include]
 "namedivider/assets/kanji.csv" = "namedivider/assets/kanji.csv"
+"namedivider/beta_bert_divider/config.json" = "namedivider/beta_bert_divider/config.json"
+"namedivider/beta_bert_divider/vocab.json" = "namedivider/beta_bert_divider/vocab.json"
 
 [tool.mypy]
 strict = true
