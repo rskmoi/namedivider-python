@@ -40,4 +40,18 @@ divider = CombinedNameDivider(
 )
 
 divider.divide_name("フランシスコザビエル")
+# DividedName(family='ザビエル', given='フランシスコ', separator=' ', score=0.9906243681907654, algorithm='beta_bert_only_katakana')
 ```
+
+## ACCURACY AND SPEED
+
+- Accuracy
+  
+Measuring the accuracy using a privately held data set, the accuracy is 88.28%.
+
+- Speed
+
+| environment | Speed |
+----|---- 
+| With GPU (NVIDIA GeForce RTX 3090) | 1,000records / 11secs |
+| Without GPU | 1,000records / 77secs |
