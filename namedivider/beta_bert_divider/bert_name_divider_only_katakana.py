@@ -29,8 +29,8 @@ class BERTNameDividerOnlyKatakana:
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         config = PretrainedConfig.from_json_file(CURRENT_DIR / "config.json")
         model = BertForSequenceClassification(config=config)
-        model.load_state_dict(torch.load(model_path))
-        self.model = model.to(self.device)
+        model.load_state_dict(torch.load(model_path, map_location=torch.device(self.device)))
+        self.model = model.to(self.device).eval()
 
         # Prepare vocabularies
         with open(CURRENT_DIR / "vocab.json") as f:
