@@ -4,13 +4,13 @@ from pathlib import Path
 Path("~/.cache").expanduser().mkdir(exist_ok=True)
 
 
-@st.experimental_singleton
+@st.cache_resource
 def get_basic_name_divider():
     basic_divider = BasicNameDivider()
     return basic_divider
 
 
-@st.experimental_singleton
+@st.cache_resource
 def get_gbdt_name_divider():
     gbdt_divider = GBDTNameDivider()
     return gbdt_divider
