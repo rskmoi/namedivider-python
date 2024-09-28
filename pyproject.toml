@@ -24,7 +24,6 @@ dependencies = [
     "numpy",
     "pandas",
     "regex",
-    "tqdm",
     "typer>=0.3.2",
 ]
 
