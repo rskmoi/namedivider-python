@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Union
 
-import requests
+import urllib.request
 
 CURRENT_DIR = Path(__file__).resolve().parent
 DEFAULT_CACHE_DIR = Path("~/.cache/namedivider-python").expanduser()
@@ -43,7 +43,8 @@ def download_family_name_pickle_if_needed(path: Union[str, Path]) -> None:
         return None
     DEFAULT_CACHE_DIR.mkdir(exist_ok=True, parents=True)
     print("Download FamilyNameRepository from GitHub...")
-    content = requests.get(FAMILY_NAME_REPOSITORY_URL).content
+    with urllib.request.urlopen(FAMILY_NAME_REPOSITORY_URL) as response:
+        content = response.read()
     with open(path, "wb") as f:
         f.write(content)
 
@@ -59,6 +60,7 @@ def download_gbdt_model_v1_if_needed(path: Union[str, Path]) -> None:
         return None
     DEFAULT_CACHE_DIR.mkdir(exist_ok=True, parents=True)
     print("Download GBDT Model from GitHub...")
-    content = requests.get(GBDT_MODEL_V1_URL).content
+    with urllib.request.urlopen(GBDT_MODEL_V1_URL) as response:
+        content = response.read()
     with open(path, "wb") as f:
         f.write(content)
