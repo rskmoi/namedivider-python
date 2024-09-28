@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import typer
-from tqdm import tqdm
 
 from namedivider.divider.basic_name_divider import BasicNameDivider
 from namedivider.divider.config import BasicNameDividerConfig, GBDTNameDividerConfig
@@ -75,8 +74,9 @@ def file(
     with open(undivided_name_text, "rb") as f:
         undivided_names = f.read().decode(encoding).strip().split("\n")
     divided_names = []
-    for _undivided_name in tqdm(undivided_names):
-        divided_names.append(str(divider.divide_name(_undivided_name)))
+    with typer.progressbar(undivided_names) as bar:
+        for _undivided_name in bar:
+            divided_names.append(str(divider.divide_name(_undivided_name)))
     print("\n".join(divided_names))
 
 
@@ -116,13 +116,14 @@ def accuracy(
         divided_names = f.read().decode(encoding).strip().split("\n")
     is_correct_list = []
     wrong_list = []
-    for _divided_name in tqdm(divided_names):
-        _undivided_name = _divided_name.replace(separator, "")
-        _divided_name_pred = str(divider.divide_name(_undivided_name))
-        is_correct = _divided_name == _divided_name_pred
-        is_correct_list.append(is_correct)
-        if not is_correct:
-            wrong_list.append(f"True: {_divided_name}, Pred: {_divided_name_pred}")
+    with typer.progressbar(divided_names) as bar:
+        for _divided_name in bar:
+            _undivided_name = _divided_name.replace(separator, "")
+            _divided_name_pred = str(divider.divide_name(_undivided_name))
+            is_correct = _divided_name == _divided_name_pred
+            is_correct_list.append(is_correct)
+            if not is_correct:
+                wrong_list.append(f"True: {_divided_name}, Pred: {_divided_name_pred}")
     print(f"{sum(is_correct_list) / len(is_correct_list):.04}")
     if len(wrong_list) != 0:
         print("\n".join(wrong_list))

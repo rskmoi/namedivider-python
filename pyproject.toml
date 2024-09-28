@@ -25,7 +25,6 @@ dependencies = [
     "pandas",
     "regex",
     "requests",
-    "tqdm",
     "typer>=0.3.2",
 ]
 
