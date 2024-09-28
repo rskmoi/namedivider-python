@@ -5,7 +5,6 @@ black == 23.12.1
 coverage == 7.6.1
 
 # stubs
-types-requests
 pandas-stubs
 types-regex
 types-tqdm
