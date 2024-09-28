@@ -1,9 +1,8 @@
-# mypy: allow-untyped-defs
 import json
 from pathlib import Path
 from typing import Tuple, Union
 
-import torch
+import torch  # type: ignore
 from transformers import BertForSequenceClassification, PretrainedConfig  # type: ignore
 
 from namedivider.divider.divided_name import DividedName
