@@ -1,7 +1,6 @@
+import urllib.request
 from pathlib import Path
 from typing import Union
-
-import urllib.request
 
 CURRENT_DIR = Path(__file__).resolve().parent
 DEFAULT_CACHE_DIR = Path("~/.cache/namedivider-python").expanduser()
