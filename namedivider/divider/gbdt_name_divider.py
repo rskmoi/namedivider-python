@@ -1,8 +1,8 @@
+import _pickle as pickle  # type: ignore
 from dataclasses import asdict
 from pathlib import Path
 from typing import Optional, cast
 
-import _pickle as pickle  # type: ignore
 import lightgbm as lgb
 import pandas as pd
 
