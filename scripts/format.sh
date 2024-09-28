@@ -1,2 +1,2 @@
-ruff namedivider tests --fix
+ruff check namedivider tests --fix
 black namedivider tests
