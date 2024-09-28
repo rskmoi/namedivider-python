@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 import json
 from pathlib import Path
 from typing import Tuple, Union
