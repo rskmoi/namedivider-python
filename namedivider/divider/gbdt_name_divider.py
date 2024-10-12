@@ -46,7 +46,7 @@ class GBDTNameDivider(_NameDivider):
         :return: Score of dividing.
         """
         feature = self.feature_extractor.get_features(family=family, given=given)
-        feature_list = ([list(asdict(feature).values())])
+        feature_list = [list(asdict(feature).values())]
         score_list = self.model.predict(feature_list)
         score = cast(float, score_list[0])
         return score
