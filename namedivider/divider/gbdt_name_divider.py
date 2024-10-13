@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Optional, cast
 
 import lightgbm as lgb
-import pandas as pd
 
 from namedivider.divider.config import GBDTNameDividerConfig
 from namedivider.divider.name_divider_base import _NameDivider
@@ -47,7 +46,7 @@ class GBDTNameDivider(_NameDivider):
         :return: Score of dividing.
         """
         feature = self.feature_extractor.get_features(family=family, given=given)
-        df = pd.DataFrame([asdict(feature)])
-        score_list = self.model.predict(df)
+        feature_list = [list(asdict(feature).values())]
+        score_list = self.model.predict(feature_list)
         score = cast(float, score_list[0])
         return score
