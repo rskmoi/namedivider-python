@@ -34,7 +34,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          allow-prereleases: true
       - name: Install libomp if the operating system is macOS.
         if: matrix.os == 'macos-latest'
         run: brew install libomp
