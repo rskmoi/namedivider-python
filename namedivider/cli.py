@@ -14,10 +14,10 @@ app = typer.Typer()
 
 def get_divider(mode: str, separator: str) -> _NameDivider:
     if mode == "basic":
-        basic_config = BasicNameDividerConfig(separator=separator)
+        basic_config = BasicNameDividerConfig(separator=separator, cache_mask=True)
         return BasicNameDivider(config=basic_config)
     elif mode == "gbdt":
-        gbdt_config = GBDTNameDividerConfig(separator=separator)
+        gbdt_config = GBDTNameDividerConfig(separator=separator, cache_mask=True)
         return GBDTNameDivider(config=gbdt_config)
     else:
         raise ValueError(f"Mode must be in [basic, gbdt], but got {mode}")

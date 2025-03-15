@@ -1,8 +1,10 @@
 from dataclasses import dataclass
+from typing import Optional
 
 import namedivider.feature.functional as F
 from namedivider.feature.family_name import FamilyNameRepository
 from namedivider.feature.kanji import KanjiStatisticsRepository
+from namedivider.feature.mask_cache import MaskCache
 
 
 @dataclass(frozen=True)
@@ -36,8 +38,9 @@ class SimpleFeatureExtractor:
     These four features are the foundation of NameDivider.
     """
 
-    def __init__(self, kanji_statistics_repository: KanjiStatisticsRepository):
+    def __init__(self, kanji_statistics_repository: KanjiStatisticsRepository, cache_mask: bool = False):
         self.kanji_statistics_repository = kanji_statistics_repository
+        self.mask_cache = MaskCache() if cache_mask else None
 
     def get_features(self, family: str, given: str) -> SimpleFeatures:
         """
@@ -48,10 +51,18 @@ class SimpleFeatureExtractor:
         :rtype: SimpleFeature
         """
         fullname_length = len(family + given)
-        family_order_score = F.calc_order_score(self.kanji_statistics_repository, family, fullname_length, 0)
-        family_length_score = F.calc_length_score(self.kanji_statistics_repository, family, fullname_length, 0)
-        given_order_score = F.calc_order_score(self.kanji_statistics_repository, given, fullname_length, len(family))
-        given_length_score = F.calc_length_score(self.kanji_statistics_repository, given, fullname_length, len(family))
+        family_order_score = F.calc_order_score(
+            self.kanji_statistics_repository, family, fullname_length, 0, self.mask_cache
+        )
+        family_length_score = F.calc_length_score(
+            self.kanji_statistics_repository, family, fullname_length, 0, self.mask_cache
+        )
+        given_order_score = F.calc_order_score(
+            self.kanji_statistics_repository, given, fullname_length, len(family), self.mask_cache
+        )
+        given_length_score = F.calc_length_score(
+            self.kanji_statistics_repository, given, fullname_length, len(family), self.mask_cache
+        )
         return SimpleFeatures(
             family_order_score=family_order_score,
             family_length_score=family_length_score,
@@ -66,10 +77,14 @@ class FamilyRankingFeatureExtractor:
     """
 
     def __init__(
-        self, kanji_statistics_repository: KanjiStatisticsRepository, family_name_repository: FamilyNameRepository
+        self, 
+        kanji_statistics_repository: KanjiStatisticsRepository, 
+        family_name_repository: FamilyNameRepository,
+        cache_mask: bool = False
     ):
         self.kanji_statistics_repository = kanji_statistics_repository
         self.family_name_repository = family_name_repository
+        self.mask_cache = MaskCache() if cache_mask else None
 
     def get_features(self, family: str, given: str) -> FamilyRankingFeatures:
         """
@@ -83,10 +98,18 @@ class FamilyRankingFeatureExtractor:
         fullname_length = len(family + given)
         family_length = len(family)
         given_length = len(given)
-        family_order_score = F.calc_order_score(self.kanji_statistics_repository, family, fullname_length, 0)
-        family_length_score = F.calc_length_score(self.kanji_statistics_repository, family, fullname_length, 0)
-        given_order_score = F.calc_order_score(self.kanji_statistics_repository, given, fullname_length, len(family))
-        given_length_score = F.calc_length_score(self.kanji_statistics_repository, given, fullname_length, len(family))
+        family_order_score = F.calc_order_score(
+            self.kanji_statistics_repository, family, fullname_length, 0, self.mask_cache
+        )
+        family_length_score = F.calc_length_score(
+            self.kanji_statistics_repository, family, fullname_length, 0, self.mask_cache
+        )
+        given_order_score = F.calc_order_score(
+            self.kanji_statistics_repository, given, fullname_length, len(family), self.mask_cache
+        )
+        given_length_score = F.calc_length_score(
+            self.kanji_statistics_repository, given, fullname_length, len(family), self.mask_cache
+        )
         # Selected 10 Kanji chars, especially those that rarely come at the beginning of a given name.
         given_startswith_specific_kanji = given.startswith(("田", "谷", "川", "島", "原", "村", "塚", "森", "井", "子"))
         return FamilyRankingFeatures(

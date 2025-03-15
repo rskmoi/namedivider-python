@@ -34,7 +34,9 @@ class GBDTNameDivider(_NameDivider):
         else:
             family_name_repository = FamilyNameRepository(path_txt=config.path_family_names)
         self.feature_extractor = FamilyRankingFeatureExtractor(
-            kanji_statistics_repository=kanji_statistics_repository, family_name_repository=family_name_repository
+            kanji_statistics_repository=kanji_statistics_repository, 
+            family_name_repository=family_name_repository,
+            cache_mask=config.cache_mask
         )
         self.model = lgb.Booster(model_file=config.path_model)
 

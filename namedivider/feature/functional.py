@@ -1,7 +1,9 @@
 import numpy as np
 import numpy.typing as npt
+from typing import Optional
 
 from namedivider.feature.kanji import KanjiStatisticsRepository
+from namedivider.feature.mask_cache import MaskCache
 
 
 def _create_order_mask(full_name_length: int, char_idx: int) -> npt.NDArray[np.int32]:
@@ -88,6 +90,7 @@ def calc_order_score(
     piece_of_divided_name: str,
     full_name_length: int,
     start_index: int = 0,
+    mask_cache: Optional[MaskCache] = None,
 ) -> float:
     """
     Calculates order score.
@@ -97,6 +100,7 @@ def calc_order_score(
     :param piece_of_divided_name: Family name or given name
     :param full_name_length: Length of fullname
     :param start_index: The order of the first charactar of piece_of_divided_name in full name
+    :param mask_cache: Optional cache for masks to improve performance
     :return: Order score
     :rtype: float
 
@@ -123,7 +127,13 @@ def calc_order_score(
             continue
         if current_idx == full_name_length - 1:
             continue
-        mask = _create_order_mask(full_name_length, current_idx)
+        
+        # Use mask cache if available
+        if mask_cache:
+            mask = mask_cache.get_order_mask(full_name_length, current_idx)
+        else:
+            mask = _create_order_mask(full_name_length, current_idx)
+            
         current_order_status_idx = _calc_current_order_status(
             piece_of_divided_name, idx_in_piece_of_divided_name, is_family
         )
@@ -140,6 +150,7 @@ def calc_length_score(
     piece_of_divided_name: str,
     full_name_length: int,
     start_index: int = 0,
+    mask_cache: Optional[MaskCache] = None,
 ) -> float:
     """
     Calculates length score.
@@ -150,6 +161,7 @@ def calc_length_score(
     :param piece_of_divided_name: Family name or given name
     :param full_name_length: Length of fullname
     :param start_index: The order of the first charactar of piece_of_divided_name in full name
+    :param mask_cache: Optional cache for masks to improve performance
     :return: Length score
     :rtype: float
 
@@ -172,7 +184,13 @@ def calc_length_score(
     scores = 0
     for i, _kanji in enumerate(piece_of_divided_name):
         current_idx = start_index + i
-        mask = _create_length_mask(full_name_length, current_idx)
+        
+        # Use mask cache if available
+        if mask_cache:
+            mask = mask_cache.get_length_mask(full_name_length, current_idx)
+        else:
+            mask = _create_length_mask(full_name_length, current_idx)
+            
         current_length_status_idx = _calc_current_length_status(piece_of_divided_name, is_family)
         masked_length_scores = kanji_statistics_repository.get(_kanji).length_counts * mask
         if np.sum(masked_length_scores) == 0:
