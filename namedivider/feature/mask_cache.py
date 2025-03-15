@@ -1,6 +1,7 @@
+from typing import Dict, Tuple
+
 import numpy as np
 import numpy.typing as npt
-from typing import Dict, Tuple
 
 
 class MaskCache:

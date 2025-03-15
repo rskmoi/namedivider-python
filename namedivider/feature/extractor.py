@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 import namedivider.feature.functional as F
 from namedivider.feature.family_name import FamilyNameRepository
@@ -77,10 +76,10 @@ class FamilyRankingFeatureExtractor:
     """
 
     def __init__(
-        self, 
-        kanji_statistics_repository: KanjiStatisticsRepository, 
+        self,
+        kanji_statistics_repository: KanjiStatisticsRepository,
         family_name_repository: FamilyNameRepository,
-        cache_mask: bool = False
+        cache_mask: bool = False,
     ):
         self.kanji_statistics_repository = kanji_statistics_repository
         self.family_name_repository = family_name_repository

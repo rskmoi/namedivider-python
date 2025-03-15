@@ -1,6 +1,7 @@
+from typing import Optional
+
 import numpy as np
 import numpy.typing as npt
-from typing import Optional
 
 from namedivider.feature.kanji import KanjiStatisticsRepository
 from namedivider.feature.mask_cache import MaskCache
@@ -127,13 +128,13 @@ def calc_order_score(
             continue
         if current_idx == full_name_length - 1:
             continue
-        
+
         # Use mask cache if available
         if mask_cache:
             mask = mask_cache.get_order_mask(full_name_length, current_idx)
         else:
             mask = _create_order_mask(full_name_length, current_idx)
-            
+
         current_order_status_idx = _calc_current_order_status(
             piece_of_divided_name, idx_in_piece_of_divided_name, is_family
         )
@@ -184,13 +185,13 @@ def calc_length_score(
     scores = 0
     for i, _kanji in enumerate(piece_of_divided_name):
         current_idx = start_index + i
-        
+
         # Use mask cache if available
         if mask_cache:
             mask = mask_cache.get_length_mask(full_name_length, current_idx)
         else:
             mask = _create_length_mask(full_name_length, current_idx)
-            
+
         current_length_status_idx = _calc_current_length_status(piece_of_divided_name, is_family)
         masked_length_scores = kanji_statistics_repository.get(_kanji).length_counts * mask
         if np.sum(masked_length_scores) == 0:
