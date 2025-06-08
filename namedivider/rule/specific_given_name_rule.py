@@ -1,4 +1,4 @@
-from typing import Iterable, Optional
+from collections.abc import Iterable
 
 from namedivider.divider.divided_name import DividedName
 from namedivider.rule.rule import Rule
@@ -16,7 +16,7 @@ class SpecificGivenNameRule(Rule):
         """
         self._given_names = set(given_names)
 
-    def divide(self, undivided_name: str, separator: str = " ") -> Optional[DividedName]:
+    def divide(self, undivided_name: str, separator: str = " ") -> DividedName | None:
         """
         Divide undivided name.
         If the conditions are met simultaneously, the longer given name will be given priority.

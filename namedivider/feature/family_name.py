@@ -1,12 +1,11 @@
 import os
 from pathlib import Path
-from typing import Union
 
 import numpy as np
 
 
 class FamilyNameRepository:
-    def __init__(self, path_txt: Union[str, Path]):
+    def __init__(self, path_txt: str | Path):
         """
         :param path_txt: Path of a file with multiple family names enumerated.
         This is in order of the most common family names in Japan.
@@ -32,7 +31,7 @@ class FamilyNameRepository:
         """
         return family in self.__family_names
 
-    def get_rank(self, family: str) -> Union[int, float]:
+    def get_rank(self, family: str) -> int | float:
         """
         Returns the rank of the family name entered.
         :param family: Family name.

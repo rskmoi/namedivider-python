@@ -1,4 +1,4 @@
-import _pickle as pickle  # type: ignore
+import pickle
 from dataclasses import asdict
 from pathlib import Path
 from typing import Optional, cast

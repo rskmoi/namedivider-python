@@ -1,6 +1,5 @@
 import warnings
 from pathlib import Path
-from typing import List, Optional
 
 import numpy as np
 import numpy.typing as npt
@@ -247,7 +246,7 @@ class NameDivider:
         if len(undivided_name) < 2:
             raise ValueError("Name length needs at least 2 chars")
 
-    def _divide_by_rule_base(self, undivided_name: str) -> Optional[DividedName]:
+    def _divide_by_rule_base(self, undivided_name: str) -> DividedName | None:
         """
         Divides undivided name without using kanji statistics.
         :param undivided_name: Names with no space between the family name and given name
@@ -282,7 +281,7 @@ class NameDivider:
         return None
 
     @staticmethod
-    def _softmax(x: List[float]) -> List[float]:
+    def _softmax(x: list[float]) -> list[float]:
         """
         Calculates softmax score
         :param x: array_like
@@ -290,7 +289,7 @@ class NameDivider:
         :rtype: np.ndarray
         """
         u = np.sum(np.exp(x))
-        softmax_val: List[float] = np.exp(x) / u
+        softmax_val: list[float] = np.exp(x) / u
         return softmax_val
 
     def _divide_by_statistics(self, undivided_name: str) -> DividedName:

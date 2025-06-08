@@ -1,6 +1,5 @@
 from enum import Enum, auto
 from pathlib import Path
-from typing import Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -21,7 +20,7 @@ class KanjiStatisticsTaker:
     """
 
     def __init__(self, mode: KanjiStatisticsMode = KanjiStatisticsMode.ONLY_FREQUENT_KANJI):
-        self.statistics: Dict[str, KanjiStatistics] = {}
+        self.statistics: dict[str, KanjiStatistics] = {}
         self.mode = mode
         self.compiled_regex_kanji = regex.compile(r"\p{Script=Han}+")
 
@@ -86,8 +85,8 @@ class KanjiStatisticsTaker:
             _length = self.get_length(given, is_family=False)
             self.set_count(kanji=_kanji, order=_order, length=_length)
 
-    def to_csv(self, dst: Union[str, Path]) -> None:
-        stats: List[Tuple[str, KanjiStatistics]] = sorted(self.statistics.items(), key=lambda x: x[0])
+    def to_csv(self, dst: str | Path) -> None:
+        stats: list[tuple[str, KanjiStatistics]] = sorted(self.statistics.items(), key=lambda x: x[0])
         items = []
         for _key, _stat in stats:
             if not self.is_target(_stat):

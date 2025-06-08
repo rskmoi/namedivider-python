@@ -1,6 +1,6 @@
 import abc
 import warnings
-from typing import List, Optional
+from typing import Optional
 
 import numpy as np
 import regex
@@ -116,7 +116,7 @@ class _NameDivider(metaclass=abc.ABCMeta):
             raise ValueError("Name length needs at least 2 chars")
 
     @staticmethod
-    def _softmax(x: List[float]) -> List[float]:
+    def _softmax(x: list[float]) -> list[float]:
         """
         Calculates softmax score
         :param x: array_like
@@ -124,7 +124,7 @@ class _NameDivider(metaclass=abc.ABCMeta):
         :rtype: np.ndarray
         """
         u = np.sum(np.exp(x))
-        softmax_val: List[float] = np.exp(x) / u
+        softmax_val: list[float] = np.exp(x) / u
         return softmax_val
 
     @property
