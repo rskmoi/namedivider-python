@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Union
 
 import numpy as np
 import numpy.typing as npt
@@ -101,7 +102,7 @@ class KanjiStatisticsRepository:
     Repository class for managing KanjiStatistics.
     """
 
-    def __init__(self, path_csv: str | Path):
+    def __init__(self, path_csv: Union[str, Path]):
         """
 
         :param path_csv:

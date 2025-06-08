@@ -1,5 +1,6 @@
 import warnings
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import numpy.typing as npt
@@ -246,7 +247,7 @@ class NameDivider:
         if len(undivided_name) < 2:
             raise ValueError("Name length needs at least 2 chars")
 
-    def _divide_by_rule_base(self, undivided_name: str) -> DividedName | None:
+    def _divide_by_rule_base(self, undivided_name: str) -> Optional[DividedName]:
         """
         Divides undivided name without using kanji statistics.
         :param undivided_name: Names with no space between the family name and given name

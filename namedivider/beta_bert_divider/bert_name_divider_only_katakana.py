@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Union
 
 import torch
 from transformers import BertForSequenceClassification, PretrainedConfig  # type: ignore
@@ -15,7 +16,7 @@ class BERTNameDividerOnlyKatakana:
     Names consisting only of katakana characters are accepted.
     """
 
-    def __init__(self, model_path: str | Path, separator: str = " ", family_first: bool = False):
+    def __init__(self, model_path: Union[str, Path], separator: str = " ", family_first: bool = False):
         """
         :param model_path: Path for BERT model
         :param separator: Character for separate family name and given name

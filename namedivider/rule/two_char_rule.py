@@ -1,3 +1,5 @@
+from typing import Optional
+
 from namedivider.divider.divided_name import DividedName
 from namedivider.rule.rule import Rule
 
@@ -10,7 +12,7 @@ class TwoCharRule(Rule):
     def __init__(self) -> None:
         pass
 
-    def divide(self, undivided_name: str, separator: str = " ") -> DividedName | None:
+    def divide(self, undivided_name: str, separator: str = " ") -> Optional[DividedName]:
         """
         :param undivided_name: Names with no space between the family name and given name
         :param separator: Character for separate family name and given name

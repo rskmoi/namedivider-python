@@ -1,5 +1,6 @@
 from enum import Enum, auto
 from pathlib import Path
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -85,7 +86,7 @@ class KanjiStatisticsTaker:
             _length = self.get_length(given, is_family=False)
             self.set_count(kanji=_kanji, order=_order, length=_length)
 
-    def to_csv(self, dst: str | Path) -> None:
+    def to_csv(self, dst: Union[str, Path]) -> None:
         stats: list[tuple[str, KanjiStatistics]] = sorted(self.statistics.items(), key=lambda x: x[0])
         items = []
         for _key, _stat in stats:
