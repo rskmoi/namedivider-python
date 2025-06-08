@@ -2,8 +2,8 @@ from dataclasses import dataclass
 
 import namedivider.feature.functional as F
 from namedivider.feature.family_name import FamilyNameRepository
-from namedivider.feature.kanji import KanjiStatisticsRepository
 from namedivider.feature.functional import MaskCache
+from namedivider.feature.kanji import KanjiStatisticsRepository
 
 
 @dataclass(frozen=True)
