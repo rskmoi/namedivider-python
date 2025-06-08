@@ -4,7 +4,58 @@ import numpy as np
 import numpy.typing as npt
 
 from namedivider.feature.kanji import KanjiStatisticsRepository
-from namedivider.feature.mask_cache import MaskCache
+
+
+class MaskCache:
+    """
+    Private cache for order and length masks to improve performance.
+    """
+
+    def __init__(self, max_length: int = 10):
+        """
+        Initialize the mask cache.
+        :param max_length: Maximum name length to pre-compute masks for.
+        """
+        self.order_masks: dict[tuple[int, int], npt.NDArray[np.int32]] = {}
+        self.length_masks: dict[tuple[int, int], npt.NDArray[np.int32]] = {}
+        self.max_length = max_length
+        self._initialize_cache()
+
+    def _initialize_cache(self) -> None:
+        """
+        Pre-compute masks for common name lengths.
+        """
+        for length in range(3, self.max_length + 1):
+            for idx in range(1, length - 1):
+                self.order_masks[(length, idx)] = _create_order_mask(length, idx)
+                self.length_masks[(length, idx)] = _create_length_mask(length, idx)
+
+    def get_order_mask(self, full_name_length: int, char_idx: int) -> npt.NDArray[np.int32]:
+        """
+        Get order mask from cache or create it if not cached.
+        :param full_name_length: Length of full name.
+        :param char_idx: The order of the character in full name.
+        :return: Order mask.
+        """
+        if char_idx == 0 or char_idx == full_name_length - 1:
+            raise ValueError("First character and last character must not be created order mask.")
+
+        key = (full_name_length, char_idx)
+        if key not in self.order_masks:
+            self.order_masks[key] = _create_order_mask(full_name_length, char_idx)
+        return self.order_masks[key]
+
+    def get_length_mask(self, full_name_length: int, char_idx: int) -> npt.NDArray[np.int32]:
+        """
+        Get length mask from cache or create it if not cached.
+        :param full_name_length: Length of full name.
+        :param char_idx: The order of the character in full name.
+        :return: Length mask.
+        """
+        key = (full_name_length, char_idx)
+        if key not in self.length_masks:
+            self.length_masks[key] = _create_length_mask(full_name_length, char_idx)
+        return self.length_masks[key]
 
 
 def _create_order_mask(full_name_length: int, char_idx: int) -> npt.NDArray[np.int32]:
