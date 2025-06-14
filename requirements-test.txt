@@ -7,3 +7,4 @@ coverage == 7.6.1
 # stubs
 pandas-stubs
 types-regex
+types-torch
