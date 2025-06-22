@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Literal, Optional, Union
 
 from namedivider.rule.rule import Rule
 from namedivider.util import (
@@ -44,11 +44,14 @@ class BasicNameDividerConfig(NameDividerConfigBase):
     """
     path_csv: Path of the file containing the kanji information.
     only_order_score_when_4: If True, only order score is used for 4-character names. Not recommended to be True.
+    backend: Backend engine to use for name division. 'python' uses the original Python implementation,
+             'rust' uses the high-performance Rust implementation.
     """
 
     path_csv: Union[str, Path] = KANJI_CSV_DEFAULT_PATH
     only_order_score_when_4: bool = False
     algorithm_name: str = "kanji_feature"
+    backend: Literal["python", "rust"] = "python"
 
 
 @dataclass(frozen=True)
@@ -61,12 +64,15 @@ class GBDTNameDividerConfig(NameDividerConfigBase):
     - text file
     Path of a file with multiple family names enumerated.
     path_model: Path of a GBDT model.
+    backend: Backend engine to use for name division. 'python' uses the original Python implementation,
+             'rust' uses the high-performance Rust implementation.
     """
 
     path_csv: Union[str, Path] = KANJI_CSV_DEFAULT_PATH
     path_family_names: Union[str, Path] = FAMILY_NAME_PKL_DEFAULT_PATH
     path_model: Union[str, Path] = GBDT_MODEL_V1_DEFAULT_PATH
     algorithm_name: str = "gbdt"
+    backend: Literal["python", "rust"] = "python"
 
 
 def get_config_from_version(version: NameDividerVersions) -> NameDividerConfigBase:
