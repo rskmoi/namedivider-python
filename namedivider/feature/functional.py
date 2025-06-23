@@ -11,7 +11,7 @@ class MaskCache:
     Private cache for order and length masks to improve performance.
     """
 
-    def __init__(self, max_length: int = 10):
+    def __init__(self, max_length: int = 6):
         """
         Initialize the mask cache.
         :param max_length: Maximum name length to pre-compute masks for.
