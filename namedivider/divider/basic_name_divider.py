@@ -18,7 +18,9 @@ class BasicNameDivider(_NameDivider):
         super().__init__(config=config)
         repository = KanjiStatisticsRepository(path_csv=config.path_csv)
         self.only_order_score_when_4 = config.only_order_score_when_4
-        self.feature_extractor = SimpleFeatureExtractor(kanji_statistics_repository=repository)
+        self.feature_extractor = SimpleFeatureExtractor(
+            kanji_statistics_repository=repository, cache_mask=config.cache_mask
+        )
 
     def calc_score(self, family: str, given: str) -> float:
         """

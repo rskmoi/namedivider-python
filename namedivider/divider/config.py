@@ -31,12 +31,14 @@ class NameDividerConfigBase:
     'normalize' here means to internally convert old character form(旧字体) or variant character form(異字体)
     into orthographic character form(正字体) before processing them.
     algorithm_name: Name of algorithm.
+    cache_mask: Flag whether or not to cache masks for performance optimization.
     """
 
     separator: str = " "
     normalize_name: bool = True
     algorithm_name: str = "unknown_algorithm"
     custom_rules: Optional[list[Rule]] = None
+    cache_mask: bool = False
 
 
 @dataclass(frozen=True)
