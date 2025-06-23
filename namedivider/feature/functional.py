@@ -1,7 +1,61 @@
+from typing import Optional
+
 import numpy as np
 import numpy.typing as npt
 
 from namedivider.feature.kanji import KanjiStatisticsRepository
+
+
+class MaskCache:
+    """
+    Private cache for order and length masks to improve performance.
+    """
+
+    def __init__(self, max_length: int = 10):
+        """
+        Initialize the mask cache.
+        :param max_length: Maximum name length to pre-compute masks for.
+        """
+        self.order_masks: dict[tuple[int, int], npt.NDArray[np.int32]] = {}
+        self.length_masks: dict[tuple[int, int], npt.NDArray[np.int32]] = {}
+        self.max_length = max_length
+        self._initialize_cache()
+
+    def _initialize_cache(self) -> None:
+        """
+        Pre-compute masks for common name lengths.
+        """
+        for length in range(3, self.max_length + 1):
+            for idx in range(1, length - 1):
+                self.order_masks[(length, idx)] = _create_order_mask(length, idx)
+                self.length_masks[(length, idx)] = _create_length_mask(length, idx)
+
+    def get_order_mask(self, full_name_length: int, char_idx: int) -> npt.NDArray[np.int32]:
+        """
+        Get order mask from cache or create it if not cached.
+        :param full_name_length: Length of full name.
+        :param char_idx: The order of the character in full name.
+        :return: Order mask.
+        """
+        if char_idx == 0 or char_idx == full_name_length - 1:
+            raise ValueError("First character and last character must not be created order mask.")
+
+        key = (full_name_length, char_idx)
+        if key not in self.order_masks:
+            self.order_masks[key] = _create_order_mask(full_name_length, char_idx)
+        return self.order_masks[key]
+
+    def get_length_mask(self, full_name_length: int, char_idx: int) -> npt.NDArray[np.int32]:
+        """
+        Get length mask from cache or create it if not cached.
+        :param full_name_length: Length of full name.
+        :param char_idx: The order of the character in full name.
+        :return: Length mask.
+        """
+        key = (full_name_length, char_idx)
+        if key not in self.length_masks:
+            self.length_masks[key] = _create_length_mask(full_name_length, char_idx)
+        return self.length_masks[key]
 
 
 def _create_order_mask(full_name_length: int, char_idx: int) -> npt.NDArray[np.int32]:
@@ -88,6 +142,7 @@ def calc_order_score(
     piece_of_divided_name: str,
     full_name_length: int,
     start_index: int = 0,
+    mask_cache: Optional[MaskCache] = None,
 ) -> float:
     """
     Calculates order score.
@@ -97,6 +152,7 @@ def calc_order_score(
     :param piece_of_divided_name: Family name or given name
     :param full_name_length: Length of fullname
     :param start_index: The order of the first charactar of piece_of_divided_name in full name
+    :param mask_cache: Optional cache for masks to improve performance
     :return: Order score
     :rtype: float
 
@@ -123,7 +179,13 @@ def calc_order_score(
             continue
         if current_idx == full_name_length - 1:
             continue
-        mask = _create_order_mask(full_name_length, current_idx)
+
+        # Use mask cache if available
+        if mask_cache:
+            mask = mask_cache.get_order_mask(full_name_length, current_idx)
+        else:
+            mask = _create_order_mask(full_name_length, current_idx)
+
         current_order_status_idx = _calc_current_order_status(
             piece_of_divided_name, idx_in_piece_of_divided_name, is_family
         )
@@ -140,6 +202,7 @@ def calc_length_score(
     piece_of_divided_name: str,
     full_name_length: int,
     start_index: int = 0,
+    mask_cache: Optional[MaskCache] = None,
 ) -> float:
     """
     Calculates length score.
@@ -150,6 +213,7 @@ def calc_length_score(
     :param piece_of_divided_name: Family name or given name
     :param full_name_length: Length of fullname
     :param start_index: The order of the first charactar of piece_of_divided_name in full name
+    :param mask_cache: Optional cache for masks to improve performance
     :return: Length score
     :rtype: float
 
@@ -172,7 +236,13 @@ def calc_length_score(
     scores = 0
     for i, _kanji in enumerate(piece_of_divided_name):
         current_idx = start_index + i
-        mask = _create_length_mask(full_name_length, current_idx)
+
+        # Use mask cache if available
+        if mask_cache:
+            mask = mask_cache.get_length_mask(full_name_length, current_idx)
+        else:
+            mask = _create_length_mask(full_name_length, current_idx)
+
         current_length_status_idx = _calc_current_length_status(piece_of_divided_name, is_family)
         masked_length_scores = kanji_statistics_repository.get(_kanji).length_counts * mask
         if np.sum(masked_length_scores) == 0:

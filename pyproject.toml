@@ -62,8 +62,8 @@ strict = true
 module = "namedivider"
 ignore_missing_imports = true
 
-[tool.ruff]
-lint.select = [
+[tool.ruff.lint]
+select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
     "F",  # pyflakes
@@ -71,7 +71,7 @@ lint.select = [
     "C",  # flake8-comprehensions
     "B",  # flake8-bugbear
 ]
-lint.ignore = [
+ignore = [
     "E501",  # line too long, handled by black
     "B008",  # do not perform function calls in argument defaults
     "C901",  # too complex
