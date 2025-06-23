@@ -1,7 +1,11 @@
 import numpy as np
 import pytest
 
-from namedivider.feature.functional import _create_length_mask, _create_order_mask, MaskCache
+from namedivider.feature.functional import (
+    MaskCache,
+    _create_length_mask,
+    _create_order_mask,
+)
 
 test_data = [
     (2, 0, np.array([1, 0, 0, 0, 0, 0, 0, 0])),  # short name
@@ -98,7 +102,7 @@ class TestMaskCache:
         mask = cache.get_order_mask(3, 1)
         expected = np.array([0, 0, 1, 1, 0, 0])
         np.testing.assert_array_equal(mask, expected)
-        
+
         # Length 4, char index 1 (second character)
         mask = cache.get_order_mask(4, 1)
         expected = np.array([0, 1, 1, 1, 0, 0])
