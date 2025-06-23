@@ -23,7 +23,7 @@ def test_create_length_mask(full_name_length: int, char_idx: int, expect: np.nda
 class TestMaskCache:
     def test_init_default_max_length(self):
         cache = MaskCache()
-        assert cache.max_length == 10
+        assert cache.max_length == 6
         assert isinstance(cache.order_masks, dict)
         assert isinstance(cache.length_masks, dict)
 
