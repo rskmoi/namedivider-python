@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from namedivider.rule.rule import Rule
 from namedivider.util import (
@@ -37,7 +37,7 @@ class NameDividerConfigBase:
     separator: str = " "
     normalize_name: bool = True
     algorithm_name: str = "unknown_algorithm"
-    custom_rules: Optional[List[Rule]] = None
+    custom_rules: Optional[list[Rule]] = None
     cache_mask: bool = False
 
 

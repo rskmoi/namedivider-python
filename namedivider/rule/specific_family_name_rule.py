@@ -1,4 +1,5 @@
-from typing import Iterable, Optional
+from collections.abc import Iterable
+from typing import Optional
 
 from namedivider.divider.divided_name import DividedName
 from namedivider.rule.rule import Rule

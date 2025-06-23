@@ -1,6 +1,6 @@
 import warnings
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 import numpy as np
 import numpy.typing as npt
@@ -282,7 +282,7 @@ class NameDivider:
         return None
 
     @staticmethod
-    def _softmax(x: List[float]) -> List[float]:
+    def _softmax(x: list[float]) -> list[float]:
         """
         Calculates softmax score
         :param x: array_like
@@ -290,7 +290,7 @@ class NameDivider:
         :rtype: np.ndarray
         """
         u = np.sum(np.exp(x))
-        softmax_val: List[float] = np.exp(x) / u
+        softmax_val: list[float] = np.exp(x) / u
         return softmax_val
 
     def _divide_by_statistics(self, undivided_name: str) -> DividedName:

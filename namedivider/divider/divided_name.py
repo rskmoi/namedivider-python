@@ -1,5 +1,5 @@
 from dataclasses import asdict, dataclass
-from typing import Any, Dict
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -26,7 +26,7 @@ class DividedName:
         """
         return f"{self.family}{self.separator}{self.given}"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         :return: Dictionary of divided name
         :rtype: Dict

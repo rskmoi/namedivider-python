@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from namedivider.divider.divided_name import DividedName
 from namedivider.rule.kanji_kana_rule import KanjiKanaRule
@@ -11,14 +11,14 @@ class Pipeline:
     Pipeline class that connects rule-based algorithms and executes them.
     """
 
-    def __init__(self, separator: str, custom_rules: Optional[List[Rule]] = None) -> None:
+    def __init__(self, separator: str, custom_rules: Optional[list[Rule]] = None) -> None:
         """
         :param separator: Character for separate family name and given name
         :param custom_rules: Optional rules for divide names
         """
         self._separator = separator
         # TwoCharRule and KanjiKanaRule will always be applied.
-        self._rules: List[Rule] = [TwoCharRule(), KanjiKanaRule()]
+        self._rules: list[Rule] = [TwoCharRule(), KanjiKanaRule()]
         if custom_rules is not None:
             self._rules += custom_rules
 
