@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 
 import typer
@@ -12,12 +13,12 @@ CURRENT_DIR = Path(__file__).resolve().parent
 app = typer.Typer()
 
 
-def get_divider(mode: str, separator: str) -> _NameDivider:
+def get_divider(mode: str, separator: str, use_mask_cache: bool = True) -> _NameDivider:
     if mode == "basic":
-        basic_config = BasicNameDividerConfig(separator=separator)
+        basic_config = BasicNameDividerConfig(separator=separator, cache_mask=use_mask_cache)
         return BasicNameDivider(config=basic_config)
     elif mode == "gbdt":
-        gbdt_config = GBDTNameDividerConfig(separator=separator)
+        gbdt_config = GBDTNameDividerConfig(separator=separator, cache_mask=use_mask_cache)
         return GBDTNameDivider(config=gbdt_config)
     else:
         raise ValueError(f"Mode must be in [basic, gbdt], but got {mode}")
@@ -127,6 +128,59 @@ def accuracy(
     print(f"{sum(is_correct_list) / len(is_correct_list):.04}")
     if len(wrong_list) != 0:
         print("\n".join(wrong_list))
+
+
+@app.command()
+def benchmark(
+    undivided_name_text: Path = typer.Argument(
+        ..., help="File path of text file", exists=True, dir_okay=False, readable=True
+    ),
+    separator: str = typer.Option(" ", "--separator", "-s", help="Separator between family name and given name"),
+    mode: str = typer.Option("basic", "--mode", "-m", help="Divider Mode. You can choice basic or gbdt."),
+    encoding: str = typer.Option("utf-8", "--encoding", "-e", help="Encoding of text file"),
+    silent: bool = typer.Option(False, "--silent", help="Suppress output for benchmarking"),
+    use_mask_cache: bool = typer.Option(True, "--use-mask-cache/--no-mask-cache", help="Enable or disable mask cache"),
+) -> None:
+    """
+    Benchmark the performance of name division on a file (single run).
+    The text file must have one name per line.
+    Text file example:
+    ```
+    原敬
+    菅義偉
+    阿部晋三
+    中曽根康弘
+    ```
+    :param undivided_name_text: File path of text file
+    :param separator: Separator between family name and given name
+    :param mode: Divider Mode. You can choice basic or gbdt.
+    :param encoding: Encoding of text file
+    :param silent: Suppress output for benchmarking
+    :param use_mask_cache: Enable or disable mask cache
+    :return:
+    Processes all names and reports timing.
+    ```
+    Processed 4 names in 0.0123s (325.2 names/sec) [cache enabled]
+    ```
+    """
+    divider = get_divider(mode=mode, separator=separator, use_mask_cache=use_mask_cache)
+
+    with open(undivided_name_text, "rb") as f:
+        undivided_names = f.read().decode(encoding).strip().split("\n")
+
+    name_count = len(undivided_names)
+
+    start_time = time.time()
+    for _undivided_name in undivided_names:
+        divider.divide_name(_undivided_name)
+    end_time = time.time()
+
+    elapsed = end_time - start_time
+    names_per_sec = name_count / elapsed if elapsed > 0 else float("inf")
+
+    if not silent:
+        cache_status = "enabled" if use_mask_cache else "disabled"
+        print(f"Processed {name_count} names in {elapsed:.4f}s ({names_per_sec:.1f} names/sec) [cache {cache_status}]")
 
 
 if __name__ == "__main__":
