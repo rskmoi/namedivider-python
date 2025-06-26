@@ -13,12 +13,12 @@ CURRENT_DIR = Path(__file__).resolve().parent
 app = typer.Typer()
 
 
-def get_divider(mode: str, separator: str, use_mask_cache: bool = True) -> _NameDivider:
+def get_divider(mode: str, separator: str, use_mask_cache: bool = True, backend: str = "python") -> _NameDivider:
     if mode == "basic":
-        basic_config = BasicNameDividerConfig(separator=separator, cache_mask=use_mask_cache)
+        basic_config = BasicNameDividerConfig(separator=separator, cache_mask=use_mask_cache, backend=backend)
         return BasicNameDivider(config=basic_config)
     elif mode == "gbdt":
-        gbdt_config = GBDTNameDividerConfig(separator=separator, cache_mask=use_mask_cache)
+        gbdt_config = GBDTNameDividerConfig(separator=separator, cache_mask=use_mask_cache, backend=backend)
         return GBDTNameDivider(config=gbdt_config)
     else:
         raise ValueError(f"Mode must be in [basic, gbdt], but got {mode}")
@@ -29,13 +29,15 @@ def name(
     undivided_name: str = typer.Argument(..., help="Undivided name"),
     separator: str = typer.Option(" ", "--separator", "-s", help="Separator between family name and given name"),
     mode: str = typer.Option("basic", "--mode", "-m", help="Divider Mode. You can choice basic or gbdt."),
+    backend: str = typer.Option("python", "--backend", "-b", help="Backend to use. python (default) or rust (beta)."),
 ) -> None:
     """
     Divides an undivided name.
     :param undivided_name: Undivided name
     :param separator: Separator between family name and given name
+    :param backend: Backend to use (python or rust)
     """
-    divider = get_divider(mode=mode, separator=separator)
+    divider = get_divider(mode=mode, separator=separator, backend=backend)
     print(divider.divide_name(undivided_name))
 
 
@@ -47,6 +49,7 @@ def file(
     separator: str = typer.Option(" ", "--separator", "-s", help="Separator between family name and given name"),
     mode: str = typer.Option("basic", "--mode", "-m", help="Divider Mode. You can choice basic or gbdt."),
     encoding: str = typer.Option("utf-8", "--encoding", "-e", help="Encoding of text file"),
+    backend: str = typer.Option("python", "--backend", "-b", help="Backend to use. python (default) or rust (beta)."),
 ) -> None:
     """
     Divides names in text file.
@@ -71,7 +74,7 @@ def file(
     中曽根 康弘
     ```
     """
-    divider = get_divider(mode=mode, separator=separator)
+    divider = get_divider(mode=mode, separator=separator, backend=backend)
     with open(undivided_name_text, "rb") as f:
         undivided_names = f.read().decode(encoding).strip().split("\n")
     divided_names = []
@@ -89,6 +92,7 @@ def accuracy(
     separator: str = typer.Option(" ", "--separator", "-s", help="Separator between family name and given name"),
     mode: str = typer.Option("basic", "--mode", "-m", help="Divider Mode. You can choice basic or gbdt."),
     encoding: str = typer.Option("utf-8", "--encoding", "-e", help="Encoding of text file"),
+    backend: str = typer.Option("python", "--backend", "-b", help="Backend to use. python (default) or rust (beta)."),
 ) -> None:
     """
     Check the accuracy of this tool.
@@ -112,7 +116,7 @@ def accuracy(
     True: 滝 登喜男, Pred: 滝登 喜男
     ```
     """
-    divider = get_divider(mode=mode, separator=separator)
+    divider = get_divider(mode=mode, separator=separator, backend=backend)
     with open(divided_name_text, "rb") as f:
         divided_names = f.read().decode(encoding).strip().split("\n")
     is_correct_list = []
@@ -140,6 +144,7 @@ def benchmark(
     encoding: str = typer.Option("utf-8", "--encoding", "-e", help="Encoding of text file"),
     silent: bool = typer.Option(False, "--silent", help="Suppress output for benchmarking"),
     use_mask_cache: bool = typer.Option(True, "--use-mask-cache/--no-mask-cache", help="Enable or disable mask cache"),
+    backend: str = typer.Option("python", "--backend", "-b", help="Backend to use. python (default) or rust (beta)."),
 ) -> None:
     """
     Benchmark the performance of name division on a file (single run).
@@ -163,7 +168,7 @@ def benchmark(
     Processed 4 names in 0.0123s (325.2 names/sec) [cache enabled]
     ```
     """
-    divider = get_divider(mode=mode, separator=separator, use_mask_cache=use_mask_cache)
+    divider = get_divider(mode=mode, separator=separator, use_mask_cache=use_mask_cache, backend=backend)
 
     with open(undivided_name_text, "rb") as f:
         undivided_names = f.read().decode(encoding).strip().split("\n")
@@ -180,7 +185,9 @@ def benchmark(
 
     if not silent:
         cache_status = "enabled" if use_mask_cache else "disabled"
-        print(f"Processed {name_count} names in {elapsed:.4f}s ({names_per_sec:.1f} names/sec) [cache {cache_status}]")
+        print(
+            f"Processed {name_count} names in {elapsed:.4f}s ({names_per_sec:.1f} names/sec) [cache {cache_status}, backend {backend}]"
+        )
 
 
 if __name__ == "__main__":
