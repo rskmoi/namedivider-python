@@ -116,19 +116,31 @@ class TestBackendConsistency:
     @pytest.mark.parametrize("undivided_name", backend_consistency_test_data)
     def test_gbdt_name_divider_consistency(self, undivided_name: str):
         """Test that GBDTNameDivider produces consistent results across backends."""
+        print(f"🔍 Testing: {undivided_name}")  # どの名前でテスト中か
         try:
+            print("📝 Creating Python divider...")
             python_divider = GBDTNameDivider(GBDTNameDividerConfig(backend="python"))
+            print("✅ Python divider created successfully")
+
+            print("📝 Creating Rust divider...")
             rust_divider = GBDTNameDivider(GBDTNameDividerConfig(backend="rust"))
+            print("✅ Rust divider created successfully")
         except RustBackendNotAvailableError:
             pytest.skip("Rust backend not available")
 
+        print("📝 Getting Python result...")
         python_result = python_divider.divide_name(undivided_name)
+        print(f"✅ Python result: {python_result}")
+
+        print("📝 Getting Rust result...")
         rust_result = rust_divider.divide_name(undivided_name)
+        print(f"✅ Rust result: {rust_result}")
 
         # Family and given names should be identical
         assert python_result.family == rust_result.family, f"Family name mismatch for {undivided_name}"
         assert python_result.given == rust_result.given, f"Given name mismatch for {undivided_name}"
 
+        print(f"🎉 Test completed for: {undivided_name}")
         # For GBDT, scores might differ more due to different implementations
         # but division results should be the same
 
