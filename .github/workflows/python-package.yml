@@ -47,6 +47,8 @@ jobs:
         env:
           PYTHONPATH: .
           PYTHONUTF8: 1
+          OBJC_DISABLE_INITIALIZE_FORK_SAFETY: YES
+          RUST_BACKTRACE: 1
       - name: Show coverage
         run: |
           coverage report
