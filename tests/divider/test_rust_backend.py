@@ -46,48 +46,36 @@ class TestRustBackend:
         custom_error = RustBackendNotAvailableError("Custom message")
         assert str(custom_error) == "Custom message"
 
-    @pytest.mark.skipif(condition=True, reason="Skip if namedivider_core not available")
     def test_create_rust_basic_divider(self):
         """Test create_rust_basic_divider factory function."""
-        try:
-            config = BasicNameDividerConfig(backend="rust")
-            wrapper = create_rust_basic_divider(config)
-            assert isinstance(wrapper, RustNameDividerWrapper)
-        except RustBackendNotAvailableError:
-            pytest.skip("Rust backend not available")
+        config = BasicNameDividerConfig(backend="rust")
+        wrapper = create_rust_basic_divider(config)
+        assert isinstance(wrapper, RustNameDividerWrapper)
 
-    @pytest.mark.skipif(condition=True, reason="Skip if namedivider_core not available")
     def test_create_rust_gbdt_divider(self):
         """Test create_rust_gbdt_divider factory function."""
-        try:
-            config = GBDTNameDividerConfig(backend="rust")
-            wrapper = create_rust_gbdt_divider(config)
-            assert isinstance(wrapper, RustNameDividerWrapper)
-        except RustBackendNotAvailableError:
-            pytest.skip("Rust backend not available")
+        config = GBDTNameDividerConfig(backend="rust")
+        wrapper = create_rust_gbdt_divider(config)
+        assert isinstance(wrapper, RustNameDividerWrapper)
 
-    @pytest.mark.skipif(condition=True, reason="Skip if namedivider_core not available")
     def test_rust_name_divider_wrapper(self):
         """Test RustNameDividerWrapper functionality."""
-        try:
-            config = BasicNameDividerConfig(backend="rust")
-            wrapper = create_rust_basic_divider(config)
+        config = BasicNameDividerConfig(backend="rust")
+        wrapper = create_rust_basic_divider(config)
 
-            # Test divide_name
-            result = wrapper.divide_name("菅義偉")
-            assert isinstance(result, DividedName)
-            assert hasattr(result, "family")
-            assert hasattr(result, "given")
-            assert hasattr(result, "separator")
-            assert hasattr(result, "score")
-            assert hasattr(result, "algorithm")
+        # Test divide_name
+        result = wrapper.divide_name("菅義偉")
+        assert isinstance(result, DividedName)
+        assert hasattr(result, "family")
+        assert hasattr(result, "given")
+        assert hasattr(result, "separator")
+        assert hasattr(result, "score")
+        assert hasattr(result, "algorithm")
 
-            # Test calc_score
-            score = wrapper.calc_score("菅", "義偉")
-            assert isinstance(score, float)
-            assert 0.0 <= score <= 1.0
-        except RustBackendNotAvailableError:
-            pytest.skip("Rust backend not available")
+        # Test calc_score
+        score = wrapper.calc_score("菅", "義偉")
+        assert isinstance(score, float)
+        assert 0.0 <= score <= 1.0
 
 
 class TestBackendConsistency:
@@ -96,11 +84,8 @@ class TestBackendConsistency:
     @pytest.mark.parametrize("undivided_name", backend_consistency_test_data)
     def test_basic_name_divider_consistency(self, undivided_name: str):
         """Test that BasicNameDivider produces consistent results across backends."""
-        try:
-            python_divider = BasicNameDivider(BasicNameDividerConfig(backend="python"))
-            rust_divider = BasicNameDivider(BasicNameDividerConfig(backend="rust"))
-        except RustBackendNotAvailableError:
-            pytest.skip("Rust backend not available")
+        python_divider = BasicNameDivider(BasicNameDividerConfig(backend="python"))
+        rust_divider = BasicNameDivider(BasicNameDividerConfig(backend="rust"))
 
         python_result = python_divider.divide_name(undivided_name)
         rust_result = rust_divider.divide_name(undivided_name)
@@ -116,11 +101,8 @@ class TestBackendConsistency:
     @pytest.mark.parametrize("undivided_name", backend_consistency_test_data)
     def test_gbdt_name_divider_consistency(self, undivided_name: str):
         """Test that GBDTNameDivider produces consistent results across backends."""
-        try:
-            python_divider = GBDTNameDivider(GBDTNameDividerConfig(backend="python"))
-            rust_divider = GBDTNameDivider(GBDTNameDividerConfig(backend="rust"))
-        except RustBackendNotAvailableError:
-            pytest.skip("Rust backend not available")
+        python_divider = GBDTNameDivider(GBDTNameDividerConfig(backend="python"))
+        rust_divider = GBDTNameDivider(GBDTNameDividerConfig(backend="rust"))
 
         python_result = python_divider.divide_name(undivided_name)
         rust_result = rust_divider.divide_name(undivided_name)
@@ -135,11 +117,8 @@ class TestBackendConsistency:
     @pytest.mark.parametrize("family, given", calc_score_test_data)
     def test_calc_score_consistency(self, family: str, given: str):
         """Test that calc_score produces consistent results across backends."""
-        try:
-            python_divider = BasicNameDivider(BasicNameDividerConfig(backend="python"))
-            rust_divider = BasicNameDivider(BasicNameDividerConfig(backend="rust"))
-        except RustBackendNotAvailableError:
-            pytest.skip("Rust backend not available")
+        python_divider = BasicNameDivider(BasicNameDividerConfig(backend="python"))
+        rust_divider = BasicNameDivider(BasicNameDividerConfig(backend="rust"))
 
         python_score = python_divider.calc_score(family, given)
         rust_score = rust_divider.calc_score(family, given)
@@ -150,11 +129,8 @@ class TestBackendConsistency:
 
     def test_backend_type_safety(self):
         """Test that both backends return proper DividedName objects."""
-        try:
-            python_divider = BasicNameDivider(BasicNameDividerConfig(backend="python"))
-            rust_divider = BasicNameDivider(BasicNameDividerConfig(backend="rust"))
-        except RustBackendNotAvailableError:
-            pytest.skip("Rust backend not available")
+        python_divider = BasicNameDivider(BasicNameDividerConfig(backend="python"))
+        rust_divider = BasicNameDivider(BasicNameDividerConfig(backend="rust"))
 
         test_name = "菅義偉"
 
@@ -187,14 +163,11 @@ class TestBackendConsistency:
         assert python_divider._rust_divider is None
         assert python_divider.feature_extractor is not None
 
-        # Test rust backend (if available)
-        try:
-            rust_config = BasicNameDividerConfig(backend="rust")
-            rust_divider = BasicNameDivider(rust_config)
-            assert rust_divider._rust_divider is not None
-            assert isinstance(rust_divider._rust_divider, RustNameDividerWrapper)
-        except RustBackendNotAvailableError:
-            pytest.skip("Rust backend not available")
+        # Test rust backend
+        rust_config = BasicNameDividerConfig(backend="rust")
+        rust_divider = BasicNameDivider(rust_config)
+        assert rust_divider._rust_divider is not None
+        assert isinstance(rust_divider._rust_divider, RustNameDividerWrapper)
 
     def test_error_handling_with_invalid_backend(self):
         """Test error handling with invalid backend specification."""
@@ -330,28 +303,20 @@ class TestRustBackendConfigurationValidation:
 
         assert "Expected GBDTNameDividerConfig, got BasicNameDividerConfig" in str(exc_info.value)
 
-    @pytest.mark.skipif(condition=True, reason="Skip if namedivider_core not available")
     def test_create_rust_basic_divider_with_invalid_config(self):
         """Test create_rust_basic_divider fails with invalid configuration."""
-        try:
-            custom_rule = TwoCharRule()
-            config = BasicNameDividerConfig(backend="rust", custom_rules=[custom_rule])
+        custom_rule = TwoCharRule()
+        config = BasicNameDividerConfig(backend="rust", custom_rules=[custom_rule])
 
-            with pytest.raises(RustBackendUnsupportedConfigError):
-                create_rust_basic_divider(config)
-        except RustBackendNotAvailableError:
-            pytest.skip("Rust backend not available")
+        with pytest.raises(RustBackendUnsupportedConfigError):
+            create_rust_basic_divider(config)
 
-    @pytest.mark.skipif(condition=True, reason="Skip if namedivider_core not available")
     def test_create_rust_gbdt_divider_with_invalid_config(self):
         """Test create_rust_gbdt_divider fails with invalid configuration."""
-        try:
-            config = GBDTNameDividerConfig(backend="rust", cache_mask=True, path_csv="/tmp/custom.csv")
+        config = GBDTNameDividerConfig(backend="rust", cache_mask=True, path_csv="/tmp/custom.csv")
 
-            with pytest.raises(RustBackendUnsupportedConfigError):
-                create_rust_gbdt_divider(config)
-        except RustBackendNotAvailableError:
-            pytest.skip("Rust backend not available")
+        with pytest.raises(RustBackendUnsupportedConfigError):
+            create_rust_gbdt_divider(config)
 
     def test_create_rust_basic_divider_with_wrong_config_type(self):
         """Test create_rust_basic_divider fails with wrong config type."""
