@@ -41,14 +41,23 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      - name: Test with pytest
+      - name: Test with pytest (macOS - single threaded)
+        if: matrix.os == 'macos-latest'
         run: |
-          coverage run -m pytest tests
+          coverage run -m pytest tests -x --tb=short --disable-warnings
         env:
           PYTHONPATH: .
           PYTHONUTF8: 1
           OBJC_DISABLE_INITIALIZE_FORK_SAFETY: YES
           RUST_BACKTRACE: 1
+          
+      - name: Test with pytest (Linux/Windows)
+        if: matrix.os != 'macos-latest'
+        run: |
+          coverage run -m pytest tests
+        env:
+          PYTHONPATH: .
+          PYTHONUTF8: 1
       - name: Show coverage
         run: |
           coverage report
