@@ -3,7 +3,7 @@ mypy == 1.11.2
 ruff == 0.6.8
 black == 23.12.1
 coverage == 7.6.1
-namedivider-core == 0.2.0
+namedivider-core == 0.2.1
 
 # stubs
 pandas-stubs
