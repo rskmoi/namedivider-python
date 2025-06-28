@@ -13,7 +13,7 @@ CURRENT_DIR = Path(__file__).resolve().parent
 app = typer.Typer()
 
 
-def get_divider(mode: str, separator: str, use_mask_cache: bool = True, backend: str = "python") -> _NameDivider:
+def get_divider(mode: str, separator: str, use_mask_cache: bool = False, backend: str = "python") -> _NameDivider:
     if mode == "basic":
         basic_config = BasicNameDividerConfig(separator=separator, cache_mask=use_mask_cache, backend=backend)
         return BasicNameDivider(config=basic_config)
