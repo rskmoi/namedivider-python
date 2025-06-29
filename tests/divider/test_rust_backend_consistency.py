@@ -47,7 +47,6 @@ gbdt_expected_results = [
 class TestBackendConsistency:
     """Test consistency between Python and Rust backends."""
 
-    @pytest.mark.forked
     @pytest.mark.parametrize("undivided_name, expected", basic_expected_results)
     def test_basic_name_divider_rust_backend(self, undivided_name: str, expected: dict):
         """Test that Rust Basic backend produces expected results (avoiding Python/Rust conflicts)."""
@@ -65,7 +64,6 @@ class TestBackendConsistency:
             score_diff < 0.1
         ), f"Score difference too large for {undivided_name}: expected {expected['score']}, got {rust_result.score}"
 
-    @pytest.mark.forked
     @pytest.mark.parametrize("undivided_name, expected", gbdt_expected_results)
     def test_gbdt_name_divider_rust_backend(self, undivided_name: str, expected: dict):
         """Test Rust GBDT backend via subprocess with base64 encoding for Windows compatibility."""
@@ -90,7 +88,6 @@ class TestBackendConsistency:
         score_diff = abs(rust_result["score"] - expected["score"])
         assert score_diff < 0.1, f"Score difference too large for {undivided_name}"
 
-    @pytest.mark.forked
     @pytest.mark.parametrize("family, given", calc_score_test_data)
     def test_calc_score_consistency(self, family: str, given: str):
         """Test that calc_score produces consistent results across backends."""
@@ -104,7 +101,6 @@ class TestBackendConsistency:
         score_diff = abs(python_score - rust_score)
         assert score_diff < 0.1, f"Score difference too large for {family} {given}: {score_diff}"
 
-    @pytest.mark.forked
     def test_backend_type_safety(self):
         """Test that both backends return proper DividedName objects."""
         python_divider = BasicNameDivider(BasicNameDividerConfig(backend="python"))
@@ -128,7 +124,6 @@ class TestBackendConsistency:
             assert hasattr(result, "algorithm")
             assert isinstance(result.score, (int, float))
 
-    @pytest.mark.forked
     def test_backend_configuration(self):
         """Test that backend configuration works correctly."""
         # Test default backend (python)
@@ -148,7 +143,6 @@ class TestBackendConsistency:
         assert rust_divider._rust_divider is not None
         assert isinstance(rust_divider._rust_divider, RustNameDividerWrapper)
 
-    @pytest.mark.forked
     def test_error_handling_with_invalid_backend(self):
         """Test error handling with invalid backend specification."""
         # Invalid backend should use python as fallback
