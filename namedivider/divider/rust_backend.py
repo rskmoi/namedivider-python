@@ -253,7 +253,9 @@ def create_rust_gbdt_divider(config: NameDividerConfigBase) -> RustNameDividerWr
 
     namedivider_core = _try_import_rust_backend()
 
-    # Create Rust GBDTNameDivider with config parameters
-    rust_divider = namedivider_core.GBDTNameDivider(separator=config.separator, normalize_name=config.normalize_name)
+    # 以下2行をデバッグのためコメントアウト
+    ## Create Rust GBDTNameDivider with config parameters
+    #rust_divider = namedivider_core.GBDTNameDivider(separator=config.separator, normalize_name=config.normalize_name)
+    rust_divider = namedivider_core.GBDTNameDivider()
 
     return RustNameDividerWrapper(rust_divider)
