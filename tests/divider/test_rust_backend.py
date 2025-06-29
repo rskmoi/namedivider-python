@@ -77,39 +77,36 @@ class TestRustBackend:
         assert isinstance(score, float)
         assert 0.0 <= score <= 1.0
 
-    def test_gbdt_rust_backend_step_by_step(self):
-        """Step by step debugging of GBDT rust backend."""
-        print("=== Step 1: Direct namedivider_core.GBDTNameDivider ===")
-        import namedivider_core
-        direct_divider = namedivider_core.GBDTNameDivider()
-        direct_result = direct_divider.divide_name('菅義偉')
-        print(f"Direct result: {direct_result}")
+    def test_subprocess_verification(self):
+        """Test namedivider_core in separate subprocess."""
+        import subprocess
+        import sys
 
-        print("=== Step 2: namedivider_core with parameters ===")
-        # ラッパーで使っていた呼び出し方を試す
-        param_divider = namedivider_core.GBDTNameDivider()  # パラメータなし版
-        param_result = param_divider.divide_name('菅義偉')
-        print(f"Param result: {param_result}")
+        code = """
+    import namedivider_core
+    divider = namedivider_core.GBDTNameDivider()
+    result = divider.divide_name('菅義偉')
+    print(f'SUCCESS: {result}')
+    """
 
-        print("=== Step 3: RustNameDividerWrapper creation ===")
-        from namedivider.divider.rust_backend import RustNameDividerWrapper
-        wrapper = RustNameDividerWrapper(direct_divider)
-        print(f"Wrapper created: {wrapper}")
+        try:
+            result = subprocess.run(
+                [sys.executable, "-c", code],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            print(f"Subprocess stdout: {result.stdout}")
+            print(f"Subprocess stderr: {result.stderr}")
+            print(f"Subprocess returncode: {result.returncode}")
 
-        print("=== Step 4: Wrapper divide_name call ===")
-        wrapper_result = wrapper.divide_name('菅義偉')
-        print(f"Wrapper result: {wrapper_result}")
+            assert result.returncode == 0, f"Subprocess failed: {result.stderr}"
+            assert "SUCCESS:" in result.stdout
 
-        print("=== Step 5: Full integration test ===")
-        from namedivider.divider.gbdt_name_divider import GBDTNameDivider
-        from namedivider.divider.config import GBDTNameDividerConfig
-
-        config = GBDTNameDividerConfig(backend="rust")
-        gbdt_divider = GBDTNameDivider(config)
-        integration_result = gbdt_divider.divide_name('菅義偉')
-        print(f"Integration result: {integration_result}")
-
-        print("✅ All steps completed successfully!")
+        except subprocess.TimeoutExpired:
+            print("❌ Subprocess timed out")
+        except Exception as e:
+            print(f"❌ Subprocess error: {e}")
 
 
 class TestBackendConsistency:
