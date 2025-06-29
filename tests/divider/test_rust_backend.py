@@ -120,6 +120,7 @@ class TestBackendConsistency:
             score_diff < 0.1
         ), f"Score difference too large for {undivided_name}: expected {expected['score']}, got {rust_result.score}"
 
+    @pytest.mark.forked
     @pytest.mark.parametrize("undivided_name, expected", gbdt_expected_results)
     def test_gbdt_name_divider_rust_backend(self, undivided_name: str, expected: dict):
         """Test that Rust GBDT backend produces expected results (avoiding Python/Rust lightgbm conflicts)."""
