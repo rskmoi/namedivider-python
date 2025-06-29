@@ -1,7 +1,7 @@
 # NameDivider🦒
 
 <div align="center">
-    <img src="https://user-images.githubusercontent.com/26462938/170857814-75d609ad-6c4a-48ed-98a6-318943521a2f.png" alt="NameDivider Logo" width="200"/>
+    <img src="https://user-images.githubusercontent.com/26462938/170857814-75d609ad-6c4a-48ed-98a6-318943521a2f.png" alt="NameDivider Logo" width="350"/>
     
 [![PyPI version](https://badge.fury.io/py/namedivider-python.svg)](https://badge.fury.io/py/namedivider-python)
 [![Python versions](https://img.shields.io/pypi/pyversions/namedivider-python.svg)](https://pypi.org/project/namedivider-python/)
