@@ -1,5 +1,10 @@
 import pytest
 
+from namedivider.divider.basic_name_divider import BasicNameDivider
+from namedivider.divider.config import BasicNameDividerConfig
+from namedivider.divider.divided_name import DividedName
+from namedivider.divider.rust_backend import RustNameDividerWrapper
+
 # Test data for consistency checks
 backend_consistency_test_data = [
     "菅義偉",
@@ -45,9 +50,6 @@ class TestBackendConsistency:
     @pytest.mark.forked
     @pytest.mark.parametrize("undivided_name, expected", basic_expected_results)
     def test_basic_name_divider_rust_backend(self, undivided_name: str, expected: dict):
-        from namedivider.divider.basic_name_divider import BasicNameDivider
-        from namedivider.divider.config import BasicNameDividerConfig
-
         """Test that Rust Basic backend produces expected results (avoiding Python/Rust conflicts)."""
         rust_divider = BasicNameDivider(BasicNameDividerConfig(backend="rust"))
         rust_result = rust_divider.divide_name(undivided_name)
@@ -66,31 +68,31 @@ class TestBackendConsistency:
     @pytest.mark.forked
     @pytest.mark.parametrize("undivided_name, expected", gbdt_expected_results)
     def test_gbdt_name_divider_rust_backend(self, undivided_name: str, expected: dict):
-        from namedivider.divider.config import GBDTNameDividerConfig
-        from namedivider.divider.gbdt_name_divider import GBDTNameDivider
+        """Test Rust GBDT backend via subprocess with base64 encoding for Windows compatibility."""
+        import base64
+        import json
+        import subprocess
+        import sys
 
-        """Test that Rust GBDT backend produces expected results (avoiding Python/Rust lightgbm conflicts)."""
-        rust_divider = GBDTNameDivider(GBDTNameDividerConfig(backend="rust"))
-        rust_result = rust_divider.divide_name(undivided_name)
+        # base64 encode for japanese chars
+        encoded_name = base64.b64encode(undivided_name.encode("utf-8")).decode("ascii")
+        code = f"import namedivider, json, base64; from namedivider.divider.gbdt_name_divider import GBDTNameDivider; from namedivider.divider.config import GBDTNameDividerConfig; name = base64.b64decode('{encoded_name}').decode('utf-8'); divider = GBDTNameDivider(GBDTNameDividerConfig(backend='rust')); result = divider.divide_name(name); output = {{'family': result.family, 'given': result.given, 'separator': result.separator, 'score': result.score}}; print(json.dumps(output, ensure_ascii=False))"
 
-        # Check family and given names match expected results
-        assert rust_result.family == expected["family"], f"Family name mismatch for {undivided_name}"
-        assert rust_result.given == expected["given"], f"Given name mismatch for {undivided_name}"
-        assert rust_result.separator == expected["separator"], f"Separator mismatch for {undivided_name}"
+        result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, encoding="utf-8")
+        assert result.returncode == 0, f"Subprocess failed: {result.stderr}"
 
-        # For GBDT, scores might differ slightly between Python and Rust implementations
-        # Allow reasonable tolerance
-        score_diff = abs(rust_result.score - expected["score"])
-        assert (
-            score_diff < 0.1
-        ), f"Score difference too large for {undivided_name}: expected {expected['score']}, got {rust_result.score}"
+        rust_result = json.loads(result.stdout.strip())
+
+        assert rust_result["family"] == expected["family"]
+        assert rust_result["given"] == expected["given"]
+        assert rust_result["separator"] == expected["separator"]
+
+        score_diff = abs(rust_result["score"] - expected["score"])
+        assert score_diff < 0.1, f"Score difference too large for {undivided_name}"
 
     @pytest.mark.forked
     @pytest.mark.parametrize("family, given", calc_score_test_data)
     def test_calc_score_consistency(self, family: str, given: str):
-        from namedivider.divider.basic_name_divider import BasicNameDivider
-        from namedivider.divider.config import BasicNameDividerConfig
-
         """Test that calc_score produces consistent results across backends."""
         python_divider = BasicNameDivider(BasicNameDividerConfig(backend="python"))
         rust_divider = BasicNameDivider(BasicNameDividerConfig(backend="rust"))
@@ -104,10 +106,6 @@ class TestBackendConsistency:
 
     @pytest.mark.forked
     def test_backend_type_safety(self):
-        from namedivider.divider.basic_name_divider import BasicNameDivider
-        from namedivider.divider.config import BasicNameDividerConfig
-        from namedivider.divider.divided_name import DividedName
-
         """Test that both backends return proper DividedName objects."""
         python_divider = BasicNameDivider(BasicNameDividerConfig(backend="python"))
         rust_divider = BasicNameDivider(BasicNameDividerConfig(backend="rust"))
@@ -132,10 +130,6 @@ class TestBackendConsistency:
 
     @pytest.mark.forked
     def test_backend_configuration(self):
-        from namedivider.divider.basic_name_divider import BasicNameDivider
-        from namedivider.divider.config import BasicNameDividerConfig
-        from namedivider.divider.rust_backend import RustNameDividerWrapper
-
         """Test that backend configuration works correctly."""
         # Test default backend (python)
         default_divider = BasicNameDivider()
@@ -156,10 +150,6 @@ class TestBackendConsistency:
 
     @pytest.mark.forked
     def test_error_handling_with_invalid_backend(self):
-        from namedivider.divider.basic_name_divider import BasicNameDivider
-        from namedivider.divider.config import BasicNameDividerConfig
-        from namedivider.divider.divided_name import DividedName
-
         """Test error handling with invalid backend specification."""
         # Invalid backend should use python as fallback
         config = BasicNameDividerConfig(backend="invalid")
