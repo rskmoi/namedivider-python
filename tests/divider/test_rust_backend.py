@@ -122,27 +122,21 @@ class TestBackendConsistency:
 
     @pytest.mark.parametrize("undivided_name, expected", gbdt_expected_results)
     def test_gbdt_name_divider_rust_backend(self, undivided_name: str, expected: dict):
-        """Test Rust GBDT backend via subprocess with base64 encoding for Windows compatibility."""
-        import subprocess
-        import sys
-        import json
-        import base64
+        """Test that Rust GBDT backend produces expected results (avoiding Python/Rust lightgbm conflicts)."""
+        rust_divider = GBDTNameDivider(GBDTNameDividerConfig(backend="rust"))
+        rust_result = rust_divider.divide_name(undivided_name)
 
-        # base64 encode for japanese chars
-        encoded_name = base64.b64encode(undivided_name.encode('utf-8')).decode('ascii')
-        code = f"import namedivider, json, base64; from namedivider.divider.gbdt_name_divider import GBDTNameDivider; from namedivider.divider.config import GBDTNameDividerConfig; name = base64.b64decode('{encoded_name}').decode('utf-8'); divider = GBDTNameDivider(GBDTNameDividerConfig(backend='rust')); result = divider.divide_name(name); output = {{'family': result.family, 'given': result.given, 'separator': result.separator, 'score': result.score}}; print(json.dumps(output, ensure_ascii=False))"
+        # Check family and given names match expected results
+        assert rust_result.family == expected["family"], f"Family name mismatch for {undivided_name}"
+        assert rust_result.given == expected["given"], f"Given name mismatch for {undivided_name}"
+        assert rust_result.separator == expected["separator"], f"Separator mismatch for {undivided_name}"
 
-        result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, encoding='utf-8')
-        assert result.returncode == 0, f"Subprocess failed: {result.stderr}"
-
-        rust_result = json.loads(result.stdout.strip())
-
-        assert rust_result["family"] == expected["family"]
-        assert rust_result["given"] == expected["given"]
-        assert rust_result["separator"] == expected["separator"]
-
-        score_diff = abs(rust_result["score"] - expected["score"])
-        assert score_diff < 0.1, f"Score difference too large for {undivided_name}"
+        # For GBDT, scores might differ slightly between Python and Rust implementations
+        # Allow reasonable tolerance
+        score_diff = abs(rust_result.score - expected["score"])
+        assert (
+            score_diff < 0.1
+        ), f"Score difference too large for {undivided_name}: expected {expected['score']}, got {rust_result.score}"
 
     @pytest.mark.parametrize("family, given", calc_score_test_data)
     def test_calc_score_consistency(self, family: str, given: str):

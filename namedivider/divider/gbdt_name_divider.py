@@ -36,7 +36,9 @@ class GBDTNameDivider(_NameDivider):
         # Local imports to prevent C library conflicts between lightgbm
         # and Rust backend on macOS
         import pickle
+
         import lightgbm as lgb
+
         from namedivider.feature.extractor import FamilyRankingFeatureExtractor
         from namedivider.feature.family_name import FamilyNameRepository
         from namedivider.feature.kanji import KanjiStatisticsRepository
