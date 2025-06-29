@@ -82,12 +82,8 @@ class TestRustBackend:
         import subprocess
         import sys
 
-        code = """
-    import namedivider_core
-    divider = namedivider_core.GBDTNameDivider()
-    result = divider.divide_name('菅義偉')
-    print(f'SUCCESS: {result}')
-    """
+        # マルチライン文字列をワンライナーに変更
+        code = "import namedivider_core; divider = namedivider_core.GBDTNameDivider(); result = divider.divide_name('菅義偉'); print(f'SUCCESS: {result}')"
 
         try:
             result = subprocess.run(
