@@ -1,17 +1,11 @@
-import pickle
 from dataclasses import asdict
 from pathlib import Path
 from typing import Optional, cast
-
-import lightgbm as lgb
 
 from namedivider.divider.config import GBDTNameDividerConfig
 from namedivider.divider.divided_name import DividedName
 from namedivider.divider.name_divider_base import _NameDivider
 from namedivider.divider.rust_backend import RustNameDividerWrapper
-from namedivider.feature.extractor import FamilyRankingFeatureExtractor
-from namedivider.feature.family_name import FamilyNameRepository
-from namedivider.feature.kanji import KanjiStatisticsRepository
 from namedivider.util import (
     download_family_name_pickle_if_needed,
     download_gbdt_model_v1_if_needed,
@@ -39,6 +33,14 @@ class GBDTNameDivider(_NameDivider):
         super().__init__(config=config)
 
     def _init_python_backend(self, config: GBDTNameDividerConfig) -> None:
+        # Local imports to prevent C library conflicts between lightgbm
+        # and Rust backend on macOS
+        import pickle
+        import lightgbm as lgb
+        from namedivider.feature.extractor import FamilyRankingFeatureExtractor
+        from namedivider.feature.family_name import FamilyNameRepository
+        from namedivider.feature.kanji import KanjiStatisticsRepository
+
         """Initialize Python backend (default behavior)."""
         download_family_name_pickle_if_needed(config.path_family_names)
         download_gbdt_model_v1_if_needed(config.path_model)
