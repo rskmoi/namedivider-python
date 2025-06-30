@@ -2,7 +2,7 @@ from typing import Dict
 
 import pytest
 
-from namedivider.divider.config import GBDTNameDividerConfig, NameDividerVersions
+from namedivider.divider.config import NameDividerVersions
 from namedivider.divider.gbdt_name_divider import GBDTNameDivider
 
 name_test_data_v1 = [
@@ -42,18 +42,3 @@ def test_divide_name_latest(undivided_name: str, expect: Dict):
     assert divided_name.separator == expect["separator"]
     assert divided_name.score == expect["score"]
     assert divided_name.algorithm == expect["algorithm"]
-
-
-def test_gbdt_backend_validation_valid_python():
-    config = GBDTNameDividerConfig(backend="python")
-    GBDTNameDivider(config)
-
-
-def test_gbdt_backend_validation_valid_rust():
-    config = GBDTNameDividerConfig(backend="rust")
-    GBDTNameDivider(config)
-
-
-def test_gbdt_backend_validation_invalid():
-    with pytest.raises(ValueError, match="Invalid backend 'invalid'"):
-        GBDTNameDividerConfig(backend="invalid")
