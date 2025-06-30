@@ -1,5 +1,4 @@
 import abc
-import warnings
 from typing import Optional
 
 import numpy as np
@@ -126,19 +125,6 @@ class _NameDivider(metaclass=abc.ABCMeta):
         u = np.sum(np.exp(x))
         softmax_val: list[float] = np.exp(x) / u
         return softmax_val
-
-    @property
-    def compiled_regex_kanji(self):  # type: ignore
-        """
-        This property was added for only backward compatibility.
-        """
-        warnings.warn(
-            "_NameDivider.compiled_regex_kanji is deprecated in 0.3 and will be removed in 0.4. "
-            "Use regex.compile if you want to use compiled_regex_kanji.",
-            category=FutureWarning,
-            stacklevel=1,
-        )
-        return self._compiled_regex_kanji
 
     def _divide_by_rule_base(self, undivided_name: str) -> Optional[DividedName]:
         """

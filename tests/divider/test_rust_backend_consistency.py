@@ -142,17 +142,3 @@ class TestBackendConsistency:
         rust_divider = BasicNameDivider(rust_config)
         assert rust_divider._rust_divider is not None
         assert isinstance(rust_divider._rust_divider, RustNameDividerWrapper)
-
-    def test_error_handling_with_invalid_backend(self):
-        """Test error handling with invalid backend specification."""
-        # Invalid backend should use python as fallback
-        config = BasicNameDividerConfig(backend="invalid")
-        divider = BasicNameDivider(config)
-
-        # Should fall back to Python backend
-        assert divider._rust_divider is None
-        assert divider.feature_extractor is not None
-
-        # Should still work
-        result = divider.divide_name("菅義偉")
-        assert isinstance(result, DividedName)

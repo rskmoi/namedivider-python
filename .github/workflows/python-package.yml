@@ -37,14 +37,6 @@ jobs:
       - name: Install libomp if the operating system is macOS.
         if: matrix.os == 'macos-latest'
         run: brew install libomp
-      - name: Set macOS environment variables (direct paths)
-        if: matrix.os == 'macos-latest'
-        run: |
-          echo "LIBRARY_PATH=/opt/homebrew/lib:$LIBRARY_PATH" >> $GITHUB_ENV
-          echo "LDFLAGS=-L/opt/homebrew/lib $LDFLAGS" >> $GITHUB_ENV
-          echo "RUSTFLAGS=-L /opt/homebrew/lib" >> $GITHUB_ENV
-          echo "MACOSX_DEPLOYMENT_TARGET=14.0" >> $GITHUB_ENV
-          echo "PATH=$HOME/.cargo/bin:$PATH" >> $GITHUB_ENV
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
