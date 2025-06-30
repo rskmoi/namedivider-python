@@ -43,6 +43,13 @@ class NameDividerConfigBase:
     cache_mask: bool = False
     backend: str = "python"
 
+    def __post_init__(self) -> None:
+        valid_backends = {"python", "rust"}
+        if self.backend not in valid_backends:
+            raise ValueError(
+                f"Invalid backend '{self.backend}'. " f"Valid backends are: {', '.join(sorted(valid_backends))}"
+            )
+
 
 @dataclass(frozen=True)
 class BasicNameDividerConfig(NameDividerConfigBase):
