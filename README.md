@@ -8,7 +8,7 @@
 [![CI](https://github.com/rskmoi/namedivider-python/workflows/Python%20package/badge.svg)](https://github.com/rskmoi/namedivider-python/actions)
 [![Docker Pulls](https://img.shields.io/docker/pulls/rskmoi/namedivider-api.svg)](https://hub.docker.com/r/rskmoi/namedivider-api)
 
-**The most accurate Japanese name separator with 99.91% accuracy**
+**High-accuracy Japanese name separator with 99.91% precision on real-world data**
 
 [🚀 Try Live Demo](https://share.streamlit.io/rskmoi/namedivider-python/examples/demo/example_streamlit.py) • [📖 Documentation (日本語)](https://dune-fifth-da7.notion.site/NameDivider-9118f1a74ca545629dbbfa606a39ba0a) • [🐳 Docker API](https://hub.docker.com/r/rskmoi/namedivider-api) • [⚡ Rust Version](https://github.com/rskmoi/namedivider-rs)
 
@@ -19,6 +19,8 @@
 ## 💡 Why NameDivider?
 
 In Japanese applications (business systems, academic research, etc.), names are often stored as single strings like `"菅義偉"` or `"田中真紀子"`. NameDivider solves the complex problem of automatically dividing these into family and given names with exceptionally high accuracy.
+
+Unlike cloud-based AI solutions, NameDivider processes all data locally — no external API calls, no data transmission, and full privacy control.
 
 ```python
 # Before
@@ -36,6 +38,7 @@ print(f"Family: {result.family}, Given: {result.given}")
 
 - 🎯 **99.91% accuracy** - Tested on real-world Japanese names
 - ⚡ **Multiple algorithms** - Choose between speed (Basic) or accuracy (GBDT)
+- 🔐 **Privacy-first** – Local-only processing, ideal for sensitive data
 - 🔧 **Production ready** - CLI, Python library, and Docker support
 - 🎨 **Interactive demo** - Try it live with Streamlit
 - 📊 **Confidence scoring** - Know when to trust the results
@@ -72,7 +75,7 @@ print(result.to_dict())
 # }
 ```
 
-## 📱 Multiple Interfaces
+## 🔧 Multiple Interfaces
 
 ### 🖥️ Command Line Interface
 
@@ -184,13 +187,15 @@ divider = BasicNameDivider(config=config)
 results = [divider.divide_name(name) for name in names]
 ```
 
-## 🏢 Production Use Cases
+## 🏢 Typical Use Cases
 
 - **Customer Data Processing** - Clean and standardize name databases
 - **Form Validation** - Real-time name splitting in web applications  
 - **Analytics & Reports** - Generate family name statistics
 - **Data Migration** - Convert legacy systems with combined name fields
 - **Government & Municipal** - Process citizen registration data
+- **Security-sensitive Environments** - Process names **without sending data to external APIs**
+
 
 ## 📚 Examples & Tutorials
 
@@ -242,7 +247,7 @@ The family name data used in family_name_repository.pickle is provided by Myoji-
 - [⚡ namedivider-rs](https://github.com/rskmoi/namedivider-rs) - High-performance Rust implementation
 - [🧠 BERT Katakana Divider](namedivider/beta_bert_divider/) - Deep learning approach for katakana names
 
-## 📈 Stats
+## 📈 Project Stats
 
 <div align="center">
 
