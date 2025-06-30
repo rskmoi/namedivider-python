@@ -177,7 +177,7 @@ config = BasicNameDividerConfig(cache_mask=True)
 divider = BasicNameDivider(config=config)
 results = [divider.divide_name(name) for name in names]
 
-# Option 2: Use Rust backend (up to 4x faster)
+# Option 2: (beta) Use Rust backend (up to 4x faster)
 # First install: pip install namedivider-core
 config = BasicNameDividerConfig(backend="rust")
 divider = BasicNameDivider(config=config)
@@ -195,7 +195,7 @@ results = [divider.divide_name(name) for name in names]
 ## 📚 Examples & Tutorials
 
 - [🌐 Use REST API with SDK-like sample codes](namedivider-api/) - Integration examples (7 languages available in [namedivider-rs](https://github.com/rskmoi/namedivider-rs))
-- [⚡ Performance Optimization](docs/) - Handle large datasets efficiently
+- [⚡ Performance Optimization](docs/performance_optimization.md) - Handle large datasets efficiently
 - [🔧 Custom Rules Examples](docs/advanced_features.md) - Domain-specific configurations
 
 
@@ -239,7 +239,7 @@ The family name data used in family_name_repository.pickle is provided by Myoji-
 
 ## 🔗 Related Projects
 
-- [⚡ NameDivider-Rust](https://github.com/rskmoi/namedivider-rs) - High-performance Rust implementation
+- [⚡ namedivider-rs](https://github.com/rskmoi/namedivider-rs) - High-performance Rust implementation
 - [🧠 BERT Katakana Divider](namedivider/beta_bert_divider/) - Deep learning approach for katakana names
 
 ## 📈 Stats
