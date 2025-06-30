@@ -194,7 +194,7 @@ results = [divider.divide_name(name) for name in names]
 
 ## 📚 Examples & Tutorials
 
-- [🌐 Use REST API with SDK-like sample codes](namedivider-api/) - Integration examples (7 languages available in [namedivider-rs](https://github.com/rskmoi/namedivider-rs))
+- [🌐 Use REST API with minimal client samples](namedivider-api/) - Integration examples (7 languages available in [namedivider-rs](https://github.com/rskmoi/namedivider-rs))
 - [⚡ Performance Optimization](docs/performance_optimization.md) - Handle large datasets efficiently
 - [🔧 Custom Rules Examples](docs/advanced_features.md) - Domain-specific configurations
 
