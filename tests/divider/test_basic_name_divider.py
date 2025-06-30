@@ -3,7 +3,7 @@ from typing import Dict
 import pytest
 
 from namedivider.divider.basic_name_divider import BasicNameDivider
-from namedivider.divider.config import NameDividerVersions
+from namedivider.divider.config import BasicNameDividerConfig, NameDividerVersions
 
 name_test_data_v1 = [
     # two chars
@@ -94,3 +94,18 @@ def test_divide_name_latest(undivided_name: str, expect: Dict):
     assert divided_name.separator == expect["separator"]
     assert divided_name.score == expect["score"]
     assert divided_name.algorithm == expect["algorithm"]
+
+
+def test_backend_validation_valid_python():
+    config = BasicNameDividerConfig(backend="python")
+    BasicNameDivider(config)
+
+
+def test_backend_validation_valid_rust():
+    config = BasicNameDividerConfig(backend="rust")
+    BasicNameDivider(config)
+
+
+def test_backend_validation_invalid():
+    with pytest.raises(ValueError, match="Invalid backend 'invalid'"):
+        BasicNameDividerConfig(backend="invalid")
