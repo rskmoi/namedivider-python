@@ -1,12 +1,12 @@
 # NameDivider🦒
 
 <div align="center">
-    <img src="https://user-images.githubusercontent.com/26462938/170857814-75d609ad-6c4a-48ed-98a6-318943521a2f.png" alt="NameDivider Logo" width="350"/>
+    <img src="https://user-images.githubusercontent.com/26462938/170857814-75d609ad-6c4a-48ed-98a6-318943521a2f.png" alt="NameDivider Logo" width="400"/>
     
 [![PyPI version](https://badge.fury.io/py/namedivider-python.svg)](https://badge.fury.io/py/namedivider-python)
 [![Python versions](https://img.shields.io/pypi/pyversions/namedivider-python.svg)](https://pypi.org/project/namedivider-python/)
+[![PyPI downloads](https://img.shields.io/pypi/dm/namedivider-python.svg)](https://pypi.org/project/namedivider-python/)
 [![CI](https://github.com/rskmoi/namedivider-python/workflows/Python%20package/badge.svg)](https://github.com/rskmoi/namedivider-python/actions)
-[![Docker Pulls](https://img.shields.io/docker/pulls/rskmoi/namedivider-api.svg)](https://hub.docker.com/r/rskmoi/namedivider-api)
 
 **High-accuracy Japanese name separator with 99.91% precision on real-world data**
 
@@ -253,7 +253,7 @@ The family name data used in family_name_repository.pickle is provided by Myoji-
 
 ![GitHub stars](https://img.shields.io/github/stars/rskmoi/namedivider-python?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/rskmoi/namedivider-python?style=social)
-![PyPI downloads](https://img.shields.io/pypi/dm/namedivider-python.svg)
+![Docker Pulls](https://img.shields.io/docker/pulls/rskmoi/namedivider-api.svg)
 
 **Trusted by developers worldwide**
 
