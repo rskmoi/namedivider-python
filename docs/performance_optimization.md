@@ -30,8 +30,8 @@ It's important to choose the appropriate algorithm based on your use case:
 
 | Algorithm | Accuracy | Speed | Use Case |
 |-----------|----------|-------|----------|
-| BasicNameDivider | 99.2% | Fast | Primary processing of large datasets |
-| GBDTNameDivider | 99.9% | Moderate | When high accuracy is required |
+| BasicNameDivider | 99.3%    | Fast | Primary processing of large datasets |
+| GBDTNameDivider | 99.9%    | Moderate | When high accuracy is required |
 
 ```python
 # For speed-focused use cases

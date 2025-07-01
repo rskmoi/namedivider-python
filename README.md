@@ -57,7 +57,7 @@ pip install namedivider-python
 ```python
 from namedivider import BasicNameDivider, GBDTNameDivider
 
-# Fast but good accuracy (99.2%)
+# Fast but good accuracy (99.3%)
 basic = BasicNameDivider()
 result = basic.divide_name("菅義偉")
 print(result)  # 菅 義偉
@@ -134,10 +134,10 @@ streamlit run example_streamlit.py
 
 | Algorithm                         | Accuracy | Speed (names/sec)  | Use Case |
 |-----------------------------------|----------|--------------------|----------|
-| BasicNameDivider / backend=python | 99.2% | 4152.8             | Stable & compatible |
-| BasicNameDivider / backend=rust   | 99.2% | 18597.7            | Max performance (if available) |
-| GBDTNameDivider / backend=python  | 99.9% | 1143.3 | Best accuracy, guaranteed |
-| GBDTNameDivider / backend=rust    | 99.9% | 6277.4 | Fast + accurate (if available) |
+| BasicNameDivider / backend=python | 99.3%    | 4152.8             | Stable & compatible |
+| BasicNameDivider / backend=rust   | 99.3%    | 18597.7            | Max performance (if available) |
+| GBDTNameDivider / backend=python  | 99.9%    | 1143.3 | Best accuracy, guaranteed |
+| GBDTNameDivider / backend=rust    | 99.9%    | 6277.4 | Fast + accurate (if available) |
 
 Run your own benchmarks:
 ```bash

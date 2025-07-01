@@ -71,8 +71,8 @@ curl -X POST -H "Content-Type: application/json" -d '{"names":["竈門炭治郎"
 
 | Algorithm | Accuracy | Speed | Use Case |
 |-----------|----------|-------|----------|
-| **Basic Name Divider** | 99.2% | Ultra Fast | High-volume processing, real-time applications |
-| **GBDT Name Divider** | 99.9% | Fast | Maximum accuracy requirements |
+| **Basic Name Divider** | 99.3%    | Ultra Fast | High-volume processing, real-time applications |
+| **GBDT Name Divider** | 99.9%    | Fast | Maximum accuracy requirements |
 
 ### Key Capabilities
 
