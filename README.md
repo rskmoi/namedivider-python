@@ -1,14 +1,14 @@
-# NameDivider🦒
+# namedivider-python🦒
 
 <div align="center">
-    <img src="https://user-images.githubusercontent.com/26462938/170857814-75d609ad-6c4a-48ed-98a6-318943521a2f.png" alt="NameDivider Logo" width="400"/>
+    <img src="https://user-images.githubusercontent.com/26462938/170857814-75d609ad-6c4a-48ed-98a6-318943521a2f.png" alt="NameDivider Logo" width="600"/>
     
 [![PyPI version](https://badge.fury.io/py/namedivider-python.svg)](https://badge.fury.io/py/namedivider-python)
 [![Python versions](https://img.shields.io/pypi/pyversions/namedivider-python.svg)](https://pypi.org/project/namedivider-python/)
 [![PyPI downloads](https://img.shields.io/pypi/dm/namedivider-python.svg)](https://pypi.org/project/namedivider-python/)
 [![CI](https://github.com/rskmoi/namedivider-python/workflows/Python%20package/badge.svg)](https://github.com/rskmoi/namedivider-python/actions)
 
-**High-accuracy Japanese name separator with 99.91% precision on real-world data**
+**NameDivider is a tool that divides Japanese full names into family and given names.**
 
 [🚀 Try Live Demo](https://share.streamlit.io/rskmoi/namedivider-python/examples/demo/example_streamlit.py) • [📖 Documentation (日本語)](https://dune-fifth-da7.notion.site/NameDivider-9118f1a74ca545629dbbfa606a39ba0a) • [🐳 Docker API](https://hub.docker.com/r/rskmoi/namedivider-api) • [⚡ Rust Version](https://github.com/rskmoi/namedivider-rs)
 
@@ -58,13 +58,13 @@ pip install namedivider-python
 from namedivider import BasicNameDivider, GBDTNameDivider
 
 # Fast but good accuracy (99.3%)
-basic = BasicNameDivider()
-result = basic.divide_name("菅義偉")
+basic_divider = BasicNameDivider()
+result = basic_divider.divide_name("菅義偉")
 print(result)  # 菅 義偉
 
 # Slower but best accuracy (99.9%)
-gbdt = GBDTNameDivider()
-result = gbdt.divide_name("菅義偉")
+gbdt_divider = GBDTNameDivider()
+result = gbdt_divider.divide_name("菅義偉")
 print(result.to_dict())
 # {
 #   'algorithm': 'kanji_feature',
