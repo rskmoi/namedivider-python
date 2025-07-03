@@ -18,7 +18,7 @@
 
 ## 💡 Why NameDivider?
 
-In Japanese applications (business systems, academic research, etc.), names are often stored as single strings like `"菅義偉"` or `"田中真紀子"`. NameDivider solves the complex problem of automatically dividing these into family and given names with exceptionally high accuracy.
+Japanese full names like "菅義偉" are typically stored as single strings with no clear boundary between family and given names. NameDivider solves this with exceptional accuracy.
 
 Unlike cloud-based AI solutions, NameDivider processes all data locally — no external API calls, no data transmission, and full privacy control.
 
