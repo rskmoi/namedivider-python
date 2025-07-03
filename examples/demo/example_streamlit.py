@@ -43,7 +43,7 @@ def main():
             '3. 入力された名前は保存をしておらず、作者が確認することはできません。'
     elif option == "English":
         st.title("NameDivider Demo")
-        st.write("NameDivider is a tool for dividing the Japanese full name into a family name and a given name.")
+        st.write("NameDivider is a tool that divides Japanese full names into family and given names.")
         st.write("https://github.com/rskmoi/namedivider-python")
         st.write("Entering names in the text area on the left side will output the divided names on the right side.")
         mode_select = "Please select a division method."

@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "namedivider-python"
 dynamic = ["version"]
-description = "A tool for dividing the Japanese full name into a family name and a given name."
+description = "A tool that divides Japanese full names into family and given names."
 readme = "README.md"
 license = "MIT"
 authors = [
