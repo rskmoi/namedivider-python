@@ -67,7 +67,7 @@ gbdt_divider = GBDTNameDivider()
 result = gbdt_divider.divide_name("菅義偉")
 print(result.to_dict())
 # {
-#   'algorithm': 'kanji_feature',
+#   'algorithm': 'gbdt',
 #   'family': '菅',
 #   'given': '義偉',
 #   'score': 0.7300634880343344,
@@ -161,7 +161,7 @@ config = BasicNameDividerConfig(
 )
 divider = BasicNameDivider(config=config)
 result = divider.divide_name("竜胆尊")
-# DividedName(family='竜胆', given='尊', score=1.0)
+# DividedName(family='竜胆', given='尊', separator=' ', score=1.0, algorithm='rule_specific_family')
 ```
 
 ### Speed Up
