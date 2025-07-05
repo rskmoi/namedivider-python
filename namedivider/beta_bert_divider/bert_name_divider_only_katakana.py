@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
-from typing import Tuple, Union
+from typing import Union
 
-import torch  # type: ignore
+import torch
 from transformers import BertForSequenceClassification, PretrainedConfig  # type: ignore
 
 from namedivider.divider.divided_name import DividedName
@@ -37,7 +37,7 @@ class BERTNameDividerOnlyKatakana:
             vocab_hash = json.load(f)
         self.vocab_hash = vocab_hash
 
-    def preprocess(self, undivided_name: str) -> Tuple[torch.Tensor, torch.Tensor]:
+    def preprocess(self, undivided_name: str) -> tuple[torch.Tensor, torch.Tensor]:
         """
         Preprocess undivided name.
 

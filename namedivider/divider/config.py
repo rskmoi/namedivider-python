@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from namedivider.rule.rule import Rule
 from namedivider.util import (
@@ -31,12 +31,24 @@ class NameDividerConfigBase:
     'normalize' here means to internally convert old character form(旧字体) or variant character form(異字体)
     into orthographic character form(正字体) before processing them.
     algorithm_name: Name of algorithm.
+    custom_rules: Custom rules to apply before statistical analysis.
+    cache_mask: Flag whether or not to cache masks for performance optimization.
+    backend: Backend to use for name division. "python" (default) or "rust" (beta).
     """
 
     separator: str = " "
     normalize_name: bool = True
     algorithm_name: str = "unknown_algorithm"
-    custom_rules: Optional[List[Rule]] = None
+    custom_rules: Optional[list[Rule]] = None
+    cache_mask: bool = False
+    backend: str = "python"
+
+    def __post_init__(self) -> None:
+        valid_backends = {"python", "rust"}
+        if self.backend not in valid_backends:
+            raise ValueError(
+                f"Invalid backend '{self.backend}'. " f"Valid backends are: {', '.join(sorted(valid_backends))}"
+            )
 
 
 @dataclass(frozen=True)
