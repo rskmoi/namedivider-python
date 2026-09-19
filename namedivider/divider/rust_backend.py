@@ -4,6 +4,7 @@ Rust backend support for namedivider.
 This module provides optional Rust backend functionality for improved performance.
 The Rust backend is a beta feature and requires the namedivider-core package.
 """
+
 from pathlib import Path
 from typing import Any, Optional, Union
 

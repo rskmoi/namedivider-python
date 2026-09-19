@@ -113,7 +113,7 @@ class KanjiStatisticsRepository:
         lengths = kanji_records[:, 7:]
 
         self._kanji_dict = {}
-        for _kanji, _order, _length in zip(kanjis, orders, lengths):
+        for _kanji, _order, _length in zip(kanjis, orders, lengths, strict=True):
             self._kanji_dict[_kanji] = KanjiStatistics(kanji=_kanji, order_counts=_order, length_counts=_length)
         self._default_kanji = KanjiStatistics.default()
 
