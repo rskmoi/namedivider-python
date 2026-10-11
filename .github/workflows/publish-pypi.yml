@@ -1,0 +1,80 @@
+# Release steps:
+# 1. Update namedivider/version.py and collect changes on the release branch.
+# 2. Verify CI passes, then merge the release branch into master.
+# 3. Run Publish TestPyPI from master and verify installation and functionality.
+# 4. Run Publish PyPI from master with the same version and commit.
+name: Publish PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to publish; must match namedivider/version.py.
+        required: true
+        type: string
+      confirm:
+        description: Type publish to confirm publication to PyPI.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-pypi
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Validate and build distributions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate release request
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          if [ "$GITHUB_REF" != "refs/heads/master" ]; then
+            echo "Run this workflow from the master branch."
+            exit 1
+          fi
+          if [ "$CONFIRM" != "publish" ] || [ -z "$RELEASE_VERSION" ]; then
+            echo "Provide a version and confirm with publish."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: ./.github/actions/build-distributions
+        with:
+          version: ${{ inputs.version }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/namedivider-python
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Summarize publication
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          {
+            echo "Published namedivider-python $RELEASE_VERSION to PyPI."
+            echo "Commit: $GITHUB_SHA"
+            echo "Verify the release on PyPI."
+          } >> "$GITHUB_STEP_SUMMARY"
