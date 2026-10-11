@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from typing import Union
 
@@ -18,11 +17,12 @@ class FamilyNameRepository:
         ...
         ------------
         """
-        with open(path_txt, "rb") as f:
-            family_text = f.read().decode()
+        with open(path_txt, encoding="utf-8") as f:
+            lines = f.read().splitlines()
+        families = [line for line in lines if line.strip()]
         self.__family_names = {}
-        for rank, _family in enumerate(family_text.split(os.linesep)):
-            self.__family_names[_family] = rank
+        for rank, family in enumerate(families):
+            self.__family_names[family] = rank
 
     def exists(self, family: str) -> bool:
         """
