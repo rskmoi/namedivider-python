@@ -1,9 +1,31 @@
+import os
+from dataclasses import replace
+from pathlib import Path
 from typing import Dict
 
 import pytest
 
-from namedivider.divider.config import NameDividerVersions
+from namedivider import util
+from namedivider.divider.config import NameDividerVersions, get_config_from_version
 from namedivider.divider.gbdt_name_divider import GBDTNameDivider
+
+
+@pytest.fixture
+def standard_asset_paths(tmp_path, monkeypatch):
+    # Real-data score regressions are opt-in; ordinary unit tests never download.
+    source = os.environ.get("NAMEDIVIDER_STANDARD_ASSET_TEST_DIR")
+    if source is None:
+        pytest.skip("Set NAMEDIVIDER_STANDARD_ASSET_TEST_DIR for real-asset score regressions")
+    monkeypatch.setattr(util, "DEFAULT_CACHE_DIR", tmp_path)
+    paths = {
+        "path_family_names": util.get_family_name_pkl_default_path(),
+        "path_model": util.get_gbdt_model_v1_default_path(),
+    }
+    for path in paths.values():
+        path.write_bytes((Path(source) / path.name).read_bytes())
+    monkeypatch.setattr(util.urllib.request, "urlopen", lambda *a, **kw: pytest.fail("Unexpected network access"))
+    return paths
+
 
 name_test_data_v1 = [
     # two chars
@@ -23,8 +45,10 @@ name_test_data_v1 = [
 
 
 @pytest.mark.parametrize("undivided_name, expect", name_test_data_v1)
-def test_divide_name_v1(undivided_name: str, expect: Dict):
-    name_divider = GBDTNameDivider.from_version(NameDividerVersions.GBDT_NAME_DIVIDER_V1)
+def test_divide_name_v1(undivided_name: str, expect: Dict, standard_asset_paths):
+    name_divider = GBDTNameDivider(
+        replace(get_config_from_version(NameDividerVersions.GBDT_NAME_DIVIDER_V1), **standard_asset_paths)
+    )
     divided_name = name_divider.divide_name(undivided_name)
     assert divided_name.family == expect["family"]
     assert divided_name.given == expect["given"]
@@ -34,8 +58,10 @@ def test_divide_name_v1(undivided_name: str, expect: Dict):
 
 
 @pytest.mark.parametrize("undivided_name, expect", name_test_data_v1)
-def test_divide_name_latest(undivided_name: str, expect: Dict):
-    name_divider = GBDTNameDivider.from_version(NameDividerVersions.GBDT_NAME_DIVIDER_LATEST)
+def test_divide_name_latest(undivided_name: str, expect: Dict, standard_asset_paths):
+    name_divider = GBDTNameDivider(
+        replace(get_config_from_version(NameDividerVersions.GBDT_NAME_DIVIDER_LATEST), **standard_asset_paths)
+    )
     divided_name = name_divider.divide_name(undivided_name)
     assert divided_name.family == expect["family"]
     assert divided_name.given == expect["given"]

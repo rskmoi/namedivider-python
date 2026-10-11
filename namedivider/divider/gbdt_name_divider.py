@@ -7,8 +7,8 @@ from namedivider.divider.divided_name import DividedName
 from namedivider.divider.name_divider_base import _NameDivider
 from namedivider.divider.rust_backend import RustNameDividerWrapper
 from namedivider.util import (
-    download_family_name_pickle_if_needed,
-    download_gbdt_model_v1_if_needed,
+    get_verified_family_name_bytes,
+    get_verified_gbdt_model_bytes,
 )
 
 
@@ -44,12 +44,17 @@ class GBDTNameDivider(_NameDivider):
         from namedivider.feature.kanji import KanjiStatisticsRepository
 
         """Initialize Python backend (default behavior)."""
-        download_family_name_pickle_if_needed(config.path_family_names)
-        download_gbdt_model_v1_if_needed(config.path_model)
+        family_bytes = get_verified_family_name_bytes(config.path_family_names)
+        model_bytes = get_verified_gbdt_model_bytes(config.path_model)
         kanji_statistics_repository = KanjiStatisticsRepository(path_csv=config.path_csv)
-        if Path(config.path_family_names).suffix == ".pickle":
+        family_name_repository: FamilyNameRepository
+        if family_bytes is not None:
+            # Deserialize the verified bytes; reopening the cache would allow
+            # a replacement between verification and deserialization.
+            family_name_repository = pickle.loads(family_bytes)
+        elif Path(config.path_family_names).suffix == ".pickle":
             with open(config.path_family_names, "rb") as f:
-                family_name_repository: FamilyNameRepository = pickle.load(f)
+                family_name_repository = pickle.load(f)
         else:
             family_name_repository = FamilyNameRepository(path_txt=config.path_family_names)
         self.feature_extractor = FamilyRankingFeatureExtractor(
@@ -57,7 +62,11 @@ class GBDTNameDivider(_NameDivider):
             family_name_repository=family_name_repository,
             cache_mask=config.cache_mask,
         )
-        self.model = lgb.Booster(model_file=config.path_model)
+        if model_bytes is not None:
+            # Use the same verified snapshot even if the cache is replaced.
+            self.model = lgb.Booster(model_str=model_bytes.decode("utf-8"))
+        else:
+            self.model = lgb.Booster(model_file=config.path_model)
         self._rust_divider: Optional[RustNameDividerWrapper] = None
 
     def _init_rust_backend(self, config: GBDTNameDividerConfig) -> None:
