@@ -1,7 +1,9 @@
 import pytest
 
+from namedivider.divider.basic_name_divider import BasicNameDivider
 from namedivider.divider.config import BasicNameDividerConfig, GBDTNameDividerConfig
 from namedivider.divider.divided_name import DividedName
+from namedivider.divider.gbdt_name_divider import GBDTNameDivider
 from namedivider.divider.rust_backend import (
     RustBackendNotAvailableError,
     RustBackendUnsupportedConfigError,
@@ -62,6 +64,48 @@ class TestRustBackend:
 
 class TestRustBackendConfigurationValidation:
     """Test Rust backend configuration validation."""
+
+    @pytest.mark.parametrize(
+        "config_class, validate, create, default_algorithm",
+        [
+            (BasicNameDividerConfig, validate_rust_basic_config, create_rust_basic_divider, "kanji_feature"),
+            (GBDTNameDividerConfig, validate_rust_gbdt_config, create_rust_gbdt_divider, "gbdt"),
+        ],
+    )
+    def test_algorithm_name_validation(self, config_class, validate, create, default_algorithm):
+        validate(config_class(backend="rust"))
+        validate(config_class(backend="rust", algorithm_name=default_algorithm))
+
+        with pytest.raises(RustBackendUnsupportedConfigError) as exc_info:
+            create(config_class(backend="rust", algorithm_name="custom"))
+
+        assert "algorithm_name" in str(exc_info.value)
+        assert "Use backend='python'" in str(exc_info.value)
+
+    @pytest.mark.parametrize(
+        "config_class, validate",
+        [
+            (BasicNameDividerConfig, validate_rust_basic_config),
+            (GBDTNameDividerConfig, validate_rust_gbdt_config),
+        ],
+    )
+    def test_algorithm_name_errors_are_aggregated(self, config_class, validate):
+        config = config_class(backend="rust", algorithm_name="custom", custom_rules=[TwoCharRule()], cache_mask=True)
+        with pytest.raises(RustBackendUnsupportedConfigError) as exc_info:
+            validate(config)
+
+        message = str(exc_info.value)
+        for option in ("algorithm_name", "custom_rules", "cache_mask=True"):
+            assert option in message
+        assert "Use backend='python'" in message
+
+    @pytest.mark.parametrize(
+        "divider_class, config_class",
+        [(BasicNameDivider, BasicNameDividerConfig), (GBDTNameDivider, GBDTNameDividerConfig)],
+    )
+    def test_python_backend_preserves_custom_algorithm_name(self, divider_class, config_class):
+        divider = divider_class(config_class(backend="python", algorithm_name="custom"))
+        assert divider.divide_name("菅義偉").algorithm == "custom"
 
     def test_rust_backend_unsupported_config_error(self):
         """Test RustBackendUnsupportedConfigError message and inheritance."""
