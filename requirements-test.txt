@@ -4,7 +4,9 @@ mypy>=2.3.1
 ruff>=0.16.8
 black>=26.5.1
 coverage>=7.16.1
-namedivider-core>=0.2.3
+
+# Pin the Rust backend to the release tested with this package.
+namedivider-core==0.4.0
 
 # stubs
 pandas-stubs>=3.0.5.260914; python_version >= "3.11"

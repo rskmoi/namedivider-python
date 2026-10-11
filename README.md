@@ -48,8 +48,6 @@ print(f"Family: {result.family}, Given: {result.given}")
 
 ### Installation
 
-Requires Python 3.10 or later.
-
 ```bash
 pip install namedivider-python
 ```
