@@ -13,6 +13,12 @@ CURRENT_DIR = Path(__file__).resolve().parent
 app = typer.Typer()
 
 
+def _read_names(path: Path, encoding: str) -> list[str]:
+    with open(path, encoding=encoding) as f:
+        lines = f.read().splitlines()
+    return [line for line in lines if line.strip()]
+
+
 def get_divider(mode: str, separator: str, use_mask_cache: bool = False, backend: str = "python") -> _NameDivider:
     if mode == "basic":
         basic_config = BasicNameDividerConfig(separator=separator, cache_mask=use_mask_cache, backend=backend)
@@ -74,9 +80,10 @@ def file(
     中曽根 康弘
     ```
     """
+    undivided_names = _read_names(undivided_name_text, encoding)
+    if not undivided_names:
+        return
     divider = get_divider(mode=mode, separator=separator, backend=backend)
-    with open(undivided_name_text, "rb") as f:
-        undivided_names = f.read().decode(encoding).strip().split("\n")
     divided_names = []
     with typer.progressbar(undivided_names) as bar:
         for _undivided_name in bar:
@@ -116,9 +123,10 @@ def accuracy(
     True: 滝 登喜男, Pred: 滝登 喜男
     ```
     """
+    divided_names = _read_names(divided_name_text, encoding)
+    if not divided_names:
+        return
     divider = get_divider(mode=mode, separator=separator, backend=backend)
-    with open(divided_name_text, "rb") as f:
-        divided_names = f.read().decode(encoding).strip().split("\n")
     is_correct_list = []
     wrong_list = []
     with typer.progressbar(divided_names) as bar:
@@ -168,10 +176,10 @@ def benchmark(
     Processed 4 names in 0.0123s (325.2 names/sec) [cache enabled]
     ```
     """
+    undivided_names = _read_names(undivided_name_text, encoding)
+    if not undivided_names:
+        return
     divider = get_divider(mode=mode, separator=separator, use_mask_cache=use_mask_cache, backend=backend)
-
-    with open(undivided_name_text, "rb") as f:
-        undivided_names = f.read().decode(encoding).strip().split("\n")
 
     name_count = len(undivided_names)
 
