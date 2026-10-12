@@ -1,4 +1,11 @@
+import hashlib
+import http.client
+import os
+import tempfile
+import threading
+import time
 import urllib.request
+import warnings
 from pathlib import Path
 from typing import Union
 
@@ -31,35 +38,175 @@ def get_gbdt_model_v1_default_path() -> Path:
     return (DEFAULT_CACHE_DIR / "gbdt_model_v1.txt").expanduser()
 
 
+# Pinned from rskmoi's Models release via the HTTPS URLs above on 2026-10-12.
+# https://github.com/rskmoi/namedivider-python/releases/tag/Models
+# GitHub asset IDs / sizes: dictionary 66928540 / 495221 bytes,
+# model 66925476 / 931415 bytes (both published 2022-05-29).
+# Distribution updates require verifying provenance/content and updating these
+# hashes in a package release; older packages will reject changed assets.
+# Hash verification establishes identity with these assets, not pickle safety.
+_FAMILY_NAME_REPOSITORY_SHA256 = "789444cb3222f18199bd7e2916fa038741b414f0a113d75f13abfc704cb107df"
+_GBDT_MODEL_V1_SHA256 = "68307290a459b2b440988d576da9f04801819642fba04642b86d00ace8115c22"
+# Per attempt: 60-second deadline plus at most one in-flight 30-second read.
+# Two attempts allow roughly 180 seconds of network waiting per asset.
+_DOWNLOAD_ATTEMPTS = 2
+_DOWNLOAD_TIMEOUT_SECONDS = 30
+_DOWNLOAD_DEADLINE_SECONDS = 60
+_MAX_ASSET_BYTES = 16 * 1024 * 1024
+
+
+class _StandardAssetError(RuntimeError):
+    """A standard asset could not be obtained, verified, or saved."""
+
+
+def _is_standard_family_name_path(path: Union[str, Path]) -> bool:
+    """Compare normalized paths without creating directories or accessing the network."""
+    # Absolutize first: older Windows resolve() can leave missing paths relative.
+    return Path(path).expanduser().absolute().resolve() == get_family_name_pkl_default_path().absolute().resolve()
+
+
+def _is_standard_gbdt_model_path(path: Union[str, Path]) -> bool:
+    return Path(path).expanduser().absolute().resolve() == get_gbdt_model_v1_default_path().absolute().resolve()
+
+
+class _StandardAsset:
+    """Acquire and cache one official asset, returning its verified bytes."""
+
+    # Shared across instances: Windows can reject overlapping cache replacements.
+    # Downloads remain concurrent; only reads and publication are serialized.
+    _io_lock = threading.Lock()
+
+    def __init__(self, path: Union[str, Path], url: str, expected_sha256: str):
+        self._path = Path(path).expanduser()
+        self._url = url
+        self._expected_sha256 = expected_sha256
+
+    def load(self) -> bytes:
+        try:
+            with self._io_lock:
+                content = self._path.read_bytes()
+        except FileNotFoundError:
+            content = None
+        except OSError as exc:
+            raise _StandardAssetError(f"Cannot read standard asset {self._path}: {exc}") from exc
+
+        if content is not None:
+            if hashlib.sha256(content).hexdigest() == self._expected_sha256:
+                return content
+            warnings.warn(
+                f"Standard cache {self._path} does not match the official distribution. "
+                "Starting with v0.4.2, standard cache files are verified and custom data at these paths "
+                "is no longer supported. The official asset will be downloaded and will replace this file "
+                "if verification succeeds. To use a custom dictionary or model, move it to a different "
+                "path and set GBDTNameDividerConfig.path_family_names or path_model accordingly.",
+                RuntimeWarning,
+                stacklevel=3,
+            )
+
+        content = self._download()
+        self._save(content)
+        return content
+
+    def _download(self) -> bytes:
+        for attempt in range(1, _DOWNLOAD_ATTEMPTS + 1):
+            try:
+                return self._download_once()
+            except (OSError, ValueError, http.client.HTTPException) as exc:
+                if attempt == _DOWNLOAD_ATTEMPTS:
+                    raise _StandardAssetError(
+                        f"Cannot obtain standard asset {self._path} from {self._url} after {attempt} attempts: {exc}"
+                    ) from exc
+        raise AssertionError("_DOWNLOAD_ATTEMPTS must be positive")
+
+    def _download_once(self) -> bytes:
+        deadline = time.monotonic() + _DOWNLOAD_DEADLINE_SECONDS
+        with urllib.request.urlopen(self._url, timeout=_DOWNLOAD_TIMEOUT_SECONDS) as response:
+            chunks = []
+            size = 0
+            while True:
+                if time.monotonic() >= deadline:
+                    raise TimeoutError("download deadline exceeded")
+                chunk = response.read1(64 * 1024)
+                if not chunk:
+                    break
+                size += len(chunk)
+                if size > _MAX_ASSET_BYTES:
+                    raise ValueError("download exceeds standard asset size limit")
+                chunks.append(chunk)
+
+        content = b"".join(chunks)
+        actual_sha256 = hashlib.sha256(content).hexdigest()
+        if actual_sha256 != self._expected_sha256:
+            raise ValueError(f"SHA-256 mismatch (expected {self._expected_sha256}, got {actual_sha256})")
+        return content
+
+    def _save(self, content: bytes) -> None:
+        temporary_path = None
+        try:
+            self._path.parent.mkdir(exist_ok=True, parents=True)
+            with tempfile.NamedTemporaryFile(
+                dir=self._path.parent, prefix=f".{self._path.name}.", delete=False
+            ) as temporary:
+                temporary_path = Path(temporary.name)
+                temporary.write(content)
+            # Close the handle before replacement, including on Windows.
+            self._publish(temporary_path)
+        except OSError as exc:
+            # Retrying network acquisition cannot repair a local storage failure.
+            raise _StandardAssetError(f"Cannot save standard asset {self._path}: {exc}") from exc
+        finally:
+            if temporary_path is not None:
+                temporary_path.unlink(missing_ok=True)
+
+    def _publish(self, source: Path) -> None:
+        with self._io_lock:
+            try:
+                os.replace(source, self._path)
+            except PermissionError as exc:
+                # Another process may have already published the same official asset.
+                # Accept that outcome only after verifying its content.
+                try:
+                    content = self._path.read_bytes()
+                except OSError as read_error:
+                    raise exc from read_error
+                if hashlib.sha256(content).hexdigest() != self._expected_sha256:
+                    raise
+
+
+def get_verified_family_name_bytes(path: Union[str, Path]) -> Union[bytes, None]:
+    """Return verified standard bytes, or None for a custom path."""
+    if not _is_standard_family_name_path(path):
+        return None
+    return _StandardAsset(path, FAMILY_NAME_REPOSITORY_URL, _FAMILY_NAME_REPOSITORY_SHA256).load()
+
+
+def get_gbdt_model_path(path: Union[str, Path]) -> Path:
+    """Return the model path, verifying/recovering only the standard cache."""
+    path = Path(path).expanduser()
+    if _is_standard_gbdt_model_path(path):
+        _StandardAsset(path, GBDT_MODEL_V1_URL, _GBDT_MODEL_V1_SHA256).load()
+    # LightGBM reopens this path; external replacement after verification is possible.
+    return path
+
+
 def download_family_name_pickle_if_needed(path: Union[str, Path]) -> None:
-    """
-    When a default path is provided, download from the Internet if not already downloaded.
-    """
-    path = Path(path)
-    if path != get_family_name_pkl_default_path():
-        return None
-    if path.exists():
-        return None
-    DEFAULT_CACHE_DIR.mkdir(exist_ok=True, parents=True)
-    print("Download FamilyNameRepository from GitHub...")
-    with urllib.request.urlopen(FAMILY_NAME_REPOSITORY_URL) as response:
-        content = response.read()
-    with open(path, "wb") as f:
-        f.write(content)
+    """Deprecated compatibility wrapper; use get_verified_family_name_bytes()."""
+    warnings.warn(
+        "download_family_name_pickle_if_needed() is deprecated and will be removed in a future release. "
+        "Use get_verified_family_name_bytes() for verified standard data or "
+        "FamilyNameRepository.from_path() to load a dictionary.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    get_verified_family_name_bytes(path)
 
 
 def download_gbdt_model_v1_if_needed(path: Union[str, Path]) -> None:
-    """
-    When a default path is provided, download from the Internet if not already downloaded.
-    """
-    path = Path(path)
-    if path != get_gbdt_model_v1_default_path():
-        return None
-    if path.exists():
-        return None
-    DEFAULT_CACHE_DIR.mkdir(exist_ok=True, parents=True)
-    print("Download GBDT Model from GitHub...")
-    with urllib.request.urlopen(GBDT_MODEL_V1_URL) as response:
-        content = response.read()
-    with open(path, "wb") as f:
-        f.write(content)
+    """Deprecated compatibility wrapper; use get_gbdt_model_path()."""
+    warnings.warn(
+        "download_gbdt_model_v1_if_needed() is deprecated and will be removed in a future release. "
+        "Use get_gbdt_model_path() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    get_gbdt_model_path(path)
