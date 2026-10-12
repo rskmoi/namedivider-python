@@ -1,4 +1,8 @@
+import hashlib
+import inspect
 import os
+import pickle
+import warnings
 from dataclasses import replace
 from pathlib import Path
 from typing import Dict
@@ -13,6 +17,7 @@ from namedivider.divider.config import (
     get_config_from_version,
 )
 from namedivider.divider.gbdt_name_divider import GBDTNameDivider
+from namedivider.feature.family_name import FamilyNameRepository
 
 
 @pytest.fixture
@@ -92,4 +97,61 @@ def test_custom_model_uses_configured_path(tmp_path, monkeypatch):
     dictionary = Path(__file__).parent.parent / "assets" / "family_name_for_test.txt"
     GBDTNameDivider(GBDTNameDividerConfig(path_family_names=dictionary, path_model="custom-model.txt"))
     booster.assert_called_once_with(model_file=Path("custom-model.txt"))
+    request.assert_not_called()
+
+
+@pytest.mark.parametrize("as_string", [False, True])
+@pytest.mark.parametrize("kind", ["custom_pickle", "text", "standard", "standard_equivalent"])
+def test_dictionary_deprecation_at_loading(tmp_path, monkeypatch, kind, as_string):
+    import lightgbm
+
+    monkeypatch.setattr(util, "DEFAULT_CACHE_DIR", tmp_path / "cache")
+    request = Mock(side_effect=AssertionError("Unexpected network"))
+    monkeypatch.setattr(util.urllib.request, "urlopen", request)
+    monkeypatch.setattr(lightgbm, "Booster", Mock())
+    text = tmp_path / "family_names.txt"
+    text.write_text("佐藤\n鈴木\n高橋\n", encoding="utf-8")
+    content = pickle.dumps(FamilyNameRepository(text))
+    if kind.startswith("standard"):
+        path = util.get_family_name_pkl_default_path()
+        path.parent.mkdir()
+        path.write_bytes(content)
+        monkeypatch.setattr(util, "_FAMILY_NAME_REPOSITORY_SHA256", hashlib.sha256(content).hexdigest())
+        verified = Mock(wraps=util.get_verified_family_name_bytes)
+        monkeypatch.setattr("namedivider.feature.family_name.get_verified_family_name_bytes", verified)
+        if kind == "standard_equivalent":
+            path = path.parent / ".." / "cache" / path.name
+    elif kind == "custom_pickle":
+        # Same basename as the standard asset must still be classified as custom.
+        path = tmp_path / "family_name_repository.pickle"
+        path.write_bytes(content)
+    else:
+        path = text
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        config = GBDTNameDividerConfig(path_family_names=str(path) if as_string else path, path_model="custom.txt")
+        assert not caught
+        call_line = inspect.currentframe().f_lineno + 1
+        divider = GBDTNameDivider(config)
+        loading_warnings = list(caught)
+        divider.divide_name("原敬")
+        divider.divide_name("原敬")
+        assert caught == loading_warnings
+
+    if kind == "custom_pickle":
+        assert len(caught) == 1
+        warning = caught[0]
+        assert warning.category is DeprecationWarning
+        assert "Custom pickle family dictionaries are deprecated" in str(warning.message)
+        assert "UTF-8 text dictionary with one family name per line" in str(warning.message)
+        assert warning.filename == __file__
+        assert warning.lineno == call_line
+        assert path.read_bytes() == content
+    else:
+        assert not caught
+    if kind.startswith("standard"):
+        verified.assert_called_once_with(config.path_family_names)
+    for rank, family in enumerate(["佐藤", "鈴木", "高橋"]):
+        assert divider.feature_extractor.family_name_repository.get_rank(family) == rank
     request.assert_not_called()

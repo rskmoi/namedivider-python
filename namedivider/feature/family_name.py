@@ -1,4 +1,5 @@
 import pickle
+import warnings
 from pathlib import Path
 from typing import Union, cast
 
@@ -28,13 +29,21 @@ class FamilyNameRepository:
             self.__family_names[family] = rank
 
     @classmethod
-    def from_path(cls, path: Union[str, Path]) -> "FamilyNameRepository":
-        """Load a verified standard dictionary or a custom pickle/text dictionary."""
+    def from_path(cls, path: Union[str, Path], *, _warning_stacklevel: int = 2) -> "FamilyNameRepository":
+        """Load a verified standard dictionary or custom text (preferred)/pickle dictionary."""
         content = get_verified_family_name_bytes(path)
         if content is not None:
             # Restore the verified snapshot; never reopen the standard cache.
             return cast("FamilyNameRepository", pickle.loads(content))
         if Path(path).suffix == ".pickle":
+            warnings.warn(
+                "Custom pickle family dictionaries are deprecated and will be removed in a future release. "
+                "Use a UTF-8 text dictionary with one family name per line, ordered by frequency, instead. "
+                "Only load custom pickle files from trusted sources; standard distribution pickle files "
+                "are not deprecated.",
+                DeprecationWarning,
+                stacklevel=_warning_stacklevel,
+            )
             with open(path, "rb") as file:
                 return cast("FamilyNameRepository", pickle.load(file))
         return cls(path_txt=path)
