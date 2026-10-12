@@ -5,7 +5,7 @@ from namedivider.divider.config import GBDTNameDividerConfig
 from namedivider.divider.divided_name import DividedName
 from namedivider.divider.name_divider_base import _NameDivider
 from namedivider.divider.rust_backend import RustNameDividerWrapper
-from namedivider.util import get_verified_gbdt_model_bytes
+from namedivider.util import get_gbdt_model_path
 
 
 class GBDTNameDivider(_NameDivider):
@@ -39,18 +39,14 @@ class GBDTNameDivider(_NameDivider):
 
         """Initialize Python backend (default behavior)."""
         family_name_repository = FamilyNameRepository.from_path(config.path_family_names)
-        model_bytes = get_verified_gbdt_model_bytes(config.path_model)
+        model_path = get_gbdt_model_path(config.path_model)
         kanji_statistics_repository = KanjiStatisticsRepository(path_csv=config.path_csv)
         self.feature_extractor = FamilyRankingFeatureExtractor(
             kanji_statistics_repository=kanji_statistics_repository,
             family_name_repository=family_name_repository,
             cache_mask=config.cache_mask,
         )
-        if model_bytes is not None:
-            # Use the same verified snapshot even if the cache is replaced.
-            self.model = lgb.Booster(model_str=model_bytes.decode("utf-8"))
-        else:
-            self.model = lgb.Booster(model_file=config.path_model)
+        self.model = lgb.Booster(model_file=model_path)
         self._rust_divider: Optional[RustNameDividerWrapper] = None
 
     def _init_rust_backend(self, config: GBDTNameDividerConfig) -> None:

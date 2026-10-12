@@ -104,7 +104,7 @@ def test_model_cache(asset, monkeypatch):
     _, content, request = asset
     monkeypatch.setattr(util, "GBDT_MODEL_V1_SHA256", hashlib.sha256(content).hexdigest())
     path = util.get_gbdt_model_v1_default_path()
-    assert util.get_verified_gbdt_model_bytes(path) == content
+    assert util.get_gbdt_model_path(path) == path
     util.download_gbdt_model_v1_if_needed(str(path))
     assert request.call_count == 1
 
@@ -172,8 +172,8 @@ def test_invalid_existing_cache_is_recovered(asset, monkeypatch, kind, cached):
         monkeypatch.setattr(util, "GBDT_MODEL_V1_SHA256", hashlib.sha256(content).hexdigest())
     path.parent.mkdir()
     path.write_bytes(cached)
-    getter = util.get_verified_family_name_bytes if kind == "family" else util.get_verified_gbdt_model_bytes
-    assert getter(path) == content
+    getter = util.get_verified_family_name_bytes if kind == "family" else util.get_gbdt_model_path
+    assert getter(path) == (content if kind == "family" else path)
     assert path.read_bytes() == content
     assert list(path.parent.iterdir()) == [path]
     assert request.call_count == 1
@@ -192,8 +192,8 @@ def test_download_recovers_on_second_attempt(asset, monkeypatch, kind, cached, f
         path.write_bytes(cached)
     first = {"hash": io.BytesIO(b"invalid"), "network": OSError("offline"), "timeout": TimeoutError("timeout")}
     request.side_effect = [first[first_failure], io.BytesIO(content)]
-    getter = util.get_verified_family_name_bytes if kind == "family" else util.get_verified_gbdt_model_bytes
-    assert getter(path) == content
+    getter = util.get_verified_family_name_bytes if kind == "family" else util.get_gbdt_model_path
+    assert getter(path) == (content if kind == "family" else path)
     assert request.call_count == 2
     assert path.read_bytes() == content
     assert list(path.parent.iterdir()) == [path]
@@ -209,7 +209,7 @@ def test_exhausted_recovery_preserves_existing_cache(asset, monkeypatch, kind, f
     path.parent.mkdir()
     path.write_bytes(b"original corrupt cache")
     request.side_effect = OSError("offline") if failure == "network" else lambda *a, **kw: io.BytesIO(b"bad")
-    getter = util.get_verified_family_name_bytes if kind == "family" else util.get_verified_gbdt_model_bytes
+    getter = util.get_verified_family_name_bytes if kind == "family" else util.get_gbdt_model_path
     with pytest.raises(util.StandardAssetError, match="after 2 attempts"):
         getter(path)
     assert request.call_count == 2
@@ -226,7 +226,7 @@ def test_save_failure_preserves_existing_cache_without_redownload(asset, monkeyp
     path.parent.mkdir()
     path.write_bytes(b"old cache")
     monkeypatch.setattr(util.os, "replace", Mock(side_effect=OSError("cannot save")))
-    getter = util.get_verified_family_name_bytes if kind == "family" else util.get_verified_gbdt_model_bytes
+    getter = util.get_verified_family_name_bytes if kind == "family" else util.get_gbdt_model_path
     with pytest.raises(util.StandardAssetError, match="Cannot save standard asset"):
         getter(path)
     assert request.call_count == 1
@@ -244,7 +244,7 @@ def test_cache_migration_warning_precedes_download(asset, monkeypatch, kind):
         monkeypatch.setattr(util, "GBDT_MODEL_V1_SHA256", hashlib.sha256(content).hexdigest())
     path.parent.mkdir()
     path.write_bytes(b"custom data")
-    getter = util.get_verified_family_name_bytes if kind == "family" else util.get_verified_gbdt_model_bytes
+    getter = util.get_verified_family_name_bytes if kind == "family" else util.get_gbdt_model_path
     with warnings.catch_warnings(record=True) as recorded:
         warnings.simplefilter("always")
 
@@ -254,7 +254,7 @@ def test_cache_migration_warning_precedes_download(asset, monkeypatch, kind):
             return io.BytesIO(content)
 
         request.side_effect = download
-        assert getter(path) == content
+        assert getter(path) == (content if kind == "family" else path)
     message = str(recorded[0].message)
     assert recorded[0].category is RuntimeWarning
     assert str(path) in message

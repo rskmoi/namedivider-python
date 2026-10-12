@@ -180,11 +180,13 @@ def get_verified_family_name_bytes(path: Union[str, Path]) -> Union[bytes, None]
     return _StandardAsset(path, FAMILY_NAME_REPOSITORY_URL, FAMILY_NAME_REPOSITORY_SHA256).load()
 
 
-def get_verified_gbdt_model_bytes(path: Union[str, Path]) -> Union[bytes, None]:
-    """Return verified standard bytes, or None for a custom path."""
-    if not is_standard_gbdt_model_path(path):
-        return None
-    return _StandardAsset(path, GBDT_MODEL_V1_URL, GBDT_MODEL_V1_SHA256).load()
+def get_gbdt_model_path(path: Union[str, Path]) -> Path:
+    """Return the model path, verifying/recovering only the standard cache."""
+    path = Path(path).expanduser()
+    if is_standard_gbdt_model_path(path):
+        _StandardAsset(path, GBDT_MODEL_V1_URL, GBDT_MODEL_V1_SHA256).load()
+    # LightGBM reopens this path; external replacement after verification is possible.
+    return path
 
 
 def download_family_name_pickle_if_needed(path: Union[str, Path]) -> None:
@@ -194,4 +196,4 @@ def download_family_name_pickle_if_needed(path: Union[str, Path]) -> None:
 
 def download_gbdt_model_v1_if_needed(path: Union[str, Path]) -> None:
     """Verify the standard cache; recover missing or corrupt data with bounded downloads."""
-    get_verified_gbdt_model_bytes(path)
+    get_gbdt_model_path(path)
