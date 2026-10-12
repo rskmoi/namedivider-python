@@ -75,19 +75,27 @@ def test_custom_paths_are_untouched(asset, tmp_path):
 
 
 def test_parallel_downloads(asset, monkeypatch):
-    path, content, _ = asset
-    barrier = threading.Barrier(2)
-    original_publish = util._publish_verified_asset
+    path, content, request = asset
+    path.parent.mkdir()
+    download_barrier = threading.Barrier(2)
+    publish_barrier = threading.Barrier(2)
+    original_publish = util._StandardAsset._publish
     temporary_paths = []
 
-    def publish(source, destination, expected_sha256):
+    def download(*args, **kwargs):
+        # Both initializers must observe the missing cache before either writes.
+        download_barrier.wait(timeout=30)
+        return io.BytesIO(content)
+
+    def publish(self, source):
         temporary_paths.append(source)
         assert Path(source).read_bytes() == content
         assert not path.exists()
-        barrier.wait(timeout=10)
-        original_publish(source, destination, expected_sha256)
+        publish_barrier.wait(timeout=30)
+        original_publish(self, source)
 
-    monkeypatch.setattr(util, "_publish_verified_asset", publish)
+    monkeypatch.setattr(util._StandardAsset, "_publish", publish)
+    request.side_effect = download
     with ThreadPoolExecutor(max_workers=2) as pool:
         results = list(pool.map(util.get_verified_family_name_bytes, [path, path]))
     assert results == [content, content]

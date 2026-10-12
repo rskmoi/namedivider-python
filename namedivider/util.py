@@ -53,9 +53,6 @@ DOWNLOAD_ATTEMPTS = 2
 DOWNLOAD_TIMEOUT_SECONDS = 30
 DOWNLOAD_DEADLINE_SECONDS = 60
 MAX_ASSET_BYTES = 16 * 1024 * 1024
-# Windows can reject overlapping replacement operations on the same target.
-# Downloads remain concurrent; only cache reads and publication are serialized.
-_CACHE_IO_LOCK = threading.Lock()
 
 
 class StandardAssetError(RuntimeError):
@@ -72,106 +69,122 @@ def is_standard_gbdt_model_path(path: Union[str, Path]) -> bool:
     return Path(path).expanduser().absolute().resolve() == get_gbdt_model_v1_default_path().absolute().resolve()
 
 
-def _verified_asset_bytes(path: Union[str, Path], url: str, expected_sha256: str) -> bytes:
-    path = Path(path).expanduser()
-    try:
-        with _CACHE_IO_LOCK:
-            content = path.read_bytes()
-        actual_sha256 = hashlib.sha256(content).hexdigest()
-        if actual_sha256 == expected_sha256:
-            return content
-        warnings.warn(
-            f"Standard cache {path} does not match the official distribution. "
-            "Starting with v0.4.2, standard cache files are verified and custom data at these paths "
-            "is no longer supported. The official asset will be downloaded and will replace this file "
-            "if verification succeeds. To use a custom dictionary or model, move it to a different "
-            "path and set GBDTNameDividerConfig.path_family_names or path_model accordingly.",
-            RuntimeWarning,
-            stacklevel=3,
-        )
-    except FileNotFoundError:
-        pass
-    except OSError as exc:
-        raise StandardAssetError(f"Cannot read standard asset {path}: {exc}") from exc
+class _StandardAsset:
+    """Acquire and cache one official asset, returning its verified bytes."""
 
-    # Standard paths are managed caches: unexpected content is replaced only
-    # after an official download verifies successfully. Custom paths never get here.
-    content = _download_verified_bytes(path, url, expected_sha256)
-    temporary_path = None
-    try:
-        path.parent.mkdir(exist_ok=True, parents=True)
-        with tempfile.NamedTemporaryFile(dir=path.parent, prefix=f".{path.name}.", delete=False) as temporary:
-            temporary_path = Path(temporary.name)
-            temporary.write(content)
-        # Close the handle before replacement, including on Windows.
-        _publish_verified_asset(temporary_path, path, expected_sha256)
+    # Shared across instances: Windows can reject overlapping cache replacements.
+    # Downloads remain concurrent; only reads and publication are serialized.
+    _io_lock = threading.Lock()
+
+    def __init__(self, path: Union[str, Path], url: str, expected_sha256: str):
+        self.path = Path(path).expanduser()
+        self.url = url
+        self.expected_sha256 = expected_sha256
+
+    def load(self) -> bytes:
+        try:
+            with self._io_lock:
+                content = self.path.read_bytes()
+        except FileNotFoundError:
+            content = None
+        except OSError as exc:
+            raise StandardAssetError(f"Cannot read standard asset {self.path}: {exc}") from exc
+
+        if content is not None:
+            if hashlib.sha256(content).hexdigest() == self.expected_sha256:
+                return content
+            warnings.warn(
+                f"Standard cache {self.path} does not match the official distribution. "
+                "Starting with v0.4.2, standard cache files are verified and custom data at these paths "
+                "is no longer supported. The official asset will be downloaded and will replace this file "
+                "if verification succeeds. To use a custom dictionary or model, move it to a different "
+                "path and set GBDTNameDividerConfig.path_family_names or path_model accordingly.",
+                RuntimeWarning,
+                stacklevel=3,
+            )
+
+        content = self._download()
+        self._save(content)
         return content
-    except OSError as exc:
-        # Retrying network acquisition cannot repair a local storage failure.
-        raise StandardAssetError(f"Cannot save standard asset {path}: {exc}") from exc
-    finally:
-        if temporary_path is not None:
-            temporary_path.unlink(missing_ok=True)
 
-
-def _publish_verified_asset(source: Path, destination: Path, expected_sha256: str) -> None:
-    with _CACHE_IO_LOCK:
-        try:
-            os.replace(source, destination)
-        except PermissionError as exc:
-            # Another process may have already published the same official asset.
-            # Accept that outcome only after verifying its content; otherwise
-            # propagate the storage failure without another network acquisition.
+    def _download(self) -> bytes:
+        for attempt in range(1, DOWNLOAD_ATTEMPTS + 1):
             try:
-                content = destination.read_bytes()
-            except OSError as read_error:
-                raise exc from read_error
-            if hashlib.sha256(content).hexdigest() != expected_sha256:
-                raise
+                return self._download_once()
+            except (OSError, ValueError, http.client.HTTPException) as exc:
+                if attempt == DOWNLOAD_ATTEMPTS:
+                    raise StandardAssetError(
+                        f"Cannot obtain standard asset {self.path} from {self.url} after {attempt} attempts: {exc}"
+                    ) from exc
+        raise AssertionError("DOWNLOAD_ATTEMPTS must be positive")
 
+    def _download_once(self) -> bytes:
+        deadline = time.monotonic() + DOWNLOAD_DEADLINE_SECONDS
+        with urllib.request.urlopen(self.url, timeout=DOWNLOAD_TIMEOUT_SECONDS) as response:
+            chunks = []
+            size = 0
+            while True:
+                if time.monotonic() >= deadline:
+                    raise TimeoutError("download deadline exceeded")
+                chunk = response.read1(64 * 1024)
+                if not chunk:
+                    break
+                size += len(chunk)
+                if size > MAX_ASSET_BYTES:
+                    raise ValueError("download exceeds standard asset size limit")
+                chunks.append(chunk)
 
-def _download_verified_bytes(path: Path, url: str, expected_sha256: str) -> bytes:
-    for attempt in range(1, DOWNLOAD_ATTEMPTS + 1):
+        content = b"".join(chunks)
+        actual_sha256 = hashlib.sha256(content).hexdigest()
+        if actual_sha256 != self.expected_sha256:
+            raise ValueError(f"SHA-256 mismatch (expected {self.expected_sha256}, got {actual_sha256})")
+        return content
+
+    def _save(self, content: bytes) -> None:
+        temporary_path = None
         try:
-            deadline = time.monotonic() + DOWNLOAD_DEADLINE_SECONDS
-            with urllib.request.urlopen(url, timeout=DOWNLOAD_TIMEOUT_SECONDS) as response:
-                chunks = []
-                size = 0
-                while True:
-                    if time.monotonic() >= deadline:
-                        raise TimeoutError("download deadline exceeded")
-                    chunk = response.read1(64 * 1024)
-                    if not chunk:
-                        break
-                    size += len(chunk)
-                    if size > MAX_ASSET_BYTES:
-                        raise ValueError("download exceeds standard asset size limit")
-                    chunks.append(chunk)
-                content = b"".join(chunks)
-                actual_sha256 = hashlib.sha256(content).hexdigest()
-                if actual_sha256 != expected_sha256:
-                    raise ValueError(f"SHA-256 mismatch (expected {expected_sha256}, got {actual_sha256})")
-            return content
-        except (OSError, ValueError, http.client.HTTPException) as exc:
-            if attempt == DOWNLOAD_ATTEMPTS:
-                raise StandardAssetError(
-                    f"Cannot obtain standard asset {path} from {url} after {attempt} attempts: {exc}"
-                ) from exc
-    raise AssertionError("DOWNLOAD_ATTEMPTS must be positive")
+            self.path.parent.mkdir(exist_ok=True, parents=True)
+            with tempfile.NamedTemporaryFile(
+                dir=self.path.parent, prefix=f".{self.path.name}.", delete=False
+            ) as temporary:
+                temporary_path = Path(temporary.name)
+                temporary.write(content)
+            # Close the handle before replacement, including on Windows.
+            self._publish(temporary_path)
+        except OSError as exc:
+            # Retrying network acquisition cannot repair a local storage failure.
+            raise StandardAssetError(f"Cannot save standard asset {self.path}: {exc}") from exc
+        finally:
+            if temporary_path is not None:
+                temporary_path.unlink(missing_ok=True)
+
+    def _publish(self, source: Path) -> None:
+        with self._io_lock:
+            try:
+                os.replace(source, self.path)
+            except PermissionError as exc:
+                # Another process may have already published the same official asset.
+                # Accept that outcome only after verifying its content.
+                try:
+                    content = self.path.read_bytes()
+                except OSError as read_error:
+                    raise exc from read_error
+                if hashlib.sha256(content).hexdigest() != self.expected_sha256:
+                    raise
 
 
 def get_verified_family_name_bytes(path: Union[str, Path]) -> Union[bytes, None]:
     """Return verified standard bytes, or None for a custom path."""
     if not is_standard_family_name_path(path):
         return None
-    return _verified_asset_bytes(path, FAMILY_NAME_REPOSITORY_URL, FAMILY_NAME_REPOSITORY_SHA256)
+    return _StandardAsset(path, FAMILY_NAME_REPOSITORY_URL, FAMILY_NAME_REPOSITORY_SHA256).load()
 
 
 def get_verified_gbdt_model_bytes(path: Union[str, Path]) -> Union[bytes, None]:
     """Return verified standard bytes, or None for a custom path."""
     if not is_standard_gbdt_model_path(path):
         return None
-    return _verified_asset_bytes(path, GBDT_MODEL_V1_URL, GBDT_MODEL_V1_SHA256)
+    return _StandardAsset(path, GBDT_MODEL_V1_URL, GBDT_MODEL_V1_SHA256).load()
 
 
 def download_family_name_pickle_if_needed(path: Union[str, Path]) -> None:
