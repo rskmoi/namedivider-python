@@ -38,8 +38,7 @@ class GBDTNameDivider(_NameDivider):
         from namedivider.feature.kanji import KanjiStatisticsRepository
 
         """Initialize Python backend (default behavior)."""
-        # Point dictionary deprecation warnings at the caller of GBDTNameDivider().
-        family_name_repository = FamilyNameRepository.from_path(config.path_family_names, _warning_stacklevel=4)
+        family_name_repository = FamilyNameRepository.from_path(config.path_family_names)
         model_path = get_gbdt_model_path(config.path_model)
         kanji_statistics_repository = KanjiStatisticsRepository(path_csv=config.path_csv)
         self.feature_extractor = FamilyRankingFeatureExtractor(

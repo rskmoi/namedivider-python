@@ -29,7 +29,7 @@ class FamilyNameRepository:
             self.__family_names[family] = rank
 
     @classmethod
-    def from_path(cls, path: Union[str, Path], *, _warning_stacklevel: int = 2) -> "FamilyNameRepository":
+    def from_path(cls, path: Union[str, Path]) -> "FamilyNameRepository":
         """Load a verified standard dictionary or custom text (preferred)/pickle dictionary."""
         content = get_verified_family_name_bytes(path)
         if content is not None:
@@ -42,7 +42,7 @@ class FamilyNameRepository:
                 "Only load custom pickle files from trusted sources; standard distribution pickle files "
                 "are not deprecated.",
                 DeprecationWarning,
-                stacklevel=_warning_stacklevel,
+                stacklevel=2,
             )
             with open(path, "rb") as file:
                 return cast("FamilyNameRepository", pickle.load(file))
