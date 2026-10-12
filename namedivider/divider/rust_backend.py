@@ -128,6 +128,9 @@ def validate_rust_basic_config(config: NameDividerConfigBase) -> None:
 
     errors = []
 
+    if config.algorithm_name != "kanji_feature":
+        errors.append("custom algorithm_name")
+
     if config.custom_rules is not None:
         errors.append("custom_rules")
 
@@ -165,6 +168,9 @@ def validate_rust_gbdt_config(config: NameDividerConfigBase) -> None:
     )
 
     errors = []
+
+    if config.algorithm_name != "gbdt":
+        errors.append("custom algorithm_name")
 
     if config.custom_rules is not None:
         errors.append("custom_rules")
