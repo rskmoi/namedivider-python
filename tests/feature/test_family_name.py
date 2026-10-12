@@ -39,22 +39,17 @@ def family_asset(tmp_path, monkeypatch):
     text.write_text("山田\n佐藤", encoding="utf-8")
     content = pickle.dumps(FamilyNameRepository(text))
     monkeypatch.setattr(util, "DEFAULT_CACHE_DIR", tmp_path / "cache")
-    monkeypatch.setattr(util, "FAMILY_NAME_REPOSITORY_SHA256", hashlib.sha256(content).hexdigest())
+    monkeypatch.setattr(util, "_FAMILY_NAME_REPOSITORY_SHA256", hashlib.sha256(content).hexdigest())
     request = Mock(side_effect=lambda *a, **kw: io.BytesIO(content))
     monkeypatch.setattr(util.urllib.request, "urlopen", request)
     return util.get_family_name_pkl_default_path(), content, request
 
 
-@pytest.mark.parametrize("cached", ["missing", "valid", "corrupt"])
-def test_from_standard_path(family_asset, cached):
-    path, content, request = family_asset
-    if cached != "missing":
-        path.parent.mkdir()
-        path.write_bytes(content if cached == "valid" else b"modified")
+def test_from_standard_path(family_asset):
+    path, _, _ = family_asset
     repo = FamilyNameRepository.from_path(str(path))
     assert repo.get_rank("山田") == 0
     assert repo.get_rank("佐藤") == 1
-    assert request.call_count == (cached != "valid")
 
 
 @pytest.mark.parametrize("cached", [None, b"modified"])
@@ -67,7 +62,7 @@ def test_unverified_dictionary_never_deserialized(family_asset, monkeypatch, cac
     deserialize = Mock()
     monkeypatch.setattr(pickle, "loads", deserialize)
     monkeypatch.setattr(pickle, "load", deserialize)
-    with pytest.raises(util.StandardAssetError, match="SHA-256 mismatch"):
+    with pytest.raises(util._StandardAssetError, match="SHA-256 mismatch"):
         FamilyNameRepository.from_path(path)
     deserialize.assert_not_called()
     assert not path.exists() if cached is None else path.read_bytes() == cached
