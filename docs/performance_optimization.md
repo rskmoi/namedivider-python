@@ -87,8 +87,10 @@ You can use the benchmark scripts included in the project:
 bash scripts/benchmark_sample.sh
 
 # Custom benchmark
-python -m namedivider.cli benchmark your_test_file.txt --mode basic --backend rust
+python -m namedivider.cli benchmark your_test_file.txt --mode basic --backend rust --no-mask-cache
 ```
+
+The benchmark command enables mask caching by default. Specify `--no-mask-cache` when using the Rust backend.
 
 ## Memory Optimization
 
