@@ -1,0 +1,34 @@
+name: Build and verify distributions
+description: Build an sdist and wheel, validate metadata and assets, and smoke-test the installed wheel.
+inputs:
+  version:
+    description: Expected package version; defaults to namedivider/version.py.
+    required: false
+    default: ''
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Build distributions
+      shell: bash
+      run: |
+        python -m pip install --upgrade build 'twine>=7'
+        # The default build creates the wheel from the sdist, checking both paths.
+        python -m build
+        python -m twine check --strict dist/*
+    - name: Verify distributions
+      shell: bash
+      env:
+        EXPECTED_VERSION: ${{ inputs.version }}
+      run: python .github/scripts/verify_distributions.py
+    - name: Test installed wheel outside the checkout
+      shell: bash
+      run: |
+        smoke_dir=$(mktemp -d)
+        python -m venv "$smoke_dir/venv"
+        "$smoke_dir/venv/bin/python" -m pip install dist/*.whl
+        cp .github/scripts/smoke_distribution.py "$smoke_dir/"
+        cd "$smoke_dir"
+        env -u PYTHONPATH "$smoke_dir/venv/bin/python" smoke_distribution.py

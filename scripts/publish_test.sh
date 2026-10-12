@@ -1,1 +1,0 @@
-hatch publish --repo test
