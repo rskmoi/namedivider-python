@@ -5,8 +5,14 @@ import pytest
 from namedivider.rule.specific_family_name_rule import SpecificFamilyNameRule
 
 name_test_data = [
-    ("谷田部太郎", {"family": "谷田部", "given": "太郎", "separator": "/", "score": 1.0, "algorithm": "rule_specific_family"}),
-    ("谷田太郎", {"family": "谷田", "given": "太郎", "separator": "/", "score": 1.0, "algorithm": "rule_specific_family"}),
+    (
+        "谷田部太郎",
+        {"family": "谷田部", "given": "太郎", "separator": "/", "score": 1.0, "algorithm": "rule_specific_family"},
+    ),
+    (
+        "谷田太郎",
+        {"family": "谷田", "given": "太郎", "separator": "/", "score": 1.0, "algorithm": "rule_specific_family"},
+    ),
     ("谷太郎", {"family": "谷", "given": "太郎", "separator": "/", "score": 1.0, "algorithm": "rule_specific_family"}),
 ]
 

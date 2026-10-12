@@ -19,12 +19,24 @@ name_test_data_v1 = [
     # four chars
     (
         "阿部晋三",
-        {"family": "阿部", "given": "晋三", "separator": " ", "score": 0.5745842309372197, "algorithm": "kanji_feature"},
+        {
+            "family": "阿部",
+            "given": "晋三",
+            "separator": " ",
+            "score": 0.5745842309372197,
+            "algorithm": "kanji_feature",
+        },
     ),
     # five chars
     (
         "中曽根康弘",
-        {"family": "中曽根", "given": "康弘", "separator": " ", "score": 0.3705325993396728, "algorithm": "kanji_feature"},
+        {
+            "family": "中曽根",
+            "given": "康弘",
+            "separator": " ",
+            "score": 0.3705325993396728,
+            "algorithm": "kanji_feature",
+        },
     ),
     # with no kanji in kanji.txt
     (
@@ -48,12 +60,24 @@ name_test_data_v2 = [
     # four chars
     (
         "阿部晋三",
-        {"family": "阿部", "given": "晋三", "separator": " ", "score": 0.5440120391041745, "algorithm": "kanji_feature"},
+        {
+            "family": "阿部",
+            "given": "晋三",
+            "separator": " ",
+            "score": 0.5440120391041745,
+            "algorithm": "kanji_feature",
+        },
     ),
     # five chars
     (
         "中曽根康弘",
-        {"family": "中曽根", "given": "康弘", "separator": " ", "score": 0.3705325993396728, "algorithm": "kanji_feature"},
+        {
+            "family": "中曽根",
+            "given": "康弘",
+            "separator": " ",
+            "score": 0.3705325993396728,
+            "algorithm": "kanji_feature",
+        },
     ),
     # with no kanji in kanji.txt
     (

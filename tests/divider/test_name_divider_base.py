@@ -55,7 +55,13 @@ name_test_data = [
     ("中山マサ", {"family": "中山", "given": "マサ", "separator": "_", "score": 1.0, "algorithm": "rule"}),
     (
         "菅義偉",
-        {"family": "菅義", "given": "偉", "separator": "_", "score": 0.7310585786300049, "algorithm": "unknown_algorithm"},
+        {
+            "family": "菅義",
+            "given": "偉",
+            "separator": "_",
+            "score": 0.7310585786300049,
+            "algorithm": "unknown_algorithm",
+        },
     ),
 ]
 
