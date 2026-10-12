@@ -2,6 +2,7 @@ import hashlib
 import http.client
 import os
 import tempfile
+import threading
 import time
 import urllib.request
 import warnings
@@ -52,6 +53,9 @@ DOWNLOAD_ATTEMPTS = 2
 DOWNLOAD_TIMEOUT_SECONDS = 30
 DOWNLOAD_DEADLINE_SECONDS = 60
 MAX_ASSET_BYTES = 16 * 1024 * 1024
+# Windows can reject overlapping replacement operations on the same target.
+# Downloads remain concurrent; only cache reads and publication are serialized.
+_CACHE_IO_LOCK = threading.Lock()
 
 
 class StandardAssetError(RuntimeError):
@@ -70,7 +74,8 @@ def is_standard_gbdt_model_path(path: Union[str, Path]) -> bool:
 def _verified_asset_bytes(path: Union[str, Path], url: str, expected_sha256: str) -> bytes:
     path = Path(path).expanduser()
     try:
-        content = path.read_bytes()
+        with _CACHE_IO_LOCK:
+            content = path.read_bytes()
         actual_sha256 = hashlib.sha256(content).hexdigest()
         if actual_sha256 == expected_sha256:
             return content
@@ -98,7 +103,7 @@ def _verified_asset_bytes(path: Union[str, Path], url: str, expected_sha256: str
             temporary_path = Path(temporary.name)
             temporary.write(content)
         # Close the handle before replacement, including on Windows.
-        os.replace(temporary_path, path)
+        _publish_verified_asset(temporary_path, path, expected_sha256)
         return content
     except OSError as exc:
         # Retrying network acquisition cannot repair a local storage failure.
@@ -106,6 +111,22 @@ def _verified_asset_bytes(path: Union[str, Path], url: str, expected_sha256: str
     finally:
         if temporary_path is not None:
             temporary_path.unlink(missing_ok=True)
+
+
+def _publish_verified_asset(source: Path, destination: Path, expected_sha256: str) -> None:
+    with _CACHE_IO_LOCK:
+        try:
+            os.replace(source, destination)
+        except PermissionError as exc:
+            # Another process may have already published the same official asset.
+            # Accept that outcome only after verifying its content; otherwise
+            # propagate the storage failure without another network acquisition.
+            try:
+                content = destination.read_bytes()
+            except OSError as read_error:
+                raise exc from read_error
+            if hashlib.sha256(content).hexdigest() != expected_sha256:
+                raise
 
 
 def _download_verified_bytes(path: Path, url: str, expected_sha256: str) -> bytes:

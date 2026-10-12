@@ -77,17 +77,17 @@ def test_custom_paths_are_untouched(asset, tmp_path):
 def test_parallel_downloads(asset, monkeypatch):
     path, content, _ = asset
     barrier = threading.Barrier(2)
-    original_replace = util.os.replace
+    original_publish = util._publish_verified_asset
     temporary_paths = []
 
-    def replace(source, destination):
+    def publish(source, destination, expected_sha256):
         temporary_paths.append(source)
         assert Path(source).read_bytes() == content
         assert not path.exists()
         barrier.wait(timeout=10)
-        original_replace(source, destination)
+        original_publish(source, destination, expected_sha256)
 
-    monkeypatch.setattr(util.os, "replace", replace)
+    monkeypatch.setattr(util, "_publish_verified_asset", publish)
     with ThreadPoolExecutor(max_workers=2) as pool:
         results = list(pool.map(util.get_verified_family_name_bytes, [path, path]))
     assert results == [content, content]
@@ -354,3 +354,23 @@ def test_missing_or_valid_cache_does_not_warn(asset, cached):
         warnings.simplefilter("always")
         util.get_verified_family_name_bytes(path)
     assert recorded == []
+
+
+@pytest.mark.parametrize("published", [None, b"incorrect", b"test asset"])
+def test_publication_conflict_requires_verified_cache(asset, monkeypatch, published):
+    path, content, request = asset
+
+    def competing_replace(source, destination):
+        if published is not None:
+            destination.write_bytes(published)
+        raise PermissionError("concurrent replacement denied")
+
+    monkeypatch.setattr(util.os, "replace", competing_replace)
+    if published == content:
+        assert util.get_verified_family_name_bytes(path) == content
+    else:
+        with pytest.raises(util.StandardAssetError, match="concurrent replacement denied"):
+            util.get_verified_family_name_bytes(path)
+    assert request.call_count == 1
+    assert not path.exists() if published is None else path.read_bytes() == published
+    assert list(path.parent.iterdir()) == ([] if published is None else [path])
