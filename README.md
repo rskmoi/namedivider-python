@@ -146,34 +146,6 @@ bash scripts/benchmark_sample.sh
 
 ## 🛠️ Advanced Features
 
-### Custom Family Dictionaries
-
-For the Python GBDT backend, create your own UTF-8 text dictionary with one family
-name per line in frequency order. Ranks start at 0. For example, `family_names.txt`:
-
-```text
-佐藤
-鈴木
-高橋
-```
-
-```python
-from namedivider import GBDTNameDivider
-from namedivider.divider.config import GBDTNameDividerConfig
-
-divider = GBDTNameDivider(
-    GBDTNameDividerConfig(path_family_names="family_names.txt")
-)
-```
-
-As of v0.4.2, custom `.pickle` family dictionaries still load but emit
-`DeprecationWarning` at loading time. This warning may be hidden by Python's default
-warning filters. Migrate to text dictionaries; custom pickle input will be removed
-in a future release, with no removal version decided yet. Only load custom pickle
-files from trusted sources: standard asset verification does not make custom
-pickle files safe. The standard distribution pickle remains supported and is
-not deprecated. Store custom dictionaries outside the standard cache paths.
-
 ### Custom Rules
 
 Handle domain-specific names with custom patterns:

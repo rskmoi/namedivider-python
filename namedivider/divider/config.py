@@ -67,13 +67,9 @@ class BasicNameDividerConfig(NameDividerConfigBase):
 class GBDTNameDividerConfig(NameDividerConfigBase):
     """
     path_csv: Path of the file containing the kanji information.
-    path_family_names: Path of the standard distribution pickle or a custom dictionary.
-    Standard distribution pickle files remain supported and are not deprecated.
-    Custom dictionaries should be UTF-8 text, one family name per line, ordered by
-    frequency (ranks start at 0). Custom .pickle files containing a FamilyNameRepository
-    remain supported but emit DeprecationWarning when loaded and will be removed in a
-    future release (version undecided). Only load custom pickle files from trusted sources;
-    standard asset verification does not make custom pickle files safe.
+    path_family_names: Standard pickle or UTF-8 text (one family per line, frequency order, ranks from 0).
+    Custom .pickle files containing a FamilyNameRepository are deprecated; use text instead.
+    Only load trusted custom pickles. Standard distribution pickles are not deprecated.
     path_model: Path of a GBDT model.
     """
 

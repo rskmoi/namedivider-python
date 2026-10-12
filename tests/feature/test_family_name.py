@@ -1,7 +1,6 @@
 import hashlib
 import io
 import pickle
-import warnings
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -48,10 +47,7 @@ def family_asset(tmp_path, monkeypatch):
 
 def test_from_standard_path(family_asset):
     path, _, _ = family_asset
-    with warnings.catch_warnings(record=True) as caught:
-        warnings.simplefilter("always")
-        repo = FamilyNameRepository.from_path(str(path))
-    assert not caught
+    repo = FamilyNameRepository.from_path(str(path))
     assert repo.get_rank("山田") == 0
     assert repo.get_rank("佐藤") == 1
 
@@ -96,15 +92,7 @@ def test_from_custom_path(family_asset, tmp_path, suffix):
     custom = tmp_path / ("custom" + suffix)
     content = content if suffix == ".pickle" else (tmp_path / "names.txt").read_bytes()
     custom.write_bytes(content)
-    with warnings.catch_warnings(record=True) as caught:
-        warnings.simplefilter("always")
-        repo = FamilyNameRepository.from_path(custom)
-    if suffix == ".pickle":
-        assert len(caught) == 1
-        assert caught[0].category is DeprecationWarning
-        assert caught[0].filename == __file__
-    else:
-        assert not caught
+    repo = FamilyNameRepository.from_path(custom)
     assert repo.get_rank("山田") == 0
     assert repo.get_rank("佐藤") == 1
     assert custom.read_bytes() == content

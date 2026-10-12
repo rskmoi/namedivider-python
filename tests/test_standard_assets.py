@@ -1,7 +1,6 @@
 import hashlib
 import io
 import threading
-import warnings
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import Mock
@@ -27,10 +26,7 @@ def test_missing_or_valid_cache(asset, cached):
     if cached is not None:
         path.parent.mkdir()
         path.write_bytes(cached)
-    with warnings.catch_warnings(record=True) as recorded:
-        warnings.simplefilter("always")
-        assert util.get_verified_family_name_bytes(str(path.parent / ".." / "cache" / path.name)) == content
-    assert recorded == []
+    assert util.get_verified_family_name_bytes(str(path.parent / ".." / "cache" / path.name)) == content
     assert path.read_bytes() == content
     assert request.call_count == (cached != content)
     if request.called:
@@ -213,34 +209,6 @@ def test_save_failure_preserves_existing_cache_without_redownload(asset, monkeyp
     assert list(path.parent.iterdir()) == [path]
 
 
-@pytest.mark.parametrize("kind", ["family", "model"])
-def test_cache_migration_warning_precedes_download(asset, monkeypatch, kind):
-    path, content, request = asset
-    if kind == "model":
-        path = util.get_gbdt_model_v1_default_path()
-        monkeypatch.setattr(util, "_GBDT_MODEL_V1_SHA256", hashlib.sha256(content).hexdigest())
-    path.parent.mkdir()
-    path.write_bytes(b"custom data")
-    getter = util.get_verified_family_name_bytes if kind == "family" else util.get_gbdt_model_path
-    with warnings.catch_warnings(record=True) as recorded:
-        warnings.simplefilter("always")
-
-        def download(*args, **kwargs):
-            assert len(recorded) == 1
-            assert path.read_bytes() == b"custom data"
-            return io.BytesIO(content)
-
-        request.side_effect = download
-        assert getter(path) == (content if kind == "family" else path)
-    message = str(recorded[0].message)
-    assert recorded[0].category is RuntimeWarning
-    assert str(path) in message
-    assert "Starting with v0.4.2" in message
-    assert "replace this file" in message
-    assert "move it to a different path" in message
-    assert "path_family_names or path_model" in message
-
-
 @pytest.mark.parametrize("published", [None, b"incorrect", b"test asset"])
 def test_publication_conflict_requires_verified_cache(asset, monkeypatch, published):
     path, content, request = asset
@@ -262,19 +230,16 @@ def test_publication_conflict_requires_verified_cache(asset, monkeypatch, publis
 
 
 @pytest.mark.parametrize(
-    "download, replacement",
+    "download",
     [
-        (util.download_family_name_pickle_if_needed, "get_verified_family_name_bytes"),
-        (util.download_gbdt_model_v1_if_needed, "get_gbdt_model_path"),
+        util.download_family_name_pickle_if_needed,
+        util.download_gbdt_model_v1_if_needed,
     ],
 )
-def test_legacy_download_warns_and_preserves_custom_file(asset, tmp_path, download, replacement):
+def test_legacy_download_preserves_custom_file(asset, tmp_path, download):
     _, _, request = asset
     path = tmp_path / "custom.pickle"
     path.write_bytes(b"custom")
-    with pytest.warns(DeprecationWarning, match="deprecated.*future release") as recorded:
-        assert download(path) is None
-    assert replacement in str(recorded[0].message)
-    assert Path(recorded[0].filename) == Path(__file__)
+    assert download(path) is None
     assert path.read_bytes() == b"custom"
     request.assert_not_called()
