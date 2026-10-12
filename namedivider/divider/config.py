@@ -67,11 +67,9 @@ class BasicNameDividerConfig(NameDividerConfigBase):
 class GBDTNameDividerConfig(NameDividerConfigBase):
     """
     path_csv: Path of the file containing the kanji information.
-    path_family_names: Allows .pickle file or text file(like .txt, .log, etc...)
-    - .pickle file
-    Pickled object must be instance of FamilyNameRepository.
-    - text file
-    Path of a file with multiple family names enumerated.
+    path_family_names: Standard pickle or UTF-8 text (one family per line, frequency order, ranks from 0).
+    Custom .pickle files containing a FamilyNameRepository are deprecated; use text instead.
+    Only load trusted custom pickles. Standard distribution pickles are not deprecated.
     path_model: Path of a GBDT model.
     """
 
