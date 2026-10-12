@@ -64,11 +64,12 @@ class StandardAssetError(RuntimeError):
 
 def is_standard_family_name_path(path: Union[str, Path]) -> bool:
     """Compare normalized paths without creating directories or accessing the network."""
-    return Path(path).expanduser().resolve() == get_family_name_pkl_default_path().resolve()
+    # Absolutize first: older Windows resolve() can leave missing paths relative.
+    return Path(path).expanduser().absolute().resolve() == get_family_name_pkl_default_path().absolute().resolve()
 
 
 def is_standard_gbdt_model_path(path: Union[str, Path]) -> bool:
-    return Path(path).expanduser().resolve() == get_gbdt_model_v1_default_path().resolve()
+    return Path(path).expanduser().absolute().resolve() == get_gbdt_model_v1_default_path().absolute().resolve()
 
 
 def _verified_asset_bytes(path: Union[str, Path], url: str, expected_sha256: str) -> bytes:
