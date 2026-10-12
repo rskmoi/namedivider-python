@@ -1,15 +1,11 @@
 from dataclasses import asdict
-from pathlib import Path
 from typing import Optional, cast
 
 from namedivider.divider.config import GBDTNameDividerConfig
 from namedivider.divider.divided_name import DividedName
 from namedivider.divider.name_divider_base import _NameDivider
 from namedivider.divider.rust_backend import RustNameDividerWrapper
-from namedivider.util import (
-    get_verified_family_name_bytes,
-    get_verified_gbdt_model_bytes,
-)
+from namedivider.util import get_verified_gbdt_model_bytes
 
 
 class GBDTNameDivider(_NameDivider):
@@ -35,8 +31,6 @@ class GBDTNameDivider(_NameDivider):
     def _init_python_backend(self, config: GBDTNameDividerConfig) -> None:
         # Local imports to prevent C library conflicts between lightgbm
         # and Rust backend on macOS
-        import pickle
-
         import lightgbm as lgb
 
         from namedivider.feature.extractor import FamilyRankingFeatureExtractor
@@ -44,19 +38,9 @@ class GBDTNameDivider(_NameDivider):
         from namedivider.feature.kanji import KanjiStatisticsRepository
 
         """Initialize Python backend (default behavior)."""
-        family_bytes = get_verified_family_name_bytes(config.path_family_names)
+        family_name_repository = FamilyNameRepository.from_path(config.path_family_names)
         model_bytes = get_verified_gbdt_model_bytes(config.path_model)
         kanji_statistics_repository = KanjiStatisticsRepository(path_csv=config.path_csv)
-        family_name_repository: FamilyNameRepository
-        if family_bytes is not None:
-            # Deserialize the verified bytes; reopening the cache would allow
-            # a replacement between verification and deserialization.
-            family_name_repository = pickle.loads(family_bytes)
-        elif Path(config.path_family_names).suffix == ".pickle":
-            with open(config.path_family_names, "rb") as f:
-                family_name_repository = pickle.load(f)
-        else:
-            family_name_repository = FamilyNameRepository(path_txt=config.path_family_names)
         self.feature_extractor = FamilyRankingFeatureExtractor(
             kanji_statistics_repository=kanji_statistics_repository,
             family_name_repository=family_name_repository,

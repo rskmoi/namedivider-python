@@ -1,12 +1,18 @@
+import hashlib
 import os
 from dataclasses import replace
 from pathlib import Path
 from typing import Dict
+from unittest.mock import Mock
 
 import pytest
 
 from namedivider import util
-from namedivider.divider.config import NameDividerVersions, get_config_from_version
+from namedivider.divider.config import (
+    GBDTNameDividerConfig,
+    NameDividerVersions,
+    get_config_from_version,
+)
 from namedivider.divider.gbdt_name_divider import GBDTNameDivider
 
 
@@ -68,3 +74,44 @@ def test_divide_name_latest(undivided_name: str, expect: Dict, standard_asset_pa
     assert divided_name.separator == expect["separator"]
     assert divided_name.score == expect["score"]
     assert divided_name.algorithm == expect["algorithm"]
+
+
+def test_verified_model_survives_cache_replacement(tmp_path, monkeypatch):
+    import lightgbm
+
+    monkeypatch.setattr(util, "DEFAULT_CACHE_DIR", tmp_path)
+    path = util.get_gbdt_model_v1_default_path()
+    content = b"verified model"
+    path.write_bytes(content)
+    monkeypatch.setattr(util, "GBDT_MODEL_V1_SHA256", hashlib.sha256(content).hexdigest())
+    request = Mock(side_effect=AssertionError("Unexpected network"))
+    monkeypatch.setattr(util.urllib.request, "urlopen", request)
+    original = util.get_verified_gbdt_model_bytes
+
+    def read_then_replace(filename):
+        verified = original(filename)
+        path.write_bytes(b"replaced model")
+        return verified
+
+    monkeypatch.setattr("namedivider.divider.gbdt_name_divider.get_verified_gbdt_model_bytes", read_then_replace)
+    booster = Mock()
+    monkeypatch.setattr(lightgbm, "Booster", booster)
+    dictionary = Path(__file__).parent.parent / "assets" / "family_name_for_test.txt"
+    divider = GBDTNameDivider(GBDTNameDividerConfig(path_family_names=dictionary, path_model=path))
+    assert divider.feature_extractor.family_name_repository.get_rank("菅") == 1
+    booster.assert_called_once_with(model_str="verified model")
+    request.assert_not_called()
+
+
+def test_custom_model_uses_configured_path(tmp_path, monkeypatch):
+    import lightgbm
+
+    monkeypatch.setattr(util, "DEFAULT_CACHE_DIR", tmp_path)
+    request = Mock(side_effect=AssertionError("Unexpected network"))
+    monkeypatch.setattr(util.urllib.request, "urlopen", request)
+    booster = Mock()
+    monkeypatch.setattr(lightgbm, "Booster", booster)
+    dictionary = Path(__file__).parent.parent / "assets" / "family_name_for_test.txt"
+    GBDTNameDivider(GBDTNameDividerConfig(path_family_names=dictionary, path_model="custom-model.txt"))
+    booster.assert_called_once_with(model_file="custom-model.txt")
+    request.assert_not_called()

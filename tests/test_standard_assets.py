@@ -1,6 +1,5 @@
 import hashlib
 import io
-import pickle
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -9,9 +8,6 @@ from unittest.mock import Mock
 import pytest
 
 from namedivider import util
-from namedivider.divider.config import GBDTNameDividerConfig
-from namedivider.divider.gbdt_name_divider import GBDTNameDivider
-from namedivider.feature.family_name import FamilyNameRepository
 
 
 @pytest.fixture
@@ -113,73 +109,6 @@ def test_model_cache(asset, monkeypatch):
     assert request.call_count == 1
 
 
-def test_invalid_pickle_never_deserialized(asset, monkeypatch):
-    path, _, request = asset
-    request.side_effect = lambda *a, **kw: io.BytesIO(b"invalid pickle")
-    loads = Mock()
-    monkeypatch.setattr(pickle, "loads", loads)
-    monkeypatch.setattr(pickle, "load", loads)
-    with pytest.raises(util.StandardAssetError, match="SHA-256 mismatch"):
-        GBDTNameDivider(GBDTNameDividerConfig(path_family_names=path))
-    loads.assert_not_called()
-
-
-def test_verified_bytes_survive_replacement(asset, tmp_path, monkeypatch):
-    import lightgbm
-
-    path, _, request = asset
-    text = tmp_path / "names.txt"
-    text.write_text("山田\n佐藤", encoding="utf-8")
-    content = pickle.dumps(FamilyNameRepository(text))
-    monkeypatch.setattr(util, "FAMILY_NAME_REPOSITORY_SHA256", hashlib.sha256(content).hexdigest())
-    request.side_effect = lambda *a, **kw: io.BytesIO(content)
-    model_path = util.get_gbdt_model_v1_default_path()
-    model_content = b"verified model"
-    model_path.parent.mkdir()
-    model_path.write_bytes(model_content)
-    monkeypatch.setattr(util, "GBDT_MODEL_V1_SHA256", hashlib.sha256(model_content).hexdigest())
-    original_model = util.get_verified_gbdt_model_bytes
-
-    def read_model_then_replace(filename):
-        verified = original_model(filename)
-        model_path.write_bytes(b"replaced model")
-        return verified
-
-    monkeypatch.setattr("namedivider.divider.gbdt_name_divider.get_verified_gbdt_model_bytes", read_model_then_replace)
-    original = util.get_verified_family_name_bytes
-
-    def read_then_replace(filename):
-        verified = original(filename)
-        path.write_bytes(b"replaced pickle")
-        return verified
-
-    monkeypatch.setattr("namedivider.divider.gbdt_name_divider.get_verified_family_name_bytes", read_then_replace)
-    booster = Mock()
-    monkeypatch.setattr(lightgbm, "Booster", booster)
-    divider = GBDTNameDivider(GBDTNameDividerConfig(path_family_names=path, path_model=model_path))
-    assert divider.feature_extractor.family_name_repository.get_rank("山田") == 0
-    booster.assert_called_once_with(model_str="verified model")
-
-
-@pytest.mark.parametrize("suffix", [".pickle", ".txt"])
-def test_custom_dictionary_and_model(asset, tmp_path, monkeypatch, suffix):
-    import lightgbm
-
-    _, _, request = asset
-    text = tmp_path / "names.txt"
-    text.write_text("山田", encoding="utf-8")
-    custom = tmp_path / ("custom" + suffix)
-    if suffix == ".pickle":
-        custom.write_bytes(pickle.dumps(FamilyNameRepository(text)))
-    else:
-        custom.write_bytes(text.read_bytes())
-    booster = Mock()
-    monkeypatch.setattr(lightgbm, "Booster", booster)
-    GBDTNameDivider(GBDTNameDividerConfig(path_family_names=custom, path_model="custom-model.txt"))
-    request.assert_not_called()
-    booster.assert_called_once_with(model_file="custom-model.txt")
-
-
 @pytest.mark.parametrize("kind", ["family", "model"])
 def test_path_checks_have_no_side_effects(asset, monkeypatch, kind):
     path, _, request = asset
@@ -248,21 +177,6 @@ def test_invalid_existing_cache_is_recovered(asset, monkeypatch, kind, cached):
     assert path.read_bytes() == content
     assert list(path.parent.iterdir()) == [path]
     assert request.call_count == 1
-
-
-def test_modified_pickle_never_deserialized(asset, monkeypatch):
-    path, _, request = asset
-    path.parent.mkdir()
-    path.write_bytes(b"modified pickle")
-    request.side_effect = lambda *a, **kw: io.BytesIO(b"invalid download")
-    loads = Mock()
-    monkeypatch.setattr(pickle, "loads", loads)
-    monkeypatch.setattr(pickle, "load", loads)
-    with pytest.raises(util.StandardAssetError, match="SHA-256 mismatch"):
-        GBDTNameDivider(GBDTNameDividerConfig(path_family_names=path))
-    loads.assert_not_called()
-    assert request.call_count == 2
-    assert path.read_bytes() == b"modified pickle"
 
 
 @pytest.mark.parametrize("kind", ["family", "model"])

@@ -1,8 +1,11 @@
 import os
+import pickle
 from pathlib import Path
-from typing import Union
+from typing import Union, cast
 
 import numpy as np
+
+from namedivider.util import get_verified_family_name_bytes
 
 
 class FamilyNameRepository:
@@ -23,6 +26,18 @@ class FamilyNameRepository:
         self.__family_names = {}
         for rank, _family in enumerate(family_text.split(os.linesep)):
             self.__family_names[_family] = rank
+
+    @classmethod
+    def from_path(cls, path: Union[str, Path]) -> "FamilyNameRepository":
+        """Load a verified standard dictionary or a custom pickle/text dictionary."""
+        content = get_verified_family_name_bytes(path)
+        if content is not None:
+            # Restore the verified snapshot; never reopen the standard cache.
+            return cast("FamilyNameRepository", pickle.loads(content))
+        if Path(path).suffix == ".pickle":
+            with open(path, "rb") as file:
+                return cast("FamilyNameRepository", pickle.load(file))
+        return cls(path_txt=path)
 
     def exists(self, family: str) -> bool:
         """
