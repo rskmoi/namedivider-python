@@ -29,18 +29,36 @@ basic_expected_results = [
     ),
     (
         "阿部晋三",
-        {"family": "阿部", "given": "晋三", "separator": " ", "score": 0.5440120391041745, "algorithm": "kanji_feature"},
+        {
+            "family": "阿部",
+            "given": "晋三",
+            "separator": " ",
+            "score": 0.5440120391041745,
+            "algorithm": "kanji_feature",
+        },
     ),
     (
         "中曽根康弘",
-        {"family": "中曽根", "given": "康弘", "separator": " ", "score": 0.3705325993396728, "algorithm": "kanji_feature"},
+        {
+            "family": "中曽根",
+            "given": "康弘",
+            "separator": " ",
+            "score": 0.3705325993396728,
+            "algorithm": "kanji_feature",
+        },
     ),
 ]
 
 gbdt_expected_results = [
     ("菅義偉", {"family": "菅", "given": "義偉", "separator": " ", "score": 0.7300634880343344, "algorithm": "gbdt"}),
-    ("阿部晋三", {"family": "阿部", "given": "晋三", "separator": " ", "score": 0.5761118242092244, "algorithm": "gbdt"}),
-    ("中曽根康弘", {"family": "中曽根", "given": "康弘", "separator": " ", "score": 0.47535339308928076, "algorithm": "gbdt"}),
+    (
+        "阿部晋三",
+        {"family": "阿部", "given": "晋三", "separator": " ", "score": 0.5761118242092244, "algorithm": "gbdt"},
+    ),
+    (
+        "中曽根康弘",
+        {"family": "中曽根", "given": "康弘", "separator": " ", "score": 0.47535339308928076, "algorithm": "gbdt"},
+    ),
 ]
 
 

@@ -1,15 +1,11 @@
 from dataclasses import asdict
-from pathlib import Path
 from typing import Optional, cast
 
 from namedivider.divider.config import GBDTNameDividerConfig
 from namedivider.divider.divided_name import DividedName
 from namedivider.divider.name_divider_base import _NameDivider
 from namedivider.divider.rust_backend import RustNameDividerWrapper
-from namedivider.util import (
-    download_family_name_pickle_if_needed,
-    download_gbdt_model_v1_if_needed,
-)
+from namedivider.util import get_gbdt_model_path
 
 
 class GBDTNameDivider(_NameDivider):
@@ -35,8 +31,6 @@ class GBDTNameDivider(_NameDivider):
     def _init_python_backend(self, config: GBDTNameDividerConfig) -> None:
         # Local imports to prevent C library conflicts between lightgbm
         # and Rust backend on macOS
-        import pickle
-
         import lightgbm as lgb
 
         from namedivider.feature.extractor import FamilyRankingFeatureExtractor
@@ -44,20 +38,15 @@ class GBDTNameDivider(_NameDivider):
         from namedivider.feature.kanji import KanjiStatisticsRepository
 
         """Initialize Python backend (default behavior)."""
-        download_family_name_pickle_if_needed(config.path_family_names)
-        download_gbdt_model_v1_if_needed(config.path_model)
+        family_name_repository = FamilyNameRepository.from_path(config.path_family_names)
+        model_path = get_gbdt_model_path(config.path_model)
         kanji_statistics_repository = KanjiStatisticsRepository(path_csv=config.path_csv)
-        if Path(config.path_family_names).suffix == ".pickle":
-            with open(config.path_family_names, "rb") as f:
-                family_name_repository: FamilyNameRepository = pickle.load(f)
-        else:
-            family_name_repository = FamilyNameRepository(path_txt=config.path_family_names)
         self.feature_extractor = FamilyRankingFeatureExtractor(
             kanji_statistics_repository=kanji_statistics_repository,
             family_name_repository=family_name_repository,
             cache_mask=config.cache_mask,
         )
-        self.model = lgb.Booster(model_file=config.path_model)
+        self.model = lgb.Booster(model_file=model_path)
         self._rust_divider: Optional[RustNameDividerWrapper] = None
 
     def _init_rust_backend(self, config: GBDTNameDividerConfig) -> None:

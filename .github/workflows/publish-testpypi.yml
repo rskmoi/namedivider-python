@@ -1,0 +1,80 @@
+# Run from master before every PyPI release.
+# After publishing, verify installation and functionality from TestPyPI.
+# Then run Publish PyPI with the same version and commit.
+name: Publish TestPyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to publish; must match namedivider/version.py.
+        required: true
+        type: string
+      confirm:
+        description: Type testpypi to confirm publication to TestPyPI.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-testpypi
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Validate and build distributions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate release request
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          if [ "$GITHUB_REF" != "refs/heads/master" ]; then
+            echo "Run this workflow from the master branch."
+            exit 1
+          fi
+          if [ "$CONFIRM" != "testpypi" ] || [ -z "$RELEASE_VERSION" ]; then
+            echo "Provide a version and confirm with testpypi."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: ./.github/actions/build-distributions
+        with:
+          version: ${{ inputs.version }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    name: Publish to TestPyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/namedivider-python
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+      - name: Summarize publication
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          {
+            echo "Published namedivider-python $RELEASE_VERSION to TestPyPI."
+            echo "Commit: $GITHUB_SHA"
+            echo "Verify installation and functionality from TestPyPI before running Publish PyPI with the same version and commit."
+          } >> "$GITHUB_STEP_SUMMARY"
